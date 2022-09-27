@@ -15,11 +15,22 @@ public class HealthbarController : MonoBehaviour
         healthBar.fillAmount = current_health / max_health;
     }
 
+    public void heal (int heal)
+    {
+        current_health = current_health + heal;
+        healthBar.fillAmount = current_health / max_health;
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
             takedamage(20);
+        }
+
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            heal(20);
         }
     }
 }
