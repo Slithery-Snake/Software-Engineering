@@ -10,6 +10,6 @@ public class WeaponData : ScriptableObject
     public int magSize;
     public int reloadTime;
     public float weaponCDTime;
-    public bool isAuto;
+    public bool isAuto    
 
 }

@@ -25,7 +25,6 @@ public class Shooting : MonoBehaviour
 
 
 
-
         this.whichWeapon = whichWeapon;
         damage = whichWeapon.damage;
         range = whichWeapon.range;

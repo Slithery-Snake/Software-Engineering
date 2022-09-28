@@ -12,7 +12,14 @@ public class Bullet : Poolable<Bullet>
 
     public BulletSC SC { get => sC;}
     public Rigidbody Rg { get => rg; set => rg = value; }
+    
+    public void Shoot(Vector3 worldPos, Vector3 direction)
+    {
+        Activate();
+        transform.position = worldPos;
+        rg.AddForce(direction.normalized * SC.forceMagnitude, ForceMode.Impulse);
 
+    }
     public static Bullet CreateBullet(BulletSC sC, BulletSpawn.BulletPool pool, Bullet prefab)
     {
         Bullet bul = Instantiate(prefab);
@@ -25,12 +32,20 @@ public class Bullet : Poolable<Bullet>
         this.sC = sC;
         this.pool = pool;
     }
+    
     private void OnTriggerEnter(Collider other)
     {
+       
         IShootable shot = other.GetComponent<IShootable>();
         if (shot != null)
         {
-            shot.ShotAt(this);
+            if (shot.Shoot == Shootable.shotAt)
+            {
+                shot.ShotAt(this);
+            } else if(shot.Shoot == Shootable.ignore)
+            {
+                return;
+            }
         }
         RecycleProcess(this);
     }
