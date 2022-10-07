@@ -14,6 +14,7 @@ public abstract class Poolable<T>: MonoBehaviour
     }
       protected abstract void RecycleProcess(T t);
 }
+
 public class PoolElement<T> where T : Poolable<T>
 {
     PoolElement<T> nextAvailable;

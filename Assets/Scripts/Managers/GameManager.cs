@@ -24,23 +24,56 @@ public class GameManager : MonoBehaviour
     public GameStateEvent GameStateChanged;
     GameState gameState = GameState.InGame;
 
-
+    [SerializeField] BulletSpawn bulletSpawn;
+    [SerializeField] ItemManager itemManager;
+   
     public GameState GetGameState
     {
         get { return gameState; }
         private set { gameState = value; }
     }
 
- 
+   
+
+    public abstract class SceneCreation {
+        protected int index;
+        protected GameManager manager;
+        public SceneCreation(int index, GameManager manager)
+        {
+            this.index = index;
+            this.manager = manager;
+        }
+
+        public int Index { get => index; }
+
+        public abstract void Create();
+    
+    }
+    public class Scene1 : SceneCreation
+    {   
+        BulletSpawn bSpawn;
+        ItemManager itemManager;
+
+        public Scene1(int index, GameManager manager) : base(index, manager)
+        {
+            Create();
+        }
+
+        public override void Create()
+        {
+            bSpawn = Instantiate(manager.bulletSpawn);
+            itemManager = ItemManager.CreateItemManager(manager.itemManager, bSpawn);
+        }
+    }
 
     void Start()
     {
-
+        
         DontDestroyOnLoad(gameObject);  // the game managers gameobject does not destroy when loading other scenes
         operations = new List<AsyncOperation>();
         SceneManager.LoadScene(1, LoadSceneMode.Additive);
         SceneManager.SetActiveScene(SceneManager.GetSceneAt(sceneIndex));
-     
+        Scene1 scene1 = new Scene1(1, this);
     }
     private void Update()
     {

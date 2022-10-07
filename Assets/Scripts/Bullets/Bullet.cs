@@ -6,9 +6,9 @@ using UnityEngine;
 public class Bullet : Poolable<Bullet>
 {
 
-    BulletSC sC;
+    [SerializeField]BulletSC sC;
     BulletSpawn.BulletPool pool;
-    Rigidbody rg;
+    [SerializeField]Rigidbody rg;
 
     public BulletSC SC { get => sC;}
     public Rigidbody Rg { get => rg; set => rg = value; }

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af3523c0634f24d469930ead4489aa22, type: 3}
+  m_Name: PistolData
+  m_EditorClassIdentifier: 
+  itemID: 1
+  holdLocalSpace: {x: 0.5, y: -1, z: 2}
+  magSize: 5
+  reloadTime: 2
+  weaponCDTime: 1
+  isAuto: 0
+  ammoSource: {fileID: 11400000, guid: e706875b56c6fd34d8b9267f76893c74, type: 2}
