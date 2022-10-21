@@ -45,4 +45,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guns:
-  - {fileID: -8337089274326866135, guid: 9ea64a0dcc4f3a14d95a2850f8f58826, type: 3}
+  - {fileID: 3662090165896697082, guid: 9ea64a0dcc4f3a14d95a2850f8f58826, type: 3}
+  ammo:
+  - {fileID: 6678855252120543237, guid: b9b05a027baeb3c4196ec9a11309c35d, type: 3}

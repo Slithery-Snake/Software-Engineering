@@ -33,7 +33,7 @@ public class Bullet : Poolable<Bullet>
         this.pool = pool;
     }
     
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other) 
     {
        
         IShootable shot = other.GetComponent<IShootable>();

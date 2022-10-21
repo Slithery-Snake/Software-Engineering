@@ -17,6 +17,8 @@ public class MouseLook : StateManagerComponent<PInputManager>
     {
         this.playerBody = playerBody;
         this.camera = camera;
+        manager.StartCall.Listen(Start);
+        manager.UpdateCall.Listen(Update);
     }
  
     public void PickUp(PInputManager player)
@@ -37,17 +39,6 @@ public class MouseLook : StateManagerComponent<PInputManager>
             interactHit.Interacted(player);
         }
     }
-    public override void Awake()
-    {
-    }
-
-    public override void FixedUpdate()
-    {
-    }
-
-    public override void LateUpdate()
-    {
-    }
 
     public override void OnDisabled()
     {
@@ -58,7 +49,7 @@ public class MouseLook : StateManagerComponent<PInputManager>
     }
 
     // Start is called before the first frame update
-    public override void Start()
+     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -83,7 +74,7 @@ public class MouseLook : StateManagerComponent<PInputManager>
         camera.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         playerBody.Rotate(Vector3.up * mouseX);
     }
-    public override void Update()
+      void Update()
     { if(LookDele != null)
         LookDele();
     }

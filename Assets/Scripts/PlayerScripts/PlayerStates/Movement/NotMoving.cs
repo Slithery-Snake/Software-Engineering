@@ -4,10 +4,10 @@ using UnityEngine;
 using System;
 public class NotMoving : PlayerState
 {
-
-    public NotMoving(PlayerState parent, Movement movement) : base(parent)
+    protected Movement movement;
+    public NotMoving(PInputManager parent, Movement movement) : base(parent)
     {
-
+        this.movement = movement;
     }
 
     public override void EnterState(PInputManager stateManager)
@@ -17,13 +17,7 @@ public class NotMoving : PlayerState
     public override void ExitState(PInputManager stateManager)
     {
     }
-    public override void Update(PInputManager stateManager)
-    {
-
-    }
-    public override void FixedUpdate(PInputManager stateManager)
-    {
-    }
+  
 
     public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
     {
@@ -47,9 +41,7 @@ public class NotMoving : PlayerState
     }
 
 
-    public override void LateUpdate(PInputManager stateManager)
-    {
-    }
+   
 
 
 }

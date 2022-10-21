@@ -2,12 +2,89 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+public class MonoCall<T> : IMonoCall<T>
+{
 
+    UnityAction<T> toCall;
+    public void Call(T h)
+    {
+        toCall(h);
+    }
+    public bool IsNull()
+    {
+        if (toCall == null)
+        {
+            return true;
+        }
+        return false;
+    }
+    public void Listen(UnityAction<T> add)
+    {
+        toCall += add;
+    }
+    public void Deafen(UnityAction<T> remove)
+    {
+        toCall -= remove;
+    }
+}
+public interface IMonoCall<T>
+{
+
+    public void Listen(UnityAction<T> add);
+    public void Deafen(UnityAction<T> remove);
+}
+public class MonoCall : IMonoCall
+{
+
+    UnityAction toCall;
+    public void Call()
+    {
+        toCall();
+    }
+    public bool IsNull()
+    {
+        if (toCall == null)
+        {
+            return true;
+        }
+        return false;
+    }
+    public void Listen(UnityAction add)
+    {
+        toCall += add;
+     //   Debug.Log("to add "+add +" is true?? " + IsNull());
+    }
+    public void Deafen(UnityAction remove)
+    {
+        toCall -= remove;
+    }
+}
+public interface IMonoCall
+{
+
+    public void Listen(UnityAction add);
+    public void Deafen(UnityAction remove);
+}
 public class PInputManager : StateManager
 {
+
+    MonoCall awakeCall = new MonoCall();
+    MonoCall startCall = new MonoCall();
+    MonoCall updateCall = new MonoCall();
+    MonoCall fixedUpdateCall = new MonoCall();
+    MonoCall lateUpdateCall = new MonoCall();
+    public IMonoCall AwakeCall { get => awakeCall; }
+    public IMonoCall StartCall { get => startCall; }
+    public IMonoCall UpdateCall { get => updateCall; }
+    public IMonoCall FixedUpdateCall { get => fixedUpdateCall; }
+    public IMonoCall LateUpdateCall { get => lateUpdateCall; }
+   
+   
+
  
   
-    
+
+
     [Serializable]
     public struct Parts
     {
@@ -39,17 +116,21 @@ public class PInputManager : StateManager
     public LookEnabled LookEnabled { get => lookEnabled; }
     public LookDisabled LookDisabled { get => lookDisabled; }
     public PlayerStatePointer<LookDisabled> LookState { get => lookState; }
-  
-    
-    public Inventory Inventory { get => inventory;  }
-    public NotEquipped NotEquipped { get => notEquipped; }
-    public Equipped Equipped { get => equipped;  }
-    public PlayerStatePointer<NotEquipped> HotBarState { get => hotBarState;  }
 
     Inventory inventory;
     NotEquipped notEquipped;
     Equipped equipped;
     PlayerStatePointer<NotEquipped> hotBarState;
+    EquippedGun equippedGun;
+    Reloading reloading;
+    public Reloading Reloading { get => reloading; }
+    public Inventory Inventory { get => inventory;  }
+    public NotEquipped NotEquipped { get => notEquipped; }
+    public Equipped Equipped { get => equipped;  }
+    public EquippedGun EquippedGun { get => equippedGun; }
+    public PlayerStatePointer<NotEquipped> HotBarState { get => hotBarState;  }
+   
+
     
 
     #region keyEvents
@@ -80,22 +161,7 @@ public class PInputManager : StateManager
 
     #region Component Events
     //Event system for components in the future maybe???
-    public void FireComponentEvent()
-    {
-
-    }
-    public void SubscribeComponentEvent()
-    {
-
-    }
-    public void UnsubcribeCompnentEvent()
-    {
-
-    }
-    public void SetComponentEvent()
-    {
-
-    }
+    
 
     public struct WhichEvent<T> where T : ComponentArgs
     {
@@ -119,28 +185,32 @@ public class PInputManager : StateManager
 
 
     #endregion
+     void Test() { Debug.Log("awoken"); }
     void Awake()
     {
         components = new List<StateManagerComponent<PInputManager>>();
         movement = new Movement(this, components, playerParts.pController, playerParts.groundCheck, playerParts.jumpFloorMask, playerParts.body);
         look = new MouseLook(this, components, playerParts.body, playerParts.mainCamera.transform);
         inventory = new Inventory(this, components, playerParts.itemGameObject, playerParts.hotBarTransform);
-        InitializeComponentsArray();
-        AwakeComponents();
-       
+
+        InitializeComponentsArray();     
         keyInputEventsList = new List<KeyInputEvents>();
         allRunningStates = new List<Pointer<PInputManager, FiniteState<PInputManager>>>();
         keyInputEvents = new KeyInputEvents(keyInputEventsList);
         InitializeKeyEvents();
 
-        notMoving = new NotMoving(null, movement);
-        moving = new Moving(notMoving, movement);
+        notMoving = new NotMoving(this, movement);
+        moving = new Moving(this, movement);
         movementState = new PlayerStatePointer<NotMoving>(notMoving, allRunningStates, this);
-        lookDisabled = new LookDisabled(null, look);
-        lookEnabled = new LookEnabled(lookDisabled, look);
+        lookDisabled = new LookDisabled(this, look);
+        lookEnabled = new LookEnabled(this, look);
         lookState = new PlayerStatePointer<LookDisabled>(lookEnabled, allRunningStates, this);
-        notEquipped = new NotEquipped(null, inventory);
+        notEquipped = new NotEquipped(this, inventory);
+       equipped = new Equipped(this, inventory);
+        equippedGun = new EquippedGun(this, inventory);
+        reloading = new Reloading(this, inventory);
         hotBarState = new PlayerStatePointer<NotEquipped>(notEquipped, allRunningStates, this);
+        AwakeComponents();
 
     }
 
@@ -153,33 +223,28 @@ public class PInputManager : StateManager
 
 
     }
+ 
     public virtual void ChangeToState(PlayerState newState, Pointer<PInputManager, PlayerState> stateToChange)
     {
+        Debug.Log(newState);
+
         stateToChange.State.ExitState(this);
         stateToChange.State = newState;
         stateToChange.State.EnterState(this);
-        Debug.Log(newState);
 
 
     }
-    public virtual void ChangeToState(Equipped newState, Pointer<PInputManager, NotEquipped> stateToChange, int slot)
-    {
-        stateToChange.State.ExitState(this);
-        newState = new Equipped(notEquipped, inventory, slot);
-        stateToChange.State = newState;
-        stateToChange.State.EnterState(this);
-        Debug.Log(newState);
 
 
-    }
     public virtual void ChangeToNewState(PlayerState newState, Pointer<PInputManager, PlayerState> stateToChange)
     {
+        Debug.Log(newState);
+
         if (!(newState == stateToChange.State))
         {
             stateToChange.State.ExitState(this);
             stateToChange.State = newState;
             stateToChange.State.EnterState(this);
-            Debug.Log(newState);
         }
 
     }
@@ -201,53 +266,36 @@ public class PInputManager : StateManager
     }
     void AwakeComponents()
     {
-        for (int x = 0; x < componentsArray.Length; x++)
-        {
-            componentsArray[x].Awake();
-        }
+        if (!awakeCall.IsNull())
+            awakeCall.Call();
+        
     }
     void StartComponents()
     {
-        for (int x = 0; x < componentsArray.Length; x++)
-        {
-            componentsArray[x].Start();
-        }
+        if (!startCall.IsNull())
+            startCall.Call();
     }
     void UpdateComponents()
     {
-        for (int x = 0; x < componentsArray.Length; x++)
-        {
-            componentsArray[x].Update();
-        }
+        if (!updateCall.IsNull())
+            updateCall.Call();
     }
     void LateUpdateComponents()
     {
-        for (int x = 0; x < componentsArray.Length; x++)
-        {
-            componentsArray[x].LateUpdate();
-        }
+        if (!lateUpdateCall.IsNull())
+            lateUpdateCall.Call();
     }
     void FixedUpdateComponents()
     {
-        for (int x = 0; x < componentsArray.Length; x++)
-        {
-            componentsArray[x].FixedUpdate();
-        }
+        if (!fixedUpdateCall.IsNull())
+            fixedUpdateCall.Call();
     }
     void InitializeComponentsArray()
     {
 
         componentsArray = components.ToArray();
     }
-    void UpdateStates()
-    {
-
-        for (int x = 0; x < allRunningStatesArray.Length; x++)
-        {
-            allRunningStatesArray[x].State.Update(this);
-        }
-
-    }
+   
     void InputKeyDown(KeyCode keyCode)
     {
         for (int x = 0; x < allRunningStatesArray.Length; x++)
@@ -438,7 +486,6 @@ public class PInputManager : StateManager
         }
 
 
-        UpdateStates();
         UpdateComponents();
     }
     void LateUpdate()

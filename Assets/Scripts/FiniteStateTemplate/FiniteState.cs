@@ -46,14 +46,9 @@ public class PlayerStatePointer<Y> : StatePointer<PInputManager, Y> where Y : Pl
 
 public abstract class PlayerState : FiniteState<PInputManager>
 {
-    protected new PlayerState parent;
-    public PlayerState(PlayerState parent) : base(null)
+    protected PlayerState(PInputManager manager) : base(manager)
     {
-        this.parent = parent;
     }
-
-
-
 }
 public interface State<in T> where T : StateManager
 {
@@ -67,20 +62,17 @@ public interface State<in T> where T : StateManager
 
     public abstract void ExitState(T stateManager);
 
-    public abstract void Update(T stateManager);
 
-    public abstract void FixedUpdate(T stateManager);
-    public abstract void LateUpdate(T stateManager);
 
 }
 public abstract class FiniteState<T> : State<T> where T : StateManager
 {
-    protected FiniteState<StateManager> parent;
-    public FiniteState(FiniteState<StateManager> parent)
+    protected T manager;
+    public FiniteState(T manager)
     {
-        this.parent = parent;
-
+        this.manager = manager;
     }
+  
     public abstract void EnterState(T stateManager);
 
     public abstract void HandleKeyDownInput(T stateManager, KeyCode keyCode);
@@ -91,9 +83,5 @@ public abstract class FiniteState<T> : State<T> where T : StateManager
 
     public abstract void ExitState(T stateManager);
 
-    public abstract void Update(T stateManager);
-
-    public abstract void FixedUpdate(T stateManager);
-    public abstract void LateUpdate(T stateManager);
 
 }

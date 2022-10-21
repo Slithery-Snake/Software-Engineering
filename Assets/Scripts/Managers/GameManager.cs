@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
 
         public override void Create()
         {
-            bSpawn = Instantiate(manager.bulletSpawn);
+            bSpawn = BulletSpawn.Create(manager, manager.bulletSpawn);
             itemManager = ItemManager.CreateItemManager(manager.itemManager, bSpawn);
         }
     }

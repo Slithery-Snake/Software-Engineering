@@ -5,7 +5,7 @@ using UnityEngine;
 public class NotEquipped : PlayerState
 {
     protected Inventory inventory;
-    public NotEquipped(PlayerState parent, Inventory inventory) : base(parent)
+    public NotEquipped(PInputManager parent, Inventory inventory) : base(parent)
     {
         this.inventory = inventory;
     }
@@ -13,22 +13,21 @@ public class NotEquipped : PlayerState
     public override void EnterState(PInputManager stateManager)
     {
         inventory.UnequipHotBar();
+        inventory.ClearCurrentGun();
     }
 
     public override void ExitState(PInputManager stateManager)
     {
     }
 
-    public override void FixedUpdate(PInputManager stateManager)
-    {
-    }
-
+  
     public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
     {
         int slot;
        if(Inventory.KeyCodeToSelect(keyCode, out slot))
         {
-            stateManager.ChangeToState(stateManager.Equipped, stateManager.HotBarState, slot);      
+            inventory.SetSlot(slot);
+            stateManager.ChangeToState(stateManager.Equipped, stateManager.HotBarState);      
                
        }
     }
@@ -41,11 +40,5 @@ public class NotEquipped : PlayerState
     {
     }
 
-    public override void LateUpdate(PInputManager stateManager)
-    {
-    }
-
-    public override void Update(PInputManager stateManager)
-    {
-    }
+    
 }

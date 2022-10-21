@@ -13,6 +13,9 @@ public class Movement : StateManagerComponent<PInputManager>
         this.groundCheck = groundCheck;
         this.gMask = gMask;
         this.body = body;
+        manager.AwakeCall.Listen(Awake);
+        manager.StartCall.Listen(Start);
+        manager.UpdateCall.Listen(Update);
     }
 
     
@@ -42,12 +45,13 @@ public class Movement : StateManagerComponent<PInputManager>
 
 
     // Start is called before the first frame update
-    public override void Awake()
+      void Awake()
     {
         MovingFunction = Move;
     }
-    public override void Start()
+      void Start()
     {
+
         prePosition = body.position;
     }
     
@@ -59,9 +63,8 @@ public class Movement : StateManagerComponent<PInputManager>
         Velocity = (postPosition - prePosition) / Time.deltaTime;
         postPosition = body.position;
     }
-    public override void Update()
+      void Update()
     {
-
         CalculateTotalVeloicty();
 
        
@@ -111,21 +114,6 @@ public class Movement : StateManagerComponent<PInputManager>
         yVeloc.y += grav * Time.deltaTime; // Vector3 velocity decrease amount;
         pController.Move(yVeloc); // move by the velocity
     }
-    //
-   
-    //
-   
-   
-
- 
-  
-    public override void LateUpdate()
-    {
-    }
-
-    public override void FixedUpdate()
-    {
-    }
 
     public override void OnEnabled()
     {
@@ -134,4 +122,14 @@ public class Movement : StateManagerComponent<PInputManager>
     public override void OnDisabled()
     {
     }
+    //
+
+    //
+
+
+
+
+
+
+
 }

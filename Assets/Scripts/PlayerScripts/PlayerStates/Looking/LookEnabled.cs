@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LookEnabled : LookDisabled
 {
-    public LookEnabled(PlayerState parent, MouseLook look) : base(parent, look)
+    public LookEnabled(PInputManager parent, MouseLook look) : base(parent, look)
     {
     
     }

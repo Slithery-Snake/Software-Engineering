@@ -40,10 +40,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5131982713059735217}
-  - component: {fileID: -8337089274326866135}
   - component: {fileID: 8753269740551487348}
   - component: {fileID: 7073453567208362153}
   - component: {fileID: 1093392610721270561}
+  - component: {fileID: 3662090165896697082}
   m_Layer: 0
   m_Name: PIstol
   m_TagString: Untagged
@@ -67,22 +67,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-8337089274326866135
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7200916284251525736}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffaceed46394c4e4fb1fdce215f55275, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemData: {fileID: 11400000, guid: 460aacbd88bd8e54eb0189bd180884c2, type: 2}
-  barrelTransform: {fileID: 726794291974386149}
-  weaponData: {fileID: 11400000, guid: 460aacbd88bd8e54eb0189bd180884c2, type: 2}
-  bulletPrefab: {fileID: -9039653037614389614, guid: f7105445c15355447aae756e117e5d29, type: 3}
 --- !u!65 &8753269740551487348
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -146,3 +130,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3662090165896697082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7200916284251525736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71b43c68385ee864d864fe5d1b63e140, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponData: {fileID: 11400000, guid: 460aacbd88bd8e54eb0189bd180884c2, type: 2}
+  barrelTransform: {fileID: 726794291974386149}

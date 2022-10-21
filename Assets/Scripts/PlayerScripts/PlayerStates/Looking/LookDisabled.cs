@@ -5,7 +5,7 @@ using UnityEngine;
 public class LookDisabled : PlayerState
 {
     protected MouseLook look;
-    public LookDisabled(PlayerState parent, MouseLook look) : base(parent)
+    public LookDisabled(PInputManager parent, MouseLook look) : base(parent)
     {
         this.look = look;
     }
@@ -18,13 +18,7 @@ public class LookDisabled : PlayerState
     public override void ExitState(PInputManager stateManager)
     {
     }
-    public override void Update(PInputManager stateManager)
-    {
-
-    }
-    public override void FixedUpdate(PInputManager stateManager)
-    {
-    }
+ 
 
     public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
     {
@@ -44,8 +38,5 @@ public class LookDisabled : PlayerState
     }
 
 
-    public override void LateUpdate(PInputManager stateManager)
-    {
-    }
-
+  
 }

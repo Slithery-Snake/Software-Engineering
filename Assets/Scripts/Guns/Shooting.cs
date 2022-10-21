@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Events;
 public class Shooting : Item<WeaponData>
 {
     float weaponCDTime;
@@ -19,17 +19,23 @@ public class Shooting : Item<WeaponData>
     BulletSpawn.BulletPool bulletPool;
     BulletSC bulletType;
     int ammoTypeID;
+    HotBarItem hotBar;
 
-   // public new WeaponData  ItemData { get => itemData;  }
+    public HotBarItem HotBar { get => hotBar; }
 
-    public static Shooting CreateGun(Shooting gun, BulletSpawn p)
+    // public new WeaponData  ItemData { get => itemData;  }
+
+    public static Shooting CreateShooting(GameObject gun, BulletSpawn p , Transform barrelTransform, WeaponData data)
     {
-        Shooting r = Instantiate(gun);
-        r.InitializeShooting(p);
-        HotBarItem.CreateHotBar(r.TriggerDown, null, r.TriggerRelease, null, r.itemData, r.gameObject);
+        Shooting r = gun.AddComponent<Shooting>();
+        r.barrelTransform = barrelTransform;
+        r.itemData = data;
+
+        r.InitializeShooting(p); 
+        r.hotBar = HotBarItem.CreateHotBar(r.TriggerDown, null, r.TriggerRelease, null, r.itemData, r.gameObject);
         return r;
     }
-     void InitializeShooting( BulletSpawn bulletSpawn)
+    void InitializeShooting( BulletSpawn bulletSpawn)
     {
 
 
@@ -41,6 +47,22 @@ public class Shooting : Item<WeaponData>
         bulletPool = bulletSpawn.RequestPool(ammoType.BulletType);
 
     }
+    public void LoadBullets(Ammo reserves)
+    {
+        Debug.Log(reserves.Count);
+        int bulletsToFull = magSize - inChamber;
+        if (reserves.Count <= bulletsToFull)
+        {
+            magSize += reserves.Count;
+            reserves.Count = 0;
+            return;
+        }
+
+        inChamber = magSize;
+        reserves.Count -= bulletsToFull;
+          if(inChamber > 0) { hasAmmo = true; }
+        Debug.Log(inChamber);
+    }
     void WeaponCoolDown()
     {
         canFire = true;
@@ -51,19 +73,26 @@ public class Shooting : Item<WeaponData>
         triggerDown = false;
         searDown = false;
     }
+    IEnumerator Invoke(float time, UnityAction hi)
+    {
+        
+        yield return new WaitForSeconds(time);
+        hi();
+    }
      void Shoot()
     {
         if (!searDown && canFire && hasAmmo)
         {
             //RaycastHit rayInfo;
-            inChamber = inChamber - 1;
+            inChamber--;
             canFire = false;
-            Invoke("WeaponCoolDown", weaponCDTime);
+            // Invoke(WeaponCoolDown, weaponCDTime);
+            StartCoroutine(Invoke(weaponCDTime, WeaponCoolDown));
             if (inChamber <= 0)
             {
                 hasAmmo = false;
             }
-            Bullet bullet = Instantiate(bulletPool.RequestBullet());//bulletPool.RequestBullet();
+            Bullet bullet = bulletPool.RequestBullet();//bulletPool.RequestBullet();
             bullet.Activate();
             Vector3 direction = barrelTransform.forward;
             bullet.transform.rotation = barrelTransform.rotation;

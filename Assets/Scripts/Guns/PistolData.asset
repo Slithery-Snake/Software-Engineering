@@ -16,6 +16,6 @@ MonoBehaviour:
   holdLocalSpace: {x: 0.5, y: -1, z: 2}
   magSize: 5
   reloadTime: 2
-  weaponCDTime: 1
+  weaponCDTime: 0.2
   isAuto: 0
   ammoSource: {fileID: 11400000, guid: e706875b56c6fd34d8b9267f76893c74, type: 2}

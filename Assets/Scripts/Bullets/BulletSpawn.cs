@@ -52,11 +52,14 @@ public class BulletSpawn : MonoBehaviour
     Dictionary<BulletSC, BulletPool> idToBulletPool;
     GameManager gameManager;
   
-    public void Initialize(GameManager manager)
+    public static BulletSpawn Create(GameManager manager, BulletSpawn spawn)
     {
-        gameManager = manager;
+        BulletSpawn r = Instantiate(spawn);
 
+        r.gameManager = manager;
+        return r;
     }
+  
     private void Start()
     {
         idToBulletPool = new Dictionary<BulletSC, BulletPool>();
