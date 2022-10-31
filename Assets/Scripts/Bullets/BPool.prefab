@@ -27,7 +27,6 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -46,4 +45,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: -9039653037614389614, guid: f7105445c15355447aae756e117e5d29, type: 3}
   bulletTypes:
-  - {fileID: 11400000, guid: 992c4f82a2865944fac3a0566e60c1a8, type: 2}
+  - {fileID: 11400000, guid: c3cba2eedbbb8734e80ba3cf9135722c, type: 2}

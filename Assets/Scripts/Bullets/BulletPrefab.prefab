@@ -10,10 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3304837697776474954}
   - component: {fileID: -9039653037614389614}
-  - component: {fileID: -5908630913942334876}
-  - component: {fileID: 5088726529201144825}
-  - component: {fileID: 1022786202228883995}
-  - component: {fileID: 9130153976978604560}
   m_Layer: 0
   m_Name: BulletPrefab
   m_TagString: Untagged
@@ -31,7 +27,6 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -48,6 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a8eaaf5fe6035440a5cc806af07d9bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
   sC: {fileID: 11400000, guid: 992c4f82a2865944fac3a0566e60c1a8, type: 2}
   rg: {fileID: -5908630913942334876}
 --- !u!54 &-5908630913942334876
@@ -129,3 +125,5 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 352865184780522851}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+=======
+>>>>>>> a8d63fda94037cbf14e04d44860db8ab2a4e5271

@@ -14,7 +14,6 @@ public abstract class Poolable<T>: MonoBehaviour
     }
       protected abstract void RecycleProcess(T t);
 }
-
 public class PoolElement<T> where T : Poolable<T>
 {
     PoolElement<T> nextAvailable;
@@ -52,14 +51,11 @@ public class BulletSpawn : MonoBehaviour
     Dictionary<BulletSC, BulletPool> idToBulletPool;
     GameManager gameManager;
   
-    public static BulletSpawn Create(GameManager manager, BulletSpawn spawn)
+    public void Initialize(GameManager manager)
     {
-        BulletSpawn r = Instantiate(spawn);
+        gameManager = manager;
 
-        r.gameManager = manager;
-        return r;
     }
-  
     private void Start()
     {
         idToBulletPool = new Dictionary<BulletSC, BulletPool>();

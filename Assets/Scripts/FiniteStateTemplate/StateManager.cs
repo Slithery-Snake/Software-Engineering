@@ -45,9 +45,13 @@ public abstract class StateManagerComponent<T>: ComponentOfManager<T> where T: S
       Coroutine routineReturn =  manager.StartCoroutine(routine);
         return routineReturn;
     }
-   
+    public abstract void Update();
+    public abstract void Awake();
+    public abstract void Start();
 
+    public abstract void LateUpdate();
 
+    public abstract void FixedUpdate();
 
     public abstract void OnEnabled();
 
