@@ -18,72 +18,7 @@ namespace GenericBT
         }
         protected abstract Node SetUpTree();
     }
-    public class Sequence  : Node
-    {
-        bool childrenRunning;
-        public Sequence () : base ()
-        {
-           
-        }
-        public Sequence(List<Node> children): base(children) { }
-        public override NodeState Evaluate()
-        {
-            foreach(Node child in children)
-            {
-                switch (child.Evaluate())
-                {
-                    case NodeState.FAILURE:
-                        state = NodeState.FAILURE;
-                      return state;
-                    case NodeState.SUCCESS:
-                        state = NodeState.SUCCESS;
-                        continue;
-                    case NodeState.RUNNING:
-                        state = NodeState.RUNNING;
-                        childrenRunning = true;
-                        continue ;
-                    default:
-                        state = NodeState.SUCCESS;
-                            return state;
-                }
-            }
-            state = childrenRunning ? NodeState.RUNNING : NodeState.SUCCESS;
-            return state;
-        }
-    }
-    public class Selector : Node
-    {
-        bool childrenRunning;
-        public Selector() : base()
-        {
 
-        }
-        public Selector(List<Node> children) : base(children) { }
-        public override NodeState Evaluate()
-        {
-            foreach (Node child in children)
-            {
-                switch (child.Evaluate())
-                {
-                    case NodeState.FAILURE:
-                        state = NodeState.FAILURE;
-                        continue;
-                    case NodeState.SUCCESS:
-                        state = NodeState.SUCCESS;
-                        return state;
-                    case NodeState.RUNNING:
-                        state = NodeState.RUNNING;
-                        childrenRunning = true;
-                        return state;
-                    default:
-                        continue;
-                }
-
-            }
-            state = NodeState.FAILURE;
-            return state;
-        }
-    }
     public class Node
     {
         protected NodeState state;

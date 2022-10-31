@@ -9,8 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 12117cda5f2a20e4398684b9ea62a781, type: 3}
-  m_Name: Pistol
+  m_Script: {fileID: 11500000, guid: af3523c0634f24d469930ead4489aa22, type: 3}
+  m_Name: PistolData
   m_EditorClassIdentifier: 
-  damage: 1
-  forceMagnitude: 1
+  itemID: 1
+  holdLocalSpace: {x: 0.5, y: -1, z: 2}
+  magSize: 5
+  reloadTime: 2
+  weaponCDTime: 0.2
+  isAuto: 0
+  ammoSource: {fileID: 11400000, guid: e706875b56c6fd34d8b9267f76893c74, type: 2}

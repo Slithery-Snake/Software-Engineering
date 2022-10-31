@@ -6,17 +6,10 @@ using UnityEngine.Events;
 public class Bullet : Poolable<Bullet>
 {
 
-<<<<<<< HEAD
     BulletTag currentTag;
     [SerializeField]BulletSC sC;
     BulletSpawn.BulletPool pool;
     [SerializeField]Rigidbody rg;
-=======
-    BulletSC sC;
-    BulletSpawn.BulletPool pool;
-    Rigidbody rg;
-
->>>>>>> a8d63fda94037cbf14e04d44860db8ab2a4e5271
     public BulletSC SC { get => sC;}
     public Rigidbody Rg { get => rg; set => rg = value; }
     
@@ -42,7 +35,6 @@ public class Bullet : Poolable<Bullet>
       
        
     }
-<<<<<<< HEAD
   
     public static void Ignore(Bullet B)
     {
@@ -61,10 +53,6 @@ public class Bullet : Poolable<Bullet>
   
    
     private void OnTriggerEnter(Collider other) 
-=======
-    
-    private void OnTriggerEnter(Collider other)
->>>>>>> a8d63fda94037cbf14e04d44860db8ab2a4e5271
     {
        
         ShootBox shot = other.GetComponent<ShootBox>();
