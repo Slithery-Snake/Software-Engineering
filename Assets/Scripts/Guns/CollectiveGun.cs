@@ -19,6 +19,10 @@ public class CollectiveGun : MonoBehaviour, Iinteractable
         r.Init();
         return r;
     }
+    public void SetTag(BulletTag tag)
+    {
+        shooting.SetTag(tag);
+    }
     void Init()
     {
        shooting =  Shooting.CreateShooting(gameObject, bSpool, barrelTransform, weaponData);
@@ -27,6 +31,7 @@ public class CollectiveGun : MonoBehaviour, Iinteractable
     public void Interacted(PInputManager source)
     {
         source.Inventory.AddGun(this);
+        
     }
 
   

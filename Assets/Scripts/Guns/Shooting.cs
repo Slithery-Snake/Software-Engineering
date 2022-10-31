@@ -20,11 +20,15 @@ public class Shooting : Item<WeaponData>
     BulletSC bulletType;
     int ammoTypeID;
     HotBarItem hotBar;
+    BulletTag bTag = null;
 
     public HotBarItem HotBar { get => hotBar; }
 
     // public new WeaponData  ItemData { get => itemData;  }
-
+    public void SetTag(BulletTag t)
+    {
+        bTag = t;
+    }
     public static Shooting CreateShooting(GameObject gun, BulletSpawn p , Transform barrelTransform, WeaponData data)
     {
         Shooting r = gun.AddComponent<Shooting>();
@@ -93,13 +97,13 @@ public class Shooting : Item<WeaponData>
                 hasAmmo = false;
             }
             Bullet bullet = bulletPool.RequestBullet();//bulletPool.RequestBullet();
-            bullet.Activate();
             Vector3 direction = barrelTransform.forward;
-            bullet.transform.rotation = barrelTransform.rotation;
-            Vector3 position = barrelTransform.position + new Vector3(0, 1, 0);
-            bullet.transform.position = position;
-           // bullet.Rg.velocity = 
-            bullet.Rg.AddForce(direction * bullet.SC.forceMagnitude, ForceMode.Impulse);
+            // bullet.transform.rotation = barrelTransform.rotation;
+            Vector3 position = barrelTransform.position;
+           // bullet.transform.position = position;
+            bullet.Shoot(position, direction, bTag);
+            // bullet.Rg.velocity = 
+           // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
             //shooting bullet stuff
 
         }
