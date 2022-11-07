@@ -16,13 +16,13 @@ public class Moving : NotMoving
     {
         moveX = 0;
         moveZ = 0;
-        manager.UpdateCall.Listen(Update);
+        manager.MonoAcessors.UpdateCall.Listen(Update);
 
     }
 
     public override void ExitState(PInputManager stateManager)
     {
-        manager.UpdateCall.Deafen(Update);
+        manager.MonoAcessors.UpdateCall.Deafen(Update);
 
     }
     void Update()

@@ -23,6 +23,9 @@ public class Shooting : Item<WeaponData>
     BulletTag bTag = null;
 
     public HotBarItem HotBar { get => hotBar; }
+    public bool IsReloading { get => isReloading;  }
+    public bool HasAmmo { get => hasAmmo;}
+    public bool CanFire { get => canFire;  }
 
     // public new WeaponData  ItemData { get => itemData;  }
     public void SetTag(BulletTag t)
@@ -85,7 +88,7 @@ public class Shooting : Item<WeaponData>
     }
      void Shoot()
     {
-        if (!searDown && canFire && hasAmmo)
+        if (CanFire && hasAmmo )
         {
             //RaycastHit rayInfo;
             inChamber--;
@@ -100,13 +103,15 @@ public class Shooting : Item<WeaponData>
             Vector3 direction = barrelTransform.forward;
             // bullet.transform.rotation = barrelTransform.rotation;
             Vector3 position = barrelTransform.position;
-           // bullet.transform.position = position;
+            // bullet.transform.position = position;
             bullet.Shoot(position, direction, bTag);
+           // searDown = ItemData.isAuto;
             // bullet.Rg.velocity = 
-           // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
+            // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
             //shooting bullet stuff
-
+            Debug.Log("BANG");
         }
+        
     }
 
      void TriggerDown()
@@ -116,7 +121,7 @@ public class Shooting : Item<WeaponData>
        
             triggerDown = true;
             Shoot();
-            searDown = !itemData.isAuto;
+            searDown = true;
       
 
     }

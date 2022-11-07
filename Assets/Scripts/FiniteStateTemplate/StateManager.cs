@@ -20,37 +20,16 @@ interface ComponentOfManager<out T> where T :StateManager
 {
 
 }
-public abstract class StateManagerComponent<T>: ComponentOfManager<T> where T: StateManager
+public abstract class StateManagerComponent//: ComponentOfManager<T> where T: StateManager
 {
-    protected T manager;
-    public StateManagerComponent(T manager, List<StateManagerComponent<T>> list)
+    protected MonoCalls.MonoAcessors manager;
+    public StateManagerComponent(MonoCalls.MonoAcessors manager)
     {
         this.manager = manager;
-        list.Add(this);
     }
-    protected void StopCoroutine(Coroutine routine) 
-    {
-        manager.StopCoroutine(routine);
-    
-    }
-   
-    protected void StopCoroutine(IEnumerator routine)
-    {
-        manager.StopCoroutine(routine);
-
-    }
-
-    protected Coroutine StartCoroutine(IEnumerator routine)
-    {
-      Coroutine routineReturn =  manager.StartCoroutine(routine);
-        return routineReturn;
-    }
-   
+ 
 
 
 
-    public abstract void OnEnabled();
-
-    public abstract void OnDisabled();
 
 }

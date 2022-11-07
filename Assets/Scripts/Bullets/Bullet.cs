@@ -15,6 +15,7 @@ public class Bullet : Poolable<Bullet>
     
     public void Shoot(Vector3 worldPos, Vector3 direction, BulletTag sourceTag)
     {
+        rg.velocity = Vector3.zero;
         currentTag = sourceTag;
         Activate();
         transform.position = worldPos;

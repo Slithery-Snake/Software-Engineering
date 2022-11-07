@@ -10,6 +10,8 @@ public class NotMoving : PlayerState
         this.movement = movement;
     }
 
+    
+   
     public override void EnterState(PInputManager stateManager)
     {
     }

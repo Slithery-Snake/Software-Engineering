@@ -21,6 +21,7 @@ public class ObjectLookAt : MonoBehaviour
         lookCoroutine = StartCoroutine(LookAt());
     }
 
+    
     private IEnumerator LookAt()
     {
         Quaternion lookRotation = Quaternion.LookRotation(Target.position - transform.position);

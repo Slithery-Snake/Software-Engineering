@@ -6,13 +6,13 @@ namespace GenericBT
     public enum NodeState {RUNNING, SUCCESS, FAILURE }
     public abstract class BehaviourTree : MonoBehaviour
     {
-
+        
         private Node root;
-        protected void Start()
+        protected virtual void Start()
         {
             root = SetUpTree();   
         }
-        protected void FixedUpdate()
+        protected virtual void Update()
         {
             root.Evaluate();
         }
@@ -23,11 +23,12 @@ namespace GenericBT
     {
         protected NodeState state;
         public Node parent;
-        protected List<Node> children = new List<Node>();
-        Dictionary<string, object> sharedData = new Dictionary<string, object>();
+        protected List<Node> children;
        public Node () { children = null; }
         public Node(List<Node> children)
         {
+
+            this.children = new List<Node>();
             foreach(Node child in children)
             {
                 AttatchNode(child);
@@ -36,51 +37,70 @@ namespace GenericBT
        void AttatchNode(Node node)
        {
             node.parent = this;
-            children.Add(this);
+            children.Add(node);
        }
         public virtual NodeState Evaluate()
         => NodeState.FAILURE;
-        public void SetData (string k, object v)
+       
+    }
+    public class Sequence : Node
+    {
+        public Sequence(List<Node> children) : base(children)
         {
-            sharedData[k] = v;
         }
-        public object GetData(string k)
+        public override NodeState Evaluate()
         {
-            object result = null;
-            if(sharedData.TryGetValue(k, out result))
+            bool childrenRunning = false;
+            foreach(Node node in children)
             {
-                return result;
-            }
-            Node node = parent;
-            while (node !=null)
-            {
-                result = node.GetData(k);
-                if (result != null)
+               switch (node.Evaluate())
                 {
-                    return result;
+                    case NodeState.FAILURE:
+                        state = NodeState.FAILURE;
+                        return state;
+                    case NodeState.RUNNING:
+                        childrenRunning = true;
+
+                        continue;
+                    case NodeState.SUCCESS:
+                            continue;
+                    default: state = NodeState.SUCCESS;
+                        return state;
+
                 }
-                node = node.parent;
             }
-            return null;
-        }
-        public bool ClearData(string k)
-        {
-            if(sharedData.ContainsKey(k))
-            {
-                sharedData.Remove(k);
-                return true;
-            }
-            Node node = parent;
-            while(node !=null)
-            {
-                bool clear = node.ClearData(k);
-                if(clear) { return true; }
-                node = node.parent;
-            }
-            return false;
+            state = childrenRunning ? NodeState.RUNNING : NodeState.SUCCESS;
+            return NodeState.SUCCESS;
         }
     }
+    public class Selector : Node
+    {
+        public Selector(List<Node> children) : base(children)
+        {
+        }
+        public override NodeState Evaluate()
+        {
+            foreach (Node node in children)
+            {
+                switch (node.Evaluate())
+                {
+                    case NodeState.FAILURE:
+                        continue;
+                    case NodeState.RUNNING:
+                        state = NodeState.RUNNING; 
+                        return state;
+                    case NodeState.SUCCESS:
+                        state = NodeState.SUCCESS;
+                        return state;
+                    default:
+                        continue;
 
+                }
+            }
+            state = NodeState.FAILURE;
+            return state;
+        }
+    }
 }
 
 
