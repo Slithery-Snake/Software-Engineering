@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 7073453567208362153}
   - component: {fileID: 1093392610721270561}
   - component: {fileID: 3662090165896697082}
+  - component: {fileID: -8641288567726693473}
   m_Layer: 0
   m_Name: PIstol
   m_TagString: Untagged
@@ -144,3 +145,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponData: {fileID: 11400000, guid: 460aacbd88bd8e54eb0189bd180884c2, type: 2}
   barrelTransform: {fileID: 726794291974386149}
+--- !u!114 &-8641288567726693473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7200916284251525736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3023b6437353d3e4b933187a8d3c5bad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bTag: {fileID: 0}

@@ -1,23 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Events;
 
 public class Bullet : Poolable<Bullet>
 {
 
+    BulletTag currentTag;
     [SerializeField]BulletSC sC;
     BulletSpawn.BulletPool pool;
     [SerializeField]Rigidbody rg;
-
     public BulletSC SC { get => sC;}
     public Rigidbody Rg { get => rg; set => rg = value; }
     
-    public void Shoot(Vector3 worldPos, Vector3 direction)
+    public void Shoot(Vector3 worldPos, Vector3 direction, BulletTag sourceTag)
     {
+        currentTag = sourceTag;
         Activate();
         transform.position = worldPos;
-        rg.AddForce(direction.normalized * SC.forceMagnitude, ForceMode.Impulse);
+        rg.AddForce(direction.normalized * SC.ForceMagnitude, ForceMode.Impulse);
 
     }
     public static Bullet CreateBullet(BulletSC sC, BulletSpawn.BulletPool pool, Bullet prefab)
@@ -26,28 +27,60 @@ public class Bullet : Poolable<Bullet>
         bul.InitializeItem(sC, pool);
         return bul;
     }
-   
+     
     void InitializeItem(BulletSC sC, BulletSpawn.BulletPool pool)
     {
         this.sC = sC;
         this.pool = pool;
+      
+       
     }
-    
+  
+    public static void Ignore(Bullet B)
+    {
+        return;
+    }
+    public static void Collided(Bullet b)
+    {
+        b.RecycleProcess(b);
+    }
+    public static void Hit( IShootable shootable, Bullet B)
+    {
+        
+        shootable.ShotAt(B.SC);
+        B.RecycleProcess(B);
+    }
+  
+   
     private void OnTriggerEnter(Collider other) 
     {
        
-        IShootable shot = other.GetComponent<IShootable>();
+        ShootBox shot = other.GetComponent<ShootBox>();
         if (shot != null)
         {
-            if (shot.Shoot == Shootable.shotAt)
+            BulletTag shotTag = shot.GetTag();
+            if(shotTag == null)
             {
-                shot.ShotAt(this);
-            } else if(shot.Shoot == Shootable.ignore)
-            {
+                Ignore(this);
                 return;
             }
+            UnityAction<IShootable, Bullet> temp;
+            
+            currentTag.RequestTagAction(shotTag, out temp);
+            if(temp !=null)
+            {
+
+                temp(shot.Shootable, this);
+            } else
+            {
+                Collided(this);
+            }
+            
         }
-        RecycleProcess(this);
+        else
+        {
+            Collided(this);
+        }
     }
     public void Activate()
     {
@@ -55,6 +88,7 @@ public class Bullet : Poolable<Bullet>
     }
     public void Deactiveate()
     {
+        rg.velocity = Vector3.zero;
         gameObject.SetActive(false);
     }
     protected override void RecycleProcess(Bullet t)
@@ -63,17 +97,6 @@ public class Bullet : Poolable<Bullet>
         Deactiveate();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-    
+ 
     
 }
