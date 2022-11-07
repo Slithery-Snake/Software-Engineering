@@ -48,7 +48,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 200}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 103
+  controlID: 18
 --- !u!114 &3
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -68,8 +68,8 @@ MonoBehaviour:
     y: 0
     width: 455
     height: 947
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 276, y: 71}
+  m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 13}
   m_Panes:
   - {fileID: 13}
@@ -223,7 +223,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 200}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 17
+  controlID: 19
 --- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 100}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 18
+  controlID: 20
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -317,22 +317,22 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Packages/com.unity.probuilder
+    - Assets/Materials
     m_Globs: []
     m_OriginalText: 
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Packages/com.unity.probuilder
+  - Assets/Materials
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\andrew\Documents\GitHub\Software-Engineering
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 55}
-    m_SelectedIDs: f2680000
-    m_LastClickedID: 26866
-    m_ExpandedIDs: 00000000565b0000585b00005a5b0000865b00007c5c0000ffffff7f
+    scrollPos: {x: 0, y: 0}
+    m_SelectedIDs: c05e0000
+    m_LastClickedID: 24256
+    m_ExpandedIDs: 00000000765e0000785e00007a5e00007c5e00007e5e0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -360,7 +360,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000565b0000585b00005a5b0000
+    m_ExpandedIDs: 00000000765e0000785e00007a5e00007c5e00007e5e0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -451,7 +451,7 @@ MonoBehaviour:
     m_ControlHash: -371814159
     m_PrefName: Preview_InspectorPreview
   m_LastInspectedObjectInstanceID: -1
-  m_LastVerticalScrollValue: 0
+  m_LastVerticalScrollValue: 355
   m_GlobalObjectId: 
   m_InspectorMode: 0
   m_LockTracker:
@@ -490,7 +490,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 00e1ffff24e2ffff6ee2ffffc8e2ffff58e4ffffc8e4ffff30e5ffff12e6ffff66e6ffff36fbffff645d0000b85d0000
+      m_ExpandedIDs: 38f7ffff34fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -739,9 +739,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 1065.2579, y: 433.42978, z: 821.8627}
+    m_Target: {x: 27.340641, y: -2.7703497, z: -12.9248905}
     speed: 2
-    m_Value: {x: 1065.2579, y: 433.42978, z: 821.8627}
+    m_Value: {x: 27.340483, y: -2.7702813, z: -12.923614}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -780,7 +780,7 @@ MonoBehaviour:
       m_Fade:
         m_Target: 0
         speed: 2
-        m_Value: 0
+        m_Value: 1
       m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 0.4}
       m_Pivot: {x: 0, y: 0, z: 0}
       m_Size: {x: 1, y: 1}
@@ -788,20 +788,20 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: -0.20746529, y: -0.68486315, z: 0.21365388, w: -0.66502565}
+    m_Target: {x: -0.20226297, y: -0.6649862, z: 0.19443326, w: -0.69211847}
     speed: 2
-    m_Value: {x: -0.20714597, y: -0.68586457, z: 0.2139663, w: -0.6640021}
+    m_Value: {x: -0.20139109, y: -0.66811097, z: 0.19534643, w: -0.68913656}
   m_Size:
-    m_Target: 0.07109043
+    m_Target: 6.839135
     speed: 2
-    m_Value: 0.07444024
+    m_Value: 6.839135
   m_Ortho:
     m_Target: 0
     speed: 2
     m_Value: 0
   m_CameraSettings:
-    m_Speed: 1.7401294
-    m_SpeedNormalized: 0.86999965
+    m_Speed: 0.8605709
+    m_SpeedNormalized: 0.43000045
     m_SpeedMin: 0.001
     m_SpeedMax: 2
     m_EasingEnabled: 1
@@ -812,7 +812,7 @@ MonoBehaviour:
     m_FarClip: 10000
     m_DynamicClip: 1
     m_OcclusionCulling: 0
-  m_LastSceneViewRotation: {x: -0.09174636, y: 0.7180456, z: -0.09643271, w: -0.6831514}
+  m_LastSceneViewRotation: {x: -0.100215286, y: 0.045024116, z: 0.004153252, w: 0.9936392}
   m_LastSceneViewOrtho: 0
   m_ReplacementShader: {fileID: 0}
   m_ReplacementString: 
