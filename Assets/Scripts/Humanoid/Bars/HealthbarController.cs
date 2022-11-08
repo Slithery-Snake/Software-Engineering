@@ -23,7 +23,7 @@ public class HealthbarController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.K))
         {
             takedamage(20);
         }
