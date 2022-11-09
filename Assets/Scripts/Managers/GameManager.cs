@@ -12,6 +12,8 @@ public static class Constants
     public static int playerMask = 6;
     public static int enemyMask = 7;
     public static int playerCamIgnoremask = 8;
+    public static int bulletMask = 9;
+
 }
 public class GameStateEvent : UnityEvent<GameManager.GameState, GameManager.GameState>
 {

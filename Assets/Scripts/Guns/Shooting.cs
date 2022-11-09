@@ -32,21 +32,24 @@ public class Shooting : Item<WeaponData>
     {
         bTag = t;
     }
-    public static Shooting CreateShooting(GameObject gun, BulletSpawn p , Transform barrelTransform, WeaponData data)
+    public static Shooting CreateShooting(GameObject gun, BulletSpawn p , Transform barrelTransform, WeaponData data, bool chamber)
     {
         Shooting r = gun.AddComponent<Shooting>();
         r.barrelTransform = barrelTransform;
         r.itemData = data;
 
-        r.InitializeShooting(p); 
+        r.InitializeShooting(p, chamber); 
         r.hotBar = HotBarItem.CreateHotBar(r.TriggerDown, null, r.TriggerRelease, null, r.itemData, r.gameObject);
         return r;
     }
-    void InitializeShooting( BulletSpawn bulletSpawn)
+    void InitializeShooting( BulletSpawn bulletSpawn, bool c)
     {
 
 
-
+        hasAmmo = c;
+        if(c) { inChamber = itemData.magSize; }
+         else {inChamber = 0; }
+        
        ammoType = itemData.AmmoSource;
         magSize = itemData.magSize;
         reloadTime = itemData.reloadTime;
@@ -56,7 +59,6 @@ public class Shooting : Item<WeaponData>
     }
     public void LoadBullets(Ammo reserves)
     {
-        Debug.Log(reserves.Count);
         int bulletsToFull = magSize - inChamber;
         if (reserves.Count <= bulletsToFull)
         {

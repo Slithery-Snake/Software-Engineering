@@ -7,6 +7,8 @@ public class TimeTest : MonoBehaviour
     // Start is called before the first frame update
     float defaultFixedDelta;
     float  defaultTimeScale;
+    float timeSlow = 0.1f;
+    float playerSlowAdvantage = 5;
     void Start()
     {
         defaultFixedDelta = Time.fixedDeltaTime;
@@ -21,12 +23,16 @@ public class TimeTest : MonoBehaviour
             slow = !slow;
             if (slow)
             {
-                Time.timeScale = 0.1f;
+                TimeController.Slow = timeSlow;
+                Time.timeScale = timeSlow;
                 Time.fixedDeltaTime = defaultFixedDelta * Time.timeScale;
+                TimeController.PlayerDelta = playerSlowAdvantage;
             } else
             {
+                TimeController.Slow = 1;
                 Time.fixedDeltaTime = defaultFixedDelta;
                 Time.timeScale = defaultTimeScale;
+                TimeController.PlayerDelta = 1;
             }
         }
     }

@@ -6,6 +6,8 @@ using UnityEngine.Events;
 public class TimeController : MonoBehaviour
 {
     float defaultFixedDelta;
+    public static float PlayerDelta = 1;
+    public static float Slow = 1f;
     public class TimeHandler
     {   public TimeHandler (UnityAction<float> change, UnityAction def)
         {

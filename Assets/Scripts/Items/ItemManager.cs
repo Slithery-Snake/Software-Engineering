@@ -37,11 +37,11 @@ public class ItemManager : MonoBehaviour
             ammoDict.Add(item.ItemID, item);
         }
     }
-    public CollectiveGun CreateGun(Vector3 v, int id)
+    public CollectiveGun CreateGun(Vector3 v, int id, bool chamber)
     {
 
         gunDict.TryGetValue(id, out CollectiveGun g);
-       return CollectiveGun.CreateGun(g, bulletSpawn, v, Quaternion.identity);
+       return CollectiveGun.CreateGun(g, bulletSpawn, v, Quaternion.identity, chamber);
     }
     public Ammo CreateAmmo(Vector3 v, int id, int count)
     {
@@ -52,7 +52,8 @@ public class ItemManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        CollectiveGun.CreateGun(guns[0], bulletSpawn, new Vector3(3, 3, 0), Quaternion.identity);
+        CollectiveGun.CreateGun(guns[0], bulletSpawn, new Vector3(3, 3, 0), Quaternion.identity, true);
+
         Ammo.CreateAmmo(ammo[0], 100, new Vector3(2, 3, 0), Quaternion.identity);
     }
 

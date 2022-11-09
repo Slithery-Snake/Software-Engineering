@@ -10,6 +10,7 @@ public class Bullet : Poolable<Bullet>
     [SerializeField]BulletSC sC;
     BulletSpawn.BulletPool pool;
     [SerializeField]Rigidbody rg;
+    [SerializeField] TrailRenderer trailRender;
     public BulletSC SC { get => sC;}
     public Rigidbody Rg { get => rg; set => rg = value; }
     
@@ -86,11 +87,14 @@ public class Bullet : Poolable<Bullet>
     public void Activate()
     {
         gameObject.SetActive(true);
+        
     }
     public void Deactiveate()
     {
         rg.velocity = Vector3.zero;
         gameObject.SetActive(false);
+        trailRender.Clear();
+
     }
     protected override void RecycleProcess(Bullet t)
     {

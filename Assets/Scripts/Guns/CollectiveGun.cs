@@ -12,20 +12,21 @@ public class CollectiveGun : MonoBehaviour, Iinteractable
     public WeaponData WeaponData { get => weaponData;  }
     public Shooting Shooting { get => shooting; }
 
-    public static CollectiveGun CreateGun(CollectiveGun prefab, BulletSpawn p, Vector3 position, Quaternion rotation)
+    public static CollectiveGun CreateGun(CollectiveGun prefab, BulletSpawn p, Vector3 position, Quaternion rotation, bool fullChamber)
     {
         CollectiveGun r = Instantiate(prefab, position, rotation);
         r.bSpool = p;
-        r.Init();
+        r.Init(fullChamber);
         return r;
     }
     public void SetTag(BulletTag tag)
     {
         shooting.SetTag(tag);
     }
-    void Init()
+    void Init(bool full)
     {
-       shooting =  Shooting.CreateShooting(gameObject, bSpool, barrelTransform, weaponData);
+       shooting =  Shooting.CreateShooting(gameObject, bSpool, barrelTransform, weaponData, full);
+       
        
     }
     public void Interacted(PInputManager source)

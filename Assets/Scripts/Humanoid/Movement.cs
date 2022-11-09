@@ -23,7 +23,7 @@ public class Movement : StateManagerComponent
     CharacterController pController; //Reference to PlayerControler
     Transform body;
     float speed = 6f;
-    float jumpHeight = 0.02f;
+    float jumpHeight = 0.06f;
     float grav = -0.5f;
     float groundDistance = 0.4f;
     float stamina;
@@ -74,8 +74,10 @@ public class Movement : StateManagerComponent
   
   void CalcXZChange(float x, float z )
     {
-        this.x = x * speed * Time.deltaTime;
-        this.z = z * speed * Time.deltaTime;
+        float p = TimeController.PlayerDelta;
+        float f = Time.deltaTime;
+        this.x = x * speed * f *p;
+        this.z = z * speed * f*p;
         xzChange = new Vector3(this.x,0,this.z);
     }
     void Move( float x, float z) 
@@ -106,7 +108,7 @@ public class Movement : StateManagerComponent
     }
     public void Jump()
     { 
-       yVeloc.y = Mathf.Sqrt(jumpHeight * -2f * grav);     // if space is pressed and you are grounded, set the y velocity to jump physics equation 
+       yVeloc.y = Mathf.Sqrt(jumpHeight * -2f * grav) ;     // if space is pressed and you are grounded, set the y velocity to jump physics equation 
     }
    
     //

@@ -59,8 +59,10 @@ public class MouseLook :StateManagerComponent
     }
     void Look ()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float d = Time.deltaTime;
+        float p = TimeController.PlayerDelta;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * d*p;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * d*p;
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);

@@ -46,7 +46,7 @@ namespace EnemyStuff
             shootNode = new ShootNode(inventory, enemyParts.body, enemyParts.enemySC);
             lookNode = new LookAtNode(enemyParts.body, enemyParts.enemySC);
             reloadNode = new ReloadNode(inventory);
-            inventory.AddGun(manager.CreateGun(Vector3.zero, 1));
+            inventory.AddGun(manager.CreateGun(Vector3.zero, 1,true));
 
 
         }
@@ -93,7 +93,7 @@ namespace EnemyStuff
             RaycastHit hit;
                 Physics.Linecast(transform.position, player.position, out hit, ignoreEnemyMask,QueryTriggerInteraction.Collide);
             // Debug.DrawRay(transform.position, (transform.position - player.position).normalized, Color.red, 1);
-            Debug.DrawLine(transform.position, hit.point, Color.black);
+          //  Debug.DrawLine(transform.position, hit.point, Color.black);
             if(hit.collider == null)
             {
                 return false;
@@ -158,7 +158,7 @@ namespace EnemyStuff
         {
             linkedSlot.AddFirst(h.i);
             EquipGun();
-            inventory.LoadCurrent();    }
+             }
         void EquipGun()
         {
            g = inventory.EquipHotBar(linkedSlot.First.Value);
@@ -170,10 +170,7 @@ namespace EnemyStuff
         {
             g.Use1();
         }
-        void Reload()
-        {
-            inventory.Reload(null);
-        }
+       
         LinkedList<int> linkedSlot;
         Inventory inventory;
         bool ShouldShoot()
@@ -220,22 +217,26 @@ namespace EnemyStuff
     }
     public class ReloadNode : Node
     {
+       
         Inventory inventory;
-        bool doneReload = false;
+        enum RelState {doneReload, notReload, reloading }
+        RelState rel = RelState.notReload;
         public ReloadNode(Inventory inventory) 
         {
             this.inventory = inventory;
         }
         void ReloadDone()
         {
-            doneReload = true;
+            rel = RelState.notReload;
         }
        public override NodeState Evaluate()
         {   
-            if(doneReload) { state = NodeState.SUCCESS; doneReload = false;  return state; }
-            if(inventory.HaveAmmoForGun())
+            if(rel ==RelState.doneReload) { state = NodeState.SUCCESS; rel = RelState.notReload;  return state; }
+            if(inventory.HaveAmmoForGun() && rel == RelState.notReload)
             {
+                Debug.Log("reload");
                 state = NodeState.RUNNING;
+                rel = RelState.reloading;
                 inventory.Reload(ReloadDone);
 
             }

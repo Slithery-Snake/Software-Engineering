@@ -40,6 +40,7 @@ public class Inventory : StateManagerComponent
         }
         return false;
     }
+    
     public struct IntGun
     {
         public IntGun(int i, CollectiveGun g) { this.i = i; this.g = g; }
@@ -54,6 +55,7 @@ public class Inventory : StateManagerComponent
     CancellationTokenSource reloadToken;
     public void Reload(UnityAction callWhenDone)
     {
+        StopReload();
         if (currentGun != null)
         {
 
@@ -71,12 +73,13 @@ public class Inventory : StateManagerComponent
 
         }
     }
-    public void LoadCurrent()
+     void LoadCurrent()
     {
         currentGun.Shooting.LoadBullets(GetAmmo(currentGun));
 
 
     }
+    //reload, cancel, reload (cancel from first reload cancels second reload)
     async Task ReloadTask(UnityAction doneCall, CancellationToken t)
     {
         try
@@ -84,14 +87,19 @@ public class Inventory : StateManagerComponent
             await Task.Delay(currentGun.WeaponData.reloadTime * 1000);
             if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
             LoadCurrent();
-            if(doneCall !=null)
-            doneCall();
+            if (doneCall != null)
+            {
+                doneCall();
+            }
             
         } catch(OperationCanceledException) { }
         finally
         {
-            reloadToken.Dispose();
-            reloadToken = null;
+            if (reloadToken != null)
+            {
+                reloadToken.Dispose();
+                reloadToken = null;
+            }
         }
        
     }
