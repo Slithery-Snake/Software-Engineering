@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using System;
-public class Movement : StateManagerComponent<PInputManager>
+public class Movement : StateManagerComponent
 {   
 
-    public Movement(PInputManager manager, List<StateManagerComponent<PInputManager>> list, CharacterController pController, Transform groundCheck, LayerMask gMask, Transform body) : base(manager, list)
+    public Movement(MonoCalls.MonoAcessors manager, CharacterController pController, Transform groundCheck, LayerMask gMask, Transform body) : base(manager)
     {
         this.pController = pController;
         this.groundCheck = groundCheck;
@@ -23,8 +23,8 @@ public class Movement : StateManagerComponent<PInputManager>
     CharacterController pController; //Reference to PlayerControler
     Transform body;
     float speed = 6f;
-    float jumpHeight = 0.02f;
-    float grav = -1f;
+    float jumpHeight = 0.06f;
+    float grav = -0.5f;
     float groundDistance = 0.4f;
     float stamina;
     public Vector3 Velocity;
@@ -67,15 +67,17 @@ public class Movement : StateManagerComponent<PInputManager>
     {
         CalculateTotalVeloicty();
 
-       
+        GravityApply();
     }
     //
    
   
   void CalcXZChange(float x, float z )
     {
-        this.x = x * speed * Time.deltaTime;
-        this.z = z * speed * Time.deltaTime;
+        float p = TimeController.PlayerDelta;
+        float f = Time.deltaTime;
+        this.x = x * speed * f *p;
+        this.z = z * speed * f*p;
         xzChange = new Vector3(this.x,0,this.z);
     }
     void Move( float x, float z) 
@@ -100,28 +102,23 @@ public class Movement : StateManagerComponent<PInputManager>
         }
         return false;
     }
-    public void Jump()
-    { 
-       yVeloc.y = Mathf.Sqrt(jumpHeight * -2f * grav);     // if space is pressed and you are grounded, set the y velocity to jump physics equation 
-    }
-    public void Fall()
+    public void Fall ()
     {
         yVeloc.y = 0;
     }
+    public void Jump()
+    { 
+       yVeloc.y = Mathf.Sqrt(jumpHeight * -2f * grav) ;     // if space is pressed and you are grounded, set the y velocity to jump physics equation 
+    }
+   
     //
-    public void GravityApply()
+     public void GravityApply()
     {
         yVeloc.y += grav * Time.deltaTime; // Vector3 velocity decrease amount;
         pController.Move(yVeloc); // move by the velocity
     }
 
-    public override void OnEnabled()
-    {
-    }
-
-    public override void OnDisabled()
-    {
-    }
+  
     //
 
     //

@@ -6,10 +6,7 @@ public class Item<T> : MonoBehaviour where T : ItemSC
 {
     protected int itemID;
     [SerializeField] protected T itemData;
-    public int ItemID { get => itemID; }
+    public int ItemID { get => itemData.ItemID; }
     public T ItemData { get => itemData; }
-    protected void Start()
-    {
-        itemID = itemData.ItemID;
-    }
+   
 }

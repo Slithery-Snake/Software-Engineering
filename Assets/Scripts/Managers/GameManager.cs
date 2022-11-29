@@ -4,7 +4,17 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 
+
 [System.Serializable]
+public static class Constants
+{
+    
+    public static int playerMask = 6;
+    public static int enemyMask = 7;
+    public static int playerCamIgnoremask = 8;
+    public static int bulletMask = 9;
+
+}
 public class GameStateEvent : UnityEvent<GameManager.GameState, GameManager.GameState>
 {
 
@@ -26,6 +36,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] BulletSpawn bulletSpawn;
     [SerializeField] ItemManager itemManager;
+    [SerializeField] HumanoidManager humanoidManager;
    
     public GameState GetGameState
     {
@@ -60,9 +71,10 @@ public class GameManager : MonoBehaviour
         }
 
         public override void Create()
-        {
+        {   
             bSpawn = BulletSpawn.Create(manager, manager.bulletSpawn);
             itemManager = ItemManager.CreateItemManager(manager.itemManager, bSpawn);
+            HumanoidManager.Create(manager.humanoidManager, itemManager);
         }
     }
 

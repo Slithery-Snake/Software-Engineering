@@ -44,8 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0de551f85fd69948b02a6ec8fa2d7bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GameStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
   bulletSpawn: {fileID: 1471728416341084453, guid: 8c62f93fabec56542a3899decaa9ed27, type: 3}
   itemManager: {fileID: -5017814224388737003, guid: 93ed83ede0c9f4f4bb3795184448fa68, type: 3}
+  humanoidManager: {fileID: -4494337445345391112, guid: 08e4512195947c44e8e8e086b105fd17, type: 3}

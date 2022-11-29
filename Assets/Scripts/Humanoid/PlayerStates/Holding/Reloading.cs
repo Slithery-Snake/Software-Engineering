@@ -15,16 +15,19 @@ public class Reloading : EquippedGun
     {
         SetItem();
         SetGun();
-        reload = manager.StartCoroutine(Reload());
+        inventory.Reload(ReloadDone);
     }
-    IEnumerator Reload ()
+
+   void ReloadDone()
     {
-        yield return new WaitForSeconds(gun.WeaponData.reloadTime);
-        gun.Shooting.LoadBullets(inventory.GetAmmo(gun));
-        manager.ChangeToState(manager.EquippedGun, manager.HotBarState);
-
+        PInputManager p = manager;
+        p.ChangeToState(p.EquippedGun, p.HotBarState);
     }
-
+    public override void ExitState(PInputManager stateManager)
+    {
+        inventory.StopReload();
+        base.ExitState(stateManager);
+    }
     public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
     {
         Inventory.KeyCodeToSelect(keyCode, out int hi);

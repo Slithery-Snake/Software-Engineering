@@ -128,8 +128,10 @@ public class BulletSpawn : MonoBehaviour
         {
             try
             {
+                PoolElement<Bullet> re = firstOnList;
                 firstOnList = firstOnList.NextAvailable;
-                return firstOnList.Actual;
+                
+                return re.Actual;
             }
             catch (NullReferenceException)
             {

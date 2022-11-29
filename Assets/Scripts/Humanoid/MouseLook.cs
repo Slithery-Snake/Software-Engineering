@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MouseLook : StateManagerComponent<PInputManager>
+public class MouseLook :StateManagerComponent
 {
     public float mouseSensitivity = 100f;
 
@@ -13,20 +13,20 @@ public class MouseLook : StateManagerComponent<PInputManager>
     float xRotation = 0f;
     float range = 10f;
 
-    public MouseLook(PInputManager manager, List<StateManagerComponent<PInputManager>> list, Transform playerBody, Transform camera) : base (manager, list)
+    public MouseLook(MonoCalls.MonoAcessors manager, Transform playerBody, Transform camera) :base (manager)
     {
         this.playerBody = playerBody;
         this.camera = camera;
         manager.StartCall.Listen(Start);
         manager.UpdateCall.Listen(Update);
     }
- 
+    LayerMask ignoreMask = ~(1 << Constants.playerMask);
     public void PickUp(PInputManager player)
     {
 
         RaycastHit rayInfo;
 
-        Physics.Raycast(camera.position, camera.forward, out rayInfo, range);
+        Physics.Raycast(camera.position, camera.forward, out rayInfo, range, ignoreMask);
         if (rayInfo.transform == null)   // needed so there is no reference error when you shoot at the sky
         {
             return;
@@ -40,13 +40,7 @@ public class MouseLook : StateManagerComponent<PInputManager>
         }
     }
 
-    public override void OnDisabled()
-    {
-    }
-
-    public override void OnEnabled()
-    {
-    }
+ 
 
     // Start is called before the first frame update
      void Start()
@@ -65,8 +59,10 @@ public class MouseLook : StateManagerComponent<PInputManager>
     }
     void Look ()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float d = Time.deltaTime;
+        float p = TimeController.PlayerDelta;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * d*p;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * d*p;
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);

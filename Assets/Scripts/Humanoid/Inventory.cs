@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using System;
-
-public class Inventory : StateManagerComponent<PInputManager>
+using System.Threading.Tasks;
+using System.Threading;
+public class Inventory : StateManagerComponent
 {
     struct EventEquip 
     {
@@ -25,26 +26,99 @@ public class Inventory : StateManagerComponent<PInputManager>
     HotBarItem currentEquipped;
     int currentSlot;
     Transform hotBarTransform;
-    CollectiveGun[] guns;
+    MonoCall<IntGun> gunAdded;
+    //Stack<int> gunSlots s` new Stack<int>();
+    Dictionary<int, CollectiveGun> guns;
     MonoCall<int> equippedSlot;
+    public bool HaveAmmoForGun()
+    {if (currentGun != null)
+        {
+            if (GetAmmo(currentGun).Count > 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public struct IntGun
+    {
+        public IntGun(int i, CollectiveGun g) { this.i = i; this.g = g; }
+        public int i;
+        public CollectiveGun g;
+    }
     MonoCall gunEquipped;
     CollectiveGun currentGun;
     BulletTag tag;
     MonoCall<int> picked;
+    Task reloadingTask;
+    CancellationTokenSource reloadToken;
+    public void Reload(UnityAction callWhenDone)
+    {
+        StopReload();
+        if (currentGun != null)
+        {
+
+            reloadToken = new CancellationTokenSource();
+            CancellationToken t = reloadToken.Token;
+            reloadingTask = ReloadTask(callWhenDone, t);
+        }
+    }
+    public void StopReload()
+    {
+        if (reloadToken != null)
+        {
+
+            reloadToken.Cancel();
+
+        }
+    }
+     void LoadCurrent()
+    {
+        currentGun.Shooting.LoadBullets(GetAmmo(currentGun));
+
+
+    }
+    //reload, cancel, reload (cancel from first reload cancels second reload)
+    async Task ReloadTask(UnityAction doneCall, CancellationToken t)
+    {
+        try
+        {
+            await Task.Delay(currentGun.WeaponData.reloadTime * 1000);
+            if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
+            LoadCurrent();
+            if (doneCall != null)
+            {
+                doneCall();
+            }
+            
+        } catch(OperationCanceledException) { }
+        finally
+        {
+            if (reloadToken != null)
+            {
+                reloadToken.Dispose();
+                reloadToken = null;
+            }
+        }
+       
+    }
     public Ammo GetAmmo(CollectiveGun g)
     {
       AmmoSC ammoSC = g.Shooting.ItemData.AmmoSource;
         Ammo ammoResult;
        ammo.TryGetValue(ammoSC, out ammoResult);
         return ammoResult;
-     
     }
-    public IMonoCall GunEquipped { get => gunEquipped;  }
     public IMonoCall<int> Picked { get => picked; }
+    public IMonoCall<IntGun> GunAdded { get => gunAdded; }
+    public IMonoCall GunEquipped { get => gunEquipped; }
     public IMonoCall<int> EquippedSlot { get => equippedSlot; }
     public int CurrentSlot { get => currentSlot; }
     public HotBarItem CurrentEquipped { get => currentEquipped;}
     public CollectiveGun CurrentGun { get => currentGun;  }
+
+
     public bool ItemIsInSlot(int i)
     {
         if(items[i] == null)
@@ -54,14 +128,17 @@ public class Inventory : StateManagerComponent<PInputManager>
         return true;
     }
     public void ClearCurrentGun()
-    {
+    {   
         currentGun = null;
     }
     public void SetSlot(int i) { currentSlot = i; }
     public void AddGun(CollectiveGun gun)
     {
       
-            UnityAction<int> tempHandler = (int i) => { guns[i] = gun;  };
+            UnityAction<int> tempHandler = (int i) => { guns.Add(i, gun);
+          gunAdded.Call(new IntGun(i, gun));
+
+            };
         picked.Listen( tempHandler);
         gun.SetTag(tag);
         AddHotBarItem(gun.Shooting.HotBar);     
@@ -70,7 +147,9 @@ public class Inventory : StateManagerComponent<PInputManager>
     }
    
     void CheckGunEquip(int i)
-    { CollectiveGun gun = guns[i];
+    {
+        CollectiveGun gun;
+        guns.TryGetValue(i, out gun);
         if(gun !=null) {
             currentGun = gun;
             if (!gunEquipped.IsNull()) { gunEquipped.Call(); }
@@ -102,15 +181,17 @@ public class Inventory : StateManagerComponent<PInputManager>
 
         }
     }
-    public Inventory(PInputManager manager, List<StateManagerComponent<PInputManager>> list, Transform itemGameObject, Transform hotBarTransform, BulletTag tag) : base(manager, list)
+
+    public Inventory(MonoCalls.MonoAcessors manager, Transform itemGameObject, Transform hotBarTransform, BulletTag tag) : base(manager)
     {
         this.itemGameObject = itemGameObject;
         items = new HotBarItem[hotBarSize];
         ammo = new Dictionary<AmmoSC, Ammo>();
         this.hotBarTransform = hotBarTransform;
-        guns = new CollectiveGun[hotBarSize];
+        guns = new Dictionary<int, CollectiveGun>();
         equippedSlot = new MonoCall<int>();
         gunEquipped = new MonoCall();
+        gunAdded = new MonoCall<IntGun>();
         picked = new MonoCall<int>();
         equippedSlot.Listen(CheckGunEquip);
         this.tag = tag;
@@ -189,13 +270,7 @@ public class Inventory : StateManagerComponent<PInputManager>
 
     
 
-    public override void OnDisabled()
-    {
-    }
-
-    public override void OnEnabled()
-    {
-    }
+   
 
  
 
