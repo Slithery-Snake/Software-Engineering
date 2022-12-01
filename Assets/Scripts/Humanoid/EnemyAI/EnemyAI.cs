@@ -20,6 +20,7 @@ namespace EnemyStuff
         public Transform itemGameObject;
         public EnemySC enemySC;
         public TagManager tag;
+        public Transform head;
     }
     public class EnemyAI : BehaviourTree
     {
@@ -30,25 +31,37 @@ namespace EnemyStuff
             
             return e;
         }
-        
+
+        public static event EventHandler EnemyKilled;
        [SerializeField] EnemyParts enemyParts;
         MonoCalls calls = new MonoCalls();
         Inventory inventory;
         LookAtNode lookNode;
         ShootNode shootNode;
         ReloadNode reloadNode;
-        public Inventory Inventory { get => inventory; }
+        Health health;
+
+     
         private void Init(ItemManager manager)
         {
             inventory = new Inventory(calls.accessors, enemyParts.itemGameObject, enemyParts.hBarTransform, enemyParts.tag.Tag);
             inventory.AddAmmo(manager.CreateAmmo(Vector3.zero, 20,1000));
+            health = new Health(enemyParts.enemySC);
+            health.HealthBelowZero += () => { EnemyKilled.Invoke(this, null); };
+            EnemyKilled += Die;
+            enemyParts.tag.AddTagsToHitBoxes(health);
 
             shootNode = new ShootNode(inventory, enemyParts.body, enemyParts.enemySC);
-            lookNode = new LookAtNode(enemyParts.body, enemyParts.enemySC);
+            lookNode = new LookAtNode(enemyParts.body,enemyParts.head, enemyParts.enemySC);
             reloadNode = new ReloadNode(inventory);
             inventory.AddGun(manager.CreateGun(Vector3.zero, 1,true));
 
 
+        }
+        void Die(object obj, EventArgs e)
+        {
+            Debug.Log("I AM DEAD :(");
+            Destroy(gameObject);
         }
         protected virtual void Awake()
         {
@@ -73,27 +86,29 @@ namespace EnemyStuff
     public class LookAtNode : Node
     {
         Transform transform;
-
+        Transform head;
         EnemySC SC;
         Transform player;
         float radianView;
-        public LookAtNode(Transform transform, EnemySC SC)
+        public LookAtNode(Transform transform,Transform head, EnemySC SC)
         {
             this.transform = transform;
             this.SC = SC;
             player = HumanoidManager.PlayerTransform;
             radianView = SC.ViewAngle/2 * Mathf.Deg2Rad;
-            
+
+            this.head = head;
         }
-        int ignoreEnemyMask = ~(1 << Constants.enemyMask);
-            
-       bool IsExposed()
+        int ignoreAllButSolidCoverAndPlayer = (1 << Constants.environment | 1 << Constants.playerMask);
+    
+
+        bool IsExposed()
         {
             
             RaycastHit hit;
-                Physics.Linecast(transform.position, player.position, out hit, ignoreEnemyMask,QueryTriggerInteraction.Collide);
+                Physics.Linecast(head.position, player.position, out hit, ignoreAllButSolidCoverAndPlayer,QueryTriggerInteraction.Collide);
             // Debug.DrawRay(transform.position, (transform.position - player.position).normalized, Color.red, 1);
-          //  Debug.DrawLine(transform.position, hit.point, Color.black);
+            Debug.DrawLine(head.position, hit.point, Color.black);
             if(hit.collider == null)
             {
                 return false;

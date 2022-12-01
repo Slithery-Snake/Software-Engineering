@@ -10,9 +10,8 @@ public class ShootBox : MonoBehaviour
     public readonly static BulletTag PassTag = null;
     [SerializeField] BulletTag bTag;
     // UnityEngine<Bullet> 
-    [SerializeField] IShootable shootable;
-    Collider collider;
-
+     IShootable shootable;
+   
     public IShootable Shootable { get => shootable;}
 
     public IShootable GetShootable()
@@ -22,15 +21,16 @@ public class ShootBox : MonoBehaviour
     public static ShootBox Create(BulletTag tag, IShootable shootable, Collider coll)
     {
        ShootBox b = coll.gameObject.AddComponent<ShootBox>();
-        b.Init(tag, shootable, coll);
+       
+        b.Init(tag, shootable);
 
         return b;
     }
     
-     void Init(BulletTag tag, IShootable shootable, Collider coll)
+     void Init(BulletTag tag, IShootable shootable)
     {
         bTag = tag;
-        collider = coll;
+        this.shootable = shootable;
         if(shootable ==  null)
         {
             this.shootable = new ShootableNull();

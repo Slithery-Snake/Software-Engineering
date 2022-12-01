@@ -4,8 +4,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 
-
+using System;
 [System.Serializable]
+
 public static class Constants
 {
     
@@ -13,7 +14,7 @@ public static class Constants
     public static int enemyMask = 7;
     public static int playerCamIgnoremask = 8;
     public static int bulletMask = 9;
-
+    public static int environment = 3;
 }
 public class GameStateEvent : UnityEvent<GameManager.GameState, GameManager.GameState>
 {
@@ -37,14 +38,18 @@ public class GameManager : MonoBehaviour
     [SerializeField] BulletSpawn bulletSpawn;
     [SerializeField] ItemManager itemManager;
     [SerializeField] HumanoidManager humanoidManager;
-   
+    [SerializeField] UIManager uiManager;
+    [SerializeField]int firstLevelStartingIndex;
     public GameState GetGameState
     {
         get { return gameState; }
         private set { gameState = value; }
     }
 
-   
+    private void Awake()
+    {
+        GameStateChanged = new GameStateEvent();
+    }
 
     public abstract class SceneCreation {
         protected int index;
@@ -64,17 +69,29 @@ public class GameManager : MonoBehaviour
     {   
         BulletSpawn bSpawn;
         ItemManager itemManager;
+        UIManager ui;
+        HumanoidManager hu;
+        PInputManager player;
 
         public Scene1(int index, GameManager manager) : base(index, manager)
         {
-            Create();
+            manager.LoadScene(index, Create);
+
+           
         }
 
         public override void Create()
-        {   
+        {
             bSpawn = BulletSpawn.Create(manager, manager.bulletSpawn);
             itemManager = ItemManager.CreateItemManager(manager.itemManager, bSpawn);
-            HumanoidManager.Create(manager.humanoidManager, itemManager);
+            hu = HumanoidManager.Create(manager.humanoidManager, itemManager);
+            //   player = hu.CreatePlayer(new Vector3(0, 8, -8));
+            //  hu.CreateEnemy(new Vector3(0, 8, 0));
+            player = hu.CreatePlayer(new Vector3(0, 8, -8));
+            hu.CreateEnemy(new Vector3(0, 8, 0));
+            ui = UIManager.Create(manager.uiManager, player);
+
+          
         }
     }
 
@@ -83,9 +100,8 @@ public class GameManager : MonoBehaviour
         
         DontDestroyOnLoad(gameObject);  // the game managers gameobject does not destroy when loading other scenes
         operations = new List<AsyncOperation>();
-        SceneManager.LoadScene(1, LoadSceneMode.Additive);
-        SceneManager.SetActiveScene(SceneManager.GetSceneAt(sceneIndex));
-        Scene1 scene1 = new Scene1(1, this);
+      //  SceneManager.SetActiveScene(SceneManager.GetSceneAt(sceneIndex));
+        Scene1 scene1 = new Scene1(2, this);
     }
     private void Update()
     {
@@ -96,13 +112,17 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(sceneIndex));
     }
-    public void LoadScene(int sceneIndex)
+    public void LoadScene(int sceneIndex, UnityAction onDone)
     {
         this.sceneIndex = sceneIndex;
         if (loadingOperation != null) { return; }
         loadingOperation = SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Additive);
         operations.Add(loadingOperation);
         loadingOperation.completed += LoadOperationDone;
+        if (onDone != null)
+        {
+            loadingOperation.completed += (AsyncOperation) => onDone();
+        }
 
     }
 
@@ -126,7 +146,7 @@ public class GameManager : MonoBehaviour
             operations.Remove(loadingOperation);
             if (operations.Count == 0)
             {
-                SceneManager.SetActiveScene(SceneManager.GetSceneAt(sceneIndex));
+                SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(sceneIndex));
                 UpdateState(GameState.InGame);
             }
 
@@ -160,7 +180,7 @@ public class GameManager : MonoBehaviour
     }
     public void StartGame()
     {
-        LoadScene(0);
+        //LoadScene(0);
     }
 
     public void TogglePause()
@@ -178,7 +198,7 @@ public class GameManager : MonoBehaviour
     }
     public void Restart()
     {
-        LoadScene(sceneIndex);
+      //  LoadScene(sceneIndex);
     }
 
 

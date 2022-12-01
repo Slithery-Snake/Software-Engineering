@@ -31,6 +31,7 @@ public class MonoCall<T> : IMonoCall<T>
         toCall -= remove;
     }
 }
+
 public interface IMonoCall<T>
 {
 
@@ -119,12 +120,13 @@ public class TagManager
     }
      public BulletTag Tag { get => tag; }
 }
-public class PInputManager : StateManager
+public class PInputManager : StateManagerIN
 {
  
     [SerializeField]TagManager tagManager;
 
   
+
 
 
     [Serializable]
@@ -137,14 +139,15 @@ public class PInputManager : StateManager
         public Transform itemGameObject;
         public Camera mainCamera;
         public Transform hotBarTransform;
-     
+        public PlayerSC sC;
+
     }
     MonoCalls calls = new MonoCalls();
 
   
 
-
     [SerializeField] Parts playerParts;
+    public PlayerSC SC { get =>  playerParts.sC; }
     Movement movement;
     PlayerStatePointer<Grounded> jumpState;
     Grounded onGround;
@@ -156,7 +159,7 @@ public class PInputManager : StateManager
     public NotMoving NotMoving { get => notMoving; }
     public Moving Moving { get => moving; }
     public Movement Movement { get => movement; }
-
+    TimeController bTime;
     MouseLook look;
     private LookEnabled lookEnabled;
     private LookDisabled lookDisabled;
@@ -178,9 +181,9 @@ public class PInputManager : StateManager
     public Equipped Equipped { get => equipped;  }
     public EquippedGun EquippedGun { get => equippedGun; }
     public PlayerStatePointer<NotEquipped> HotBarState { get => hotBarState;  }
-   
 
-    
+    Health health;
+    public UIInfoBoard uiInfo;
 
     #region keyEvents
     /*
@@ -201,8 +204,8 @@ public class PInputManager : StateManager
 
     List<KeyInputEvents> keyInputEventsList;
 
-    List<Pointer<PInputManager, FiniteState<PInputManager>>> allRunningStates;
-    Pointer<PInputManager, FiniteState<PInputManager>>[] allRunningStatesArray;
+    List<PointerIN<PInputManager, FiniteStateInput<PInputManager>>> allRunningStates;
+    PointerIN<PInputManager, FiniteStateInput<PInputManager>>[] allRunningStatesArray;
 
  
 
@@ -214,22 +217,32 @@ public class PInputManager : StateManager
     public PlayerStatePointer<Grounded> JumpState { get => jumpState;  }
     public Grounded OnGround { get => onGround; }
     public InAir Falling { get => falling; }
+  
+    public PlayerStatePointer<TimeDisabled> TimeState { get => timeState; }
+    public TimeDisabled TimeDisabled { get => timeDisabled; }
+    public TimeNormal NormalTime { get => normalTime;  }
+    public TimeSlow SlowTime { get => slowTime;  }
 
+    PlayerStatePointer<TimeDisabled> timeState;
+    TimeDisabled timeDisabled;
+    TimeNormal normalTime;
+    TimeSlow slowTime;
     #endregion
     void Test() { Debug.Log("awoken"); }
     void Awake()
     {
         movement = new Movement(calls.accessors,  playerParts.pController, playerParts.groundCheck, playerParts.jumpFloorMask, playerParts.body);
         look = new MouseLook(calls.accessors, playerParts.body, playerParts.mainCamera.transform);
+        bTime = new TimeController(calls.accessors, playerParts.sC);
         inventory = new Inventory(calls.accessors, playerParts.itemGameObject, playerParts.hotBarTransform, tagManager.Tag);
-
+        health = new Health(playerParts.sC);
         keyInputEventsList = new List<KeyInputEvents>();
-        allRunningStates = new List<Pointer<PInputManager, FiniteState<PInputManager>>>();
+        allRunningStates = new List<PointerIN<PInputManager, FiniteStateInput<PInputManager>>>();
         keyInputEvents = new KeyInputEvents(keyInputEventsList);
         InitializeKeyEvents();
-
+        tagManager.AddTagsToHitBoxes(health);
         notMoving = new NotMoving(this, movement);
-        moving = new Moving(this, movement);
+        moving = new Moving(this, movement,playerParts.sC);
         movementState = new PlayerStatePointer<NotMoving>(notMoving, allRunningStates, this);
         lookDisabled = new LookDisabled(this, look);
         lookEnabled = new LookEnabled(this, look);
@@ -242,9 +255,30 @@ public class PInputManager : StateManager
         onGround = new Grounded(this, movement);
         falling = new InAir(this, movement);
         jumpState = new PlayerStatePointer<Grounded>(falling, allRunningStates, this);
+        timeDisabled = new TimeDisabled(this, bTime);
+        normalTime = new TimeNormal(this, bTime);
+        slowTime = new TimeSlow(this, bTime);
+        timeState = new PlayerStatePointer<TimeDisabled>(normalTime, allRunningStates,this);
         AwakeComponents();
+        uiInfo = new UIInfoBoard(this);
+    }
+    public class UIInfoBoard
+    {
+        public  UnityAction<float> StaminaChanged;
+        public UnityAction<float> HealthChanged;
+        public UnityAction<float> BulletTimeChanged;
+
+        public UIInfoBoard(PInputManager p)
+        {
+
+            p.moving.StaminaChanged += (object a, float f) => { StaminaChanged(f); };
+            p.health.HealthChanged += (object a, float f) => { HealthChanged(f); };
+            p.bTime.ValueUpdated += (object a, float f) => { BulletTimeChanged(f); };
+
+        }
 
     }
+
 
 
     void Start()
@@ -256,7 +290,7 @@ public class PInputManager : StateManager
 
     }
  
-    public virtual void ChangeToState(PlayerState newState, Pointer<PInputManager, PlayerState> stateToChange)
+    public virtual void ChangeToState(PlayerState newState, PointerIN<PInputManager, PlayerState> stateToChange)
     {
         Debug.Log(newState);
 
@@ -268,7 +302,7 @@ public class PInputManager : StateManager
     }
 
 
-    public virtual void ChangeToNewState(PlayerState newState, Pointer<PInputManager, PlayerState> stateToChange)
+    public virtual void ChangeToNewState(PlayerState newState, PointerIN<PInputManager, PlayerState> stateToChange)
     {
         Debug.Log(newState);
 

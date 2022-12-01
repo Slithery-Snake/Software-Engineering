@@ -18,7 +18,7 @@ public class TimeTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.G))
+       /* if(Input.GetKeyDown(KeyCode.G))
         {
             slow = !slow;
             if (slow)
@@ -34,6 +34,6 @@ public class TimeTest : MonoBehaviour
                 Time.timeScale = defaultTimeScale;
                 TimeController.PlayerDelta = 1;
             }
-        }
+        }*/
     }
 }

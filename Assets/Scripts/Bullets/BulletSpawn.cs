@@ -57,13 +57,12 @@ public class BulletSpawn : MonoBehaviour
         BulletSpawn r = Instantiate(spawn);
 
         r.gameManager = manager;
+        r.idToBulletPool = new Dictionary<BulletSC, BulletPool>();
+
         return r;
     }
   
-    private void Start()
-    {
-        idToBulletPool = new Dictionary<BulletSC, BulletPool>();
-    }
+  
     BulletPool MakePool(BulletSC bulletIdentity)
     {
         GameObject tempTransform = new GameObject();

@@ -4,23 +4,18 @@ using UnityEngine;
 using UnityEngine.Events;
 public class Shooting : Item<WeaponData>
 {
-    float weaponCDTime;
-    bool canFire = true;
-    [SerializeField] Transform barrelTransform;
-    AmmoSC ammoType;
-    bool hasAmmo = true;
-    int magSize;
-    bool isReloading = false;
-    bool triggerDown = false;
-    bool searDown = false;
-    int inChamber = 0;
-    int reloadTime;
-    Coroutine reloadingRoutine;
-    BulletSpawn.BulletPool bulletPool;
-    BulletSC bulletType;
-    int ammoTypeID;
-    HotBarItem hotBar;
-    BulletTag bTag = null;
+    protected float weaponCDTime;
+    protected bool canFire = true;
+    [SerializeField] protected Transform barrelTransform;
+    protected AmmoSC ammoType;
+    protected bool hasAmmo = true;
+    protected int magSize;
+    protected bool isReloading = false;
+    protected Coroutine invoke;
+    protected int inChamber = 0;
+    protected BulletSpawn.BulletPool bulletPool;
+    protected HotBarItem hotBar;
+    protected BulletTag bTag = null;
 
     public HotBarItem HotBar { get => hotBar; }
     public bool IsReloading { get => isReloading;  }
@@ -42,7 +37,7 @@ public class Shooting : Item<WeaponData>
         r.hotBar = HotBarItem.CreateHotBar(r.TriggerDown, null, r.TriggerRelease, null, r.itemData, r.gameObject);
         return r;
     }
-    void InitializeShooting( BulletSpawn bulletSpawn, bool c)
+    protected void InitializeShooting( BulletSpawn bulletSpawn, bool c)
     {
 
 
@@ -52,7 +47,6 @@ public class Shooting : Item<WeaponData>
         
        ammoType = itemData.AmmoSource;
         magSize = itemData.magSize;
-        reloadTime = itemData.reloadTime;
         weaponCDTime = itemData.weaponCDTime;
         bulletPool = bulletSpawn.RequestPool(ammoType.BulletType);
 
@@ -72,23 +66,23 @@ public class Shooting : Item<WeaponData>
           if(inChamber > 0) { hasAmmo = true; }
         Debug.Log(inChamber);
     }
-    void WeaponCoolDown()
+
+    protected void WeaponCoolDown()
     {
         canFire = true;
 
     }
-     void TriggerRelease()
+    protected virtual void TriggerRelease()
     {
-        triggerDown = false;
-        searDown = false;
+        
     }
-    IEnumerator Invoke(float time, UnityAction hi)
+    protected IEnumerator Invoke(float time, UnityAction hi)
     {
         
         yield return new WaitForSeconds(time);
         hi();
     }
-     void Shoot()
+    protected virtual void Shoot()
     {
         if (CanFire && hasAmmo )
         {
@@ -96,7 +90,7 @@ public class Shooting : Item<WeaponData>
             inChamber--;
             canFire = false;
             // Invoke(WeaponCoolDown, weaponCDTime);
-            StartCoroutine(Invoke(weaponCDTime, WeaponCoolDown));
+           invoke = StartCoroutine(Invoke(weaponCDTime, WeaponCoolDown));
             if (inChamber <= 0)
             {
                 hasAmmo = false;
@@ -116,14 +110,13 @@ public class Shooting : Item<WeaponData>
         
     }
 
-     void TriggerDown()
+    protected virtual void TriggerDown()
     {
 
 
        
-            triggerDown = true;
             Shoot();
-            searDown = true;
+           
       
 
     }

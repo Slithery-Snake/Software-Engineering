@@ -23,7 +23,7 @@ public class Movement : StateManagerComponent
     CharacterController pController; //Reference to PlayerControler
     Transform body;
     float speed = 6f;
-    float jumpHeight = 0.06f;
+    float jumpHeight = 0.04f;
     float grav = -0.5f;
     float groundDistance = 0.4f;
     float stamina;
@@ -91,7 +91,7 @@ public class Movement : StateManagerComponent
     }
  
 
-
+    
     public bool GroundCheck()
     {
        bool isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, gMask); //create an invisible sphere (physics.checksphere), at the position, with this radius, return true if layer is matching.
@@ -107,15 +107,17 @@ public class Movement : StateManagerComponent
         yVeloc.y = 0;
     }
     public void Jump()
-    { 
-       yVeloc.y = Mathf.Sqrt(jumpHeight * -2f * grav) ;     // if space is pressed and you are grounded, set the y velocity to jump physics equation 
-    }
+    {
+          yVeloc.y = Mathf.Sqrt(jumpHeight * -2f * grav) ;     // if space is pressed and you are grounded, set the y velocity to jump physics equation 
+      //  yVeloc.y = 1;
+        }
    
     //
      public void GravityApply()
     {
-        yVeloc.y += grav * Time.deltaTime; // Vector3 velocity decrease amount;
-        pController.Move(yVeloc); // move by the velocity
+          yVeloc.y += grav * Time.deltaTime; // Vector3 velocity decrease amount;
+       // yVeloc.y += -9.81f * Time.deltaTime;
+        pController.Move(yVeloc*TimeController.Slow); // move by the velocity
     }
 
   

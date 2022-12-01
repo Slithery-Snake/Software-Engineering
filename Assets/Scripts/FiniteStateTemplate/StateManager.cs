@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StateManager: MonoBehaviour
+public class StateManagerIN: MonoBehaviour
 {
     
   
-    public virtual void ChangeToState(FiniteState<StateManager> newState, FiniteState<StateManager> stateToChange)
+    public virtual void ChangeToState(FiniteStateInput<StateManagerIN> newState, FiniteStateInput<StateManagerIN> stateToChange)
     {
         stateToChange.ExitState(this);
         stateToChange = newState;
@@ -15,8 +15,27 @@ public class StateManager: MonoBehaviour
     }
    
 }
+public interface IStateManager<T>
+{
 
-interface ComponentOfManager<out T> where T :StateManager
+    public void ChangeToState(T newState, T stateToChange);
+ 
+}
+public class StateManager
+{
+
+
+    public virtual void ChangeToState(FiniteState<StateManager> newState, FiniteState<StateManager> stateToChange)
+    {
+        stateToChange.ExitState(this);
+        stateToChange = newState;
+        stateToChange.EnterState(this);
+
+    }
+
+}
+
+interface ComponentOfManager<out T> where T :StateManagerIN
 {
 
 }

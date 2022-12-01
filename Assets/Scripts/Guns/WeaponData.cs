@@ -8,7 +8,6 @@ public class WeaponData : HotBarItemSC
     public int magSize;
     public int reloadTime;
     public float weaponCDTime;
-    public bool isAuto;
     [SerializeField] AmmoSC ammoSource;
 
     public AmmoSC AmmoSource { get => ammoSource; }

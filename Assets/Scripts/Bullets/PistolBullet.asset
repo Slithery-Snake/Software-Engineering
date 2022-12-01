@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: PistolBullet
   m_EditorClassIdentifier: 
   fin: 0
-  damage: 1
-  forceMagnitude: 100
+  damage: 2
+  forceMagnitude: 10

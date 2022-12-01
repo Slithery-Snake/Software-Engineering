@@ -8,7 +8,7 @@ public class CollectiveGun : MonoBehaviour, Iinteractable
     [SerializeField] WeaponData weaponData;
     BulletSpawn bSpool;
     [SerializeField]Transform barrelTransform;
-
+    [SerializeField] Shooting shootingType;
     public WeaponData WeaponData { get => weaponData;  }
     public Shooting Shooting { get => shooting; }
 

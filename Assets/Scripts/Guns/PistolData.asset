@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: 1
   holdLocalSpace: {x: 0.17, y: -0.5, z: 0.7}
-  magSize: 5
-  reloadTime: 2
+  magSize: 7
+  reloadTime: 1
   weaponCDTime: 0.3
-  isAuto: 0
+  isAuto: 1
   ammoSource: {fileID: 11400000, guid: e706875b56c6fd34d8b9267f76893c74, type: 2}

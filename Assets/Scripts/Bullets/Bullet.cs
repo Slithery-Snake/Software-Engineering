@@ -20,6 +20,7 @@ public class Bullet : Poolable<Bullet>
         currentTag = sourceTag;
         Activate();
         transform.position = worldPos;
+        transform.rotation = Quaternion.LookRotation(direction);
         rg.AddForce(direction.normalized * SC.ForceMagnitude, ForceMode.Impulse);
 
     }
@@ -71,7 +72,6 @@ public class Bullet : Poolable<Bullet>
             currentTag.RequestTagAction(shotTag, out temp);
             if(temp !=null)
             {
-
                 temp(shot.Shootable, this);
             } else
             {
@@ -92,7 +92,7 @@ public class Bullet : Poolable<Bullet>
     public void Deactiveate()
     {
         rg.velocity = Vector3.zero;
-        gameObject.SetActive(false);
+        gameObject.SetActive(false);    
         trailRender.Clear();
 
     }

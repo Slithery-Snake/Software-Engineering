@@ -18,10 +18,11 @@ public class ItemManager : MonoBehaviour
         ItemManager r = Instantiate(prefab);
         
         r.bulletSpawn = bulletSpawn;
+        r.Init();
         return r;
     }
 
-    private void Awake()
+    private void Init()
     {
         // hotBarDict = new Dictionary<int, HotBarItem>();
         gunDict = new Dictionary<int, CollectiveGun>();

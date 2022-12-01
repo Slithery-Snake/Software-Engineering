@@ -70,6 +70,7 @@ public class Inventory : StateManagerComponent
         {
 
             reloadToken.Cancel();
+            reloadToken.Dispose();
 
         }
     }
@@ -82,7 +83,7 @@ public class Inventory : StateManagerComponent
     //reload, cancel, reload (cancel from first reload cancels second reload)
     async Task ReloadTask(UnityAction doneCall, CancellationToken t)
     {
-        try
+         try
         {
             await Task.Delay(currentGun.WeaponData.reloadTime * 1000);
             if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
@@ -256,7 +257,7 @@ public class Inventory : StateManagerComponent
             if(items[i] ==null)
             {
                 items[i] = item;
-                item.transform.SetParent(itemGameObject);
+                item.transform.SetParent(itemGameObject, true);
                 DeactivateItem(item);
                 if (!picked.IsNull())
                 {

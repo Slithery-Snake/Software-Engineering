@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ec3e5e635d19db4f90e17003a85dfeb, type: 3}
   m_Name: BasicEnemy
   m_EditorClassIdentifier: 
+  health: 3
   rotateSpeed: 2
   viewLength: 50
   viewAngle: 40

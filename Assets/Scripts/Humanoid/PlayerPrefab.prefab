@@ -121,7 +121,7 @@ Transform:
   m_GameObject: {fileID: 1210732274479113786}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5114619117869233855}
@@ -146,7 +146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tagManager:
     hitBoxes:
-    - {fileID: 3824861514621727593}
+    - {fileID: 8897212629758773038}
     - {fileID: 679113619}
     tag: {fileID: 11400000, guid: 8c3f016b9b41a7e468468f2995947b98, type: 2}
   playerParts:
@@ -159,6 +159,7 @@ MonoBehaviour:
     itemGameObject: {fileID: 3299163849658704503}
     mainCamera: {fileID: 9081343586406583503}
     hotBarTransform: {fileID: 3996690445028940802}
+    sC: {fileID: 11400000, guid: bc5a6f7803b699f47902057e2ff555f9, type: 2}
 --- !u!143 &3824861514621727593
 CharacterController:
   m_ObjectHideFlags: 0
@@ -254,7 +255,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 255
+    m_Bits: 767
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0

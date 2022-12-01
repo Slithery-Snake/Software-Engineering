@@ -93,7 +93,7 @@ SphereCollider:
   m_GameObject: {fileID: 827878569}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
@@ -125,7 +125,7 @@ Transform:
   m_GameObject: {fileID: 1559263942567947831}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 3610167356512146447}
@@ -187,6 +187,7 @@ MonoBehaviour:
       - {fileID: 4552310910670616594}
       - {fileID: 827878571}
       tag: {fileID: 11400000, guid: 7f4378fcb794d384c8eb069ef255e02c, type: 2}
+    head: {fileID: 827878570}
 --- !u!1 &2238811451809514212
 GameObject:
   m_ObjectHideFlags: 0
