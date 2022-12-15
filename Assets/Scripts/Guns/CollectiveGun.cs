@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class CollectiveGun : MonoBehaviour, Iinteractable
 {
-    Shooting shooting;
     [SerializeField] WeaponData weaponData;
     BulletSpawn bSpool;
     [SerializeField]Transform barrelTransform;
-    [SerializeField] Shooting shootingType;
+    [SerializeField] Shooting shooting;
     public WeaponData WeaponData { get => weaponData;  }
     public Shooting Shooting { get => shooting; }
 
@@ -25,7 +24,7 @@ public class CollectiveGun : MonoBehaviour, Iinteractable
     }
     void Init(bool full)
     {
-       shooting =  Shooting.CreateShooting(gameObject, bSpool, barrelTransform, weaponData, full);
+        Shooting.InitShoot(shooting, bSpool, barrelTransform, weaponData, full);
        
        
     }

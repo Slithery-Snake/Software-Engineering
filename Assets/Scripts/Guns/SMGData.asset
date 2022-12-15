@@ -17,5 +17,5 @@ MonoBehaviour:
   magSize: 30
   reloadTime: 1
   weaponCDTime: 0.1
-  isAuto: 1
   ammoSource: {fileID: 11400000, guid: e3d329d507feb864d903fdecf88c6644, type: 2}
+  shootSound: 2

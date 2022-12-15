@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SingletonBaseClass<T> : MonoBehaviour where T : SingletonBaseClass<T>
-{   private static T instance;
+{   protected static T instance;
     public static T Instance
     {
         get { return instance; }
@@ -31,15 +31,5 @@ public class SingletonBaseClass<T> : MonoBehaviour where T : SingletonBaseClass<
             instance = null;
         }
     }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

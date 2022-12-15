@@ -8,16 +8,16 @@ public class TimeNormal : TimeDisabled
     public TimeNormal(PInputManager manager, TimeController time) : base(manager, time)
     {
     }
-    public override void EnterState(PInputManager stateManager)
+    public override void EnterState()
     {
         time.SetSlow(false);   
     }
     
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyDownInput( KeyCode keyCode)
     {
         if(keyCode == KeyCode.V)
         {
-            manager.ChangeToNewState(manager.SlowTime, manager.TimeState);   
+            manager.ChangeToState(manager.SlowTime, manager.TimeState);   
         }
     }
 }
@@ -28,26 +28,26 @@ public class TimeSlow : TimeDisabled
  
     }
 
-    public override void EnterState(PInputManager stateManager)
+    public override void EnterState()
     {
         time.BarZero += Time_BarZero;
 
         time.SetSlow(true);
     }
-    public override void ExitState(PInputManager stateManager)
+    public override void ExitState()
     {
         time.BarZero -= Time_BarZero;
     }
     private void Time_BarZero(object sender, EventArgs e)
     {
-        manager.ChangeToNewState(manager.NormalTime, manager.TimeState);
+        manager.ChangeToState(manager.NormalTime, manager.TimeState);
     }
 
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyDownInput( KeyCode keyCode)
     {
         if (keyCode == KeyCode.V)
         {
-            manager.ChangeToNewState(manager.NormalTime, manager.TimeState);
+            manager.ChangeToState(manager.NormalTime, manager.TimeState);
         }
     }
 }
@@ -59,23 +59,23 @@ public class TimeDisabled : PlayerState
         this.time = time;
     }
 
-    public override void EnterState(PInputManager stateManager)
+    public override void EnterState()
     {
     }
 
-    public override void ExitState(PInputManager stateManager)
+    public override void ExitState()
     {
     }
 
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyDownInput( KeyCode keyCode)
     {
     }
 
-    public override void HandleKeyPressedInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyPressedInput( KeyCode keyCode)
     {
     }
 
-    public override void HandleKeyUpInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyUpInput( KeyCode keyCode)
     {
     }
 }

@@ -8,15 +8,15 @@ public class LookEnabled : LookDisabled
     {
     
     }
-    public override void EnterState(PInputManager stateManager)
+    public override void EnterState()
     {
         look.Enable();
     }
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyDownInput( KeyCode keyCode)
     {
         if(keyCode == KeyCode.E)
         {
-            look.PickUp(stateManager);
+            look.PickUp(manager);
         }
     }
 

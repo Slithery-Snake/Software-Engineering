@@ -10,18 +10,18 @@ public class NotEquipped : PlayerState
         this.inventory = inventory;
     }
 
-    public override void EnterState(PInputManager stateManager)
+    public override void EnterState()
     {
         inventory.UnequipHotBar();
         inventory.ClearCurrentGun();
     }
 
-    public override void ExitState(PInputManager stateManager)
+    public override void ExitState()
     {
     }
 
   
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyDownInput( KeyCode keyCode)
     {
         int slot;
        if(Inventory.KeyCodeToSelect(keyCode, out slot))
@@ -32,16 +32,16 @@ public class NotEquipped : PlayerState
             {
                 
                 inventory.SetSlot(slot);
-                stateManager.ChangeToState(stateManager.Equipped, stateManager.HotBarState);
+                manager.ChangeToState(manager.Equipped, manager.HotBarState);
             }
        }
     }
 
-    public override void HandleKeyPressedInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyPressedInput( KeyCode keyCode)
     {
     }
 
-    public override void HandleKeyUpInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyUpInput( KeyCode keyCode)
     {
     }
 

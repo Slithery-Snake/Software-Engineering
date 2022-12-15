@@ -17,18 +17,18 @@ public class Grounded : PlayerState
             manager.ChangeToState(manager.Falling, manager.JumpState);
         }
     }
-    public override void EnterState(PInputManager stateManager)
+    public override void EnterState()
     {
         manager.MonoAcessors.UpdateCall.Listen(Falling);
     }
 
-    public override void ExitState(PInputManager stateManager)
+    public override void ExitState()
     {
         manager.MonoAcessors.UpdateCall.Deafen(Falling);
 
     }
 
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keycode)
+    public override void HandleKeyDownInput( KeyCode keycode)
     {
         if(keycode == KeyCode.Space)
         {
@@ -37,11 +37,11 @@ public class Grounded : PlayerState
         }
     }
 
-    public override void HandleKeyPressedInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyPressedInput( KeyCode keyCode)
     {
     }
 
-    public override void HandleKeyUpInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyUpInput( KeyCode keyCode)
     {
     }
 }

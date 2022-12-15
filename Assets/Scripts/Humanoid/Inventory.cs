@@ -53,7 +53,7 @@ public class Inventory : StateManagerComponent
     MonoCall<int> picked;
     Task reloadingTask;
     CancellationTokenSource reloadToken;
-    public void Reload(UnityAction callWhenDone)
+    public void Reload()
     {
         StopReload();
         if (currentGun != null)
@@ -61,49 +61,24 @@ public class Inventory : StateManagerComponent
 
             reloadToken = new CancellationTokenSource();
             CancellationToken t = reloadToken.Token;
-            reloadingTask = ReloadTask(callWhenDone, t);
+            reloadingTask = currentGun.Shooting.ReloadTask( t, GetAmmo(currentGun));
         }
     }
+ 
+    //reload, cancel, reload (cancel from first reload cancels second reload)
+
     public void StopReload()
     {
         if (reloadToken != null)
         {
-
+            Debug.Log("DISPOSED");
             reloadToken.Cancel();
             reloadToken.Dispose();
+            reloadToken = null;
 
         }
     }
-     void LoadCurrent()
-    {
-        currentGun.Shooting.LoadBullets(GetAmmo(currentGun));
 
-
-    }
-    //reload, cancel, reload (cancel from first reload cancels second reload)
-    async Task ReloadTask(UnityAction doneCall, CancellationToken t)
-    {
-         try
-        {
-            await Task.Delay(currentGun.WeaponData.reloadTime * 1000);
-            if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
-            LoadCurrent();
-            if (doneCall != null)
-            {
-                doneCall();
-            }
-            
-        } catch(OperationCanceledException) { }
-        finally
-        {
-            if (reloadToken != null)
-            {
-                reloadToken.Dispose();
-                reloadToken = null;
-            }
-        }
-       
-    }
     public Ammo GetAmmo(CollectiveGun g)
     {
       AmmoSC ammoSC = g.Shooting.ItemData.AmmoSource;

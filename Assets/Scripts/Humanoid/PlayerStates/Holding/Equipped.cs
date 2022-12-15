@@ -10,7 +10,7 @@ public class Equipped : NotEquipped
     {
            
     }
-    public override void EnterState(PInputManager stateManager)
+    public override void EnterState()
     {
         inventory.GunEquipped.Listen(GG);
 
@@ -27,7 +27,7 @@ public class Equipped : NotEquipped
        // Debug.Log(inventory.CurrentEquipped);
        // Debug.Log(item);
     }
-    public override void ExitState(PInputManager stateManager)
+    public override void ExitState()
     {
         inventory.GunEquipped.Deafen(GG);
     }
@@ -60,7 +60,7 @@ public class Equipped : NotEquipped
 
         }
     }
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyDownInput( KeyCode keyCode)
     {
         KeyDownUse(keyCode);
 
@@ -69,11 +69,11 @@ public class Equipped : NotEquipped
         {
             if (slot == hi && inventory.ItemIsInSlot(hi))
             {
-                stateManager.ChangeToState(stateManager.NotEquipped, stateManager.HotBarState);
+                manager.ChangeToState(manager.NotEquipped, manager.HotBarState);
             }
         }
     }
-    public override void HandleKeyUpInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyUpInput( KeyCode keyCode)
     {
         KeyUpUse(keyCode);
        

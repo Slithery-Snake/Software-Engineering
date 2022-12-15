@@ -51,12 +51,7 @@ public class ItemManager : MonoBehaviour
        return Ammo.CreateAmmo(g, count, v, Quaternion.identity);
     }
     // Start is called before the first frame update
-    void Start()
-    {
-        CollectiveGun.CreateGun(guns[0], bulletSpawn, new Vector3(3, 3, 0), Quaternion.identity, true);
-
-        Ammo.CreateAmmo(ammo[0], 100, new Vector3(2, 3, 0), Quaternion.identity);
-    }
+   
 
     // Update is called once per frame
 }

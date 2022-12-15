@@ -217,16 +217,20 @@ namespace EnemyStuff
         public override NodeState Evaluate()
         {
             
-            if (ShouldShoot() && shoot.HasAmmo && !shoot.IsReloading && shoot.CanFire)
+            if (ShouldShoot() && !shoot.IsReloading && shoot.GetCanFire())
             {
                 Shoot();
                 state = NodeState.SUCCESS;
             } else
             {
+                state = NodeState.RUNNING;
+
+            }
+            if(shoot.HasAmmo == false)
+            {
                 state = NodeState.FAILURE;
 
             }
-
             return state;
         }
     }
@@ -236,15 +240,21 @@ namespace EnemyStuff
         Inventory inventory;
         enum RelState {doneReload, notReload, reloading }
         RelState rel = RelState.notReload;
+        
+        Shooting myGun;
         public ReloadNode(Inventory inventory) 
         {
             this.inventory = inventory;
+
         }
         void ReloadDone()
-        {
+        {   
             rel = RelState.notReload;
+            inventory.CurrentGun.Shooting.IdealReloadState -= ReloadDone;
+            return;
         }
-       public override NodeState Evaluate()
+
+        public override NodeState Evaluate()
         {   
             if(rel ==RelState.doneReload) { state = NodeState.SUCCESS; rel = RelState.notReload;  return state; }
             if(inventory.HaveAmmoForGun() && rel == RelState.notReload)
@@ -252,10 +262,21 @@ namespace EnemyStuff
                 Debug.Log("reload");
                 state = NodeState.RUNNING;
                 rel = RelState.reloading;
-                inventory.Reload(ReloadDone);
+                inventory.Reload();
+                bool done = false;
+                void ReloadAgain()
+                {
+                    done = true;
+                 }
+                inventory.CurrentGun.Shooting.ReloadDone += ReloadAgain;
+                inventory.CurrentGun.Shooting.IdealReloadState += ReloadDone;
+                if(!done)
+                {
+                    inventory.Reload();
+                }
 
             }
-            
+
             return state;
         }
     }

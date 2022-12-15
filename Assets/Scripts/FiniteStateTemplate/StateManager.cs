@@ -6,30 +6,30 @@ public class StateManagerIN: MonoBehaviour
 {
     
   
-    public virtual void ChangeToState(FiniteStateInput<StateManagerIN> newState, FiniteStateInput<StateManagerIN> stateToChange)
+    public virtual void ChangeToState(State newState, Pointer stateToChange)
     {
-        stateToChange.ExitState(this);
-        stateToChange = newState;
-        stateToChange.EnterState(this);
+        stateToChange.State.ExitState();
+        stateToChange.State = newState;
+        stateToChange.State.EnterState();
 
     }
    
 }
-public interface IStateManager<T>
+public interface IStateManager
 {
 
-    public void ChangeToState(T newState, T stateToChange);
+    public void ChangeToState(State newState, Pointer stateToChange);
  
 }
-public class StateManager
+public class StateManager : IStateManager
 {
 
 
-    public virtual void ChangeToState(FiniteState<StateManager> newState, FiniteState<StateManager> stateToChange)
+    public virtual void ChangeToState(State newState, Pointer stateToChange)
     {
-        stateToChange.ExitState(this);
-        stateToChange = newState;
-        stateToChange.EnterState(this);
+        stateToChange.State.ExitState();
+        stateToChange.State = newState;
+        stateToChange.State.EnterState();
 
     }
 

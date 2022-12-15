@@ -1,26 +1,41 @@
 using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
-
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine.Events;
 public class AutoShooting : Shooting
 {
     Coroutine shootRout;
     protected override void Shoot()
-    {
-        shootRout = StartCoroutine(Shooting());
+    {if (canFire)
+        {
+            shootRout = StartCoroutine(Shooting());
+        }
     }
   
     IEnumerator Shooting()
     {
-        base.Shoot();
+        do
+        {
+            if (hasAmmo == false)
+            {
+                break;
+            }
+            base.Shoot();
 
-        yield return invoke;
+            yield return invoke;
+        } while (true);
     }
-    protected override void TriggerRelease()
+   void StopRout()
     {
-        if(shootRout !=null)
+        if (shootRout != null)
         {
             StopCoroutine(shootRout);
         }
+    }
+    protected override void TriggerRelease()
+    {
+        StopRout();
     }
 }

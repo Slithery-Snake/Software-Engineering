@@ -11,11 +11,14 @@ public class Reloading : EquippedGun
     
     }
 
-    public override void EnterState(PInputManager stateManager)
+    public override void EnterState()
     {
         SetItem();
         SetGun();
-        inventory.Reload(ReloadDone);
+        inventory.Reload();
+        inventory.CurrentGun.Shooting.ReloadDone += ReloadDone;
+
+        
     }
 
    void ReloadDone()
@@ -23,18 +26,20 @@ public class Reloading : EquippedGun
         PInputManager p = manager;
         p.ChangeToState(p.EquippedGun, p.HotBarState);
     }
-    public override void ExitState(PInputManager stateManager)
+    public override void ExitState()
     {
+        inventory.CurrentGun.Shooting.ReloadDone -= ReloadDone;
+
         inventory.StopReload();
-        base.ExitState(stateManager);
+        base.ExitState();
     }
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyDownInput( KeyCode keyCode)
     {
         Inventory.KeyCodeToSelect(keyCode, out int hi);
         if (slot == hi)
         {
             if (reload != null) { manager.StopCoroutine(reload); };
-            stateManager.ChangeToState(stateManager.NotEquipped, stateManager.HotBarState);
+            manager.ChangeToState(manager.NotEquipped, manager.HotBarState);
         }
     }
 }

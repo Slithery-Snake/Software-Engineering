@@ -2,30 +2,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
-public interface Pointer<T, out Y> where T : StateManager where Y : FiniteState<T>
+public interface IStateInputs
 {
-    public FiniteState<T> State { get; set; }
+    public  void HandleKeyDownInput(KeyCode keyCode);
 
+    public  void HandleKeyPressedInput(KeyCode keyCode);
+
+    public  void HandleKeyUpInput(KeyCode keyCode);
 }
 
-public interface PointerIN<T, out Y> where T : StateManagerIN where Y : FiniteStateInput<T>
+public interface Pointer
 {
-    public FiniteStateInput<T> State { get; set; }
+    public State State { get; set; }
+
 }
-public class StatePointer<T, Y> : Pointer<T, Y> where T : StateManager where Y : FiniteState<T>
+public interface PointerIN: Pointer
+{
+   
+    IStateInputs Inputs { get; }
+}
+
+public class StatePointer<T, Y> : Pointer where T : StateManager where Y : FiniteState<T>
 {
     protected Y state;
 
     public StatePointer(Y state, T stateManager)
     {
         this.state = state;
-        state.EnterState(stateManager);
+        state.EnterState();
 
 
     }
 
-    public FiniteState<T> State { get => state; set => state = (Y)value; }
+    public State State { get => state; set => state = (Y)value; }
 
 
 
@@ -38,20 +47,21 @@ public class StatePointer<T, Y> : Pointer<T, Y> where T : StateManager where Y :
         this.state = state;
     }
 }
-public class StatePointerIN<T, Y> : PointerIN<T, Y> where T : StateManagerIN where Y : FiniteStateInput<T>
+public class StatePointerIN<T, Y> :  PointerIN where T : StateManagerIN where Y : FiniteStateInput<T>
 {
     protected Y state;
 
-    public StatePointerIN(Y state, List<PointerIN<T, FiniteStateInput<T>>> listOfPointers, T stateManager)
+    public StatePointerIN(Y state, List<PointerIN> listOfPointers)
     {
         if (listOfPointers != null) { listOfPointers.Add(this); }
         this.state = state;
-        state.EnterState(stateManager);
+        state.EnterState();
 
 
     }
 
-    public FiniteStateInput<T> State { get => state; set => state = (Y)value; }
+    public State State { get => state; set => state = (Y)value; }
+    public IStateInputs Inputs { get => state;  }
 
 
 
@@ -67,7 +77,7 @@ public class StatePointerIN<T, Y> : PointerIN<T, Y> where T : StateManagerIN whe
 public class PlayerStatePointer<Y> : StatePointerIN<PInputManager, Y> where Y : PlayerState
 {
 
-    public PlayerStatePointer(Y state, List<PointerIN<PInputManager, FiniteStateInput<PInputManager>>> listOfPointers, PInputManager stateManager) : base(state, listOfPointers, stateManager)
+    public PlayerStatePointer(Y state, List<PointerIN> listOfPointers, PInputManager stateManager) : base(state, listOfPointers)
     {
 
 
@@ -83,18 +93,22 @@ public abstract class PlayerState : FiniteStateInput<PInputManager>
     {
     }
 }
-public interface State<in T> where T : StateManager
+public interface State
 {
-    public abstract void EnterState(T stateManager);
+    public abstract void EnterState();
 
   
 
-    public abstract void ExitState(T stateManager);
+    public abstract void ExitState();
 
 
 
 }
-public abstract class FiniteState<T> : State<T> where T : StateManager
+public interface StateInput : State, IStateInputs
+{
+  
+}
+public abstract class FiniteState<T> : State where T : StateManager
 {
     protected T manager;
     public FiniteState(T manager)
@@ -102,15 +116,15 @@ public abstract class FiniteState<T> : State<T> where T : StateManager
         this.manager = manager;
     }
 
-    public abstract void EnterState(T stateManager);
+    public abstract void EnterState();
 
 
-    public abstract void ExitState(T stateManager);
+    public abstract void ExitState();
 
 
 }
 
-public abstract class FiniteStateInput<T> where T : StateManagerIN
+public abstract class FiniteStateInput<T> : StateInput where T : StateManagerIN
 {
     protected T manager;
 
@@ -119,15 +133,15 @@ public abstract class FiniteStateInput<T> where T : StateManagerIN
 
     }
   
-    public abstract  void EnterState(T stateManager);
+    public abstract  void EnterState();
 
-    public abstract void HandleKeyDownInput(T stateManager, KeyCode keyCode);
+    public abstract void HandleKeyDownInput( KeyCode keyCode);
 
-    public abstract void HandleKeyPressedInput(T stateManager, KeyCode keyCode);
+    public abstract void HandleKeyPressedInput( KeyCode keyCode);
 
-    public abstract void HandleKeyUpInput(T stateManager, KeyCode keyCode);
+    public abstract void HandleKeyUpInput(KeyCode keyCode);
 
-    public abstract  void ExitState(T stateManager);
+    public abstract  void ExitState();
 
 
 }

@@ -204,8 +204,8 @@ public class PInputManager : StateManagerIN
 
     List<KeyInputEvents> keyInputEventsList;
 
-    List<PointerIN<PInputManager, FiniteStateInput<PInputManager>>> allRunningStates;
-    PointerIN<PInputManager, FiniteStateInput<PInputManager>>[] allRunningStatesArray;
+    List<PointerIN> allRunningStates;
+    PointerIN[] allRunningStatesArray;
 
  
 
@@ -237,7 +237,7 @@ public class PInputManager : StateManagerIN
         inventory = new Inventory(calls.accessors, playerParts.itemGameObject, playerParts.hotBarTransform, tagManager.Tag);
         health = new Health(playerParts.sC);
         keyInputEventsList = new List<KeyInputEvents>();
-        allRunningStates = new List<PointerIN<PInputManager, FiniteStateInput<PInputManager>>>();
+        allRunningStates = new List<PointerIN>();
         keyInputEvents = new KeyInputEvents(keyInputEventsList);
         InitializeKeyEvents();
         tagManager.AddTagsToHitBoxes(health);
@@ -260,24 +260,38 @@ public class PInputManager : StateManagerIN
         slowTime = new TimeSlow(this, bTime);
         timeState = new PlayerStatePointer<TimeDisabled>(normalTime, allRunningStates,this);
         AwakeComponents();
-        uiInfo = new UIInfoBoard(this);
+        uiInfo = new UIInfoBoard(MonoAcessors,this);
     }
-    public class UIInfoBoard
+    public class UIInfoBoard : StateManagerComponent
     {
-        public  UnityAction<float> StaminaChanged;
-        public UnityAction<float> HealthChanged;
-        public UnityAction<float> BulletTimeChanged;
 
-        public UIInfoBoard(PInputManager p)
+        PInputManager p;
+        public UIInfoBoard(MonoCalls.MonoAcessors manager, PInputManager p) : base(manager)
+        {
+            this.p = p;
+        }
+        public event EventHandler<float> StaminaChanged
         {
 
-            p.moving.StaminaChanged += (object a, float f) => { StaminaChanged(f); };
-            p.health.HealthChanged += (object a, float f) => { HealthChanged(f); };
-            p.bTime.ValueUpdated += (object a, float f) => { BulletTimeChanged(f); };
-
+            add { p.moving.StaminaChanged += value; }
+            remove { p.moving.StaminaChanged -= value; }
+        }
+        public event EventHandler<float> HealthChanged {
+            
+        add { p.health.HealthChanged += value; }
+    remove { p.health.HealthChanged -= value; }
+        }
+        public event EventHandler<float> BulletTimeChanged
+        {
+            add { p.bTime.ValueUpdated += value; }
+            remove { p.bTime.ValueUpdated -= value; }
         }
 
-    }
+        
+        
+
+
+}
 
 
 
@@ -290,30 +304,7 @@ public class PInputManager : StateManagerIN
 
     }
  
-    public virtual void ChangeToState(PlayerState newState, PointerIN<PInputManager, PlayerState> stateToChange)
-    {
-        Debug.Log(newState);
-
-        stateToChange.State.ExitState(this);
-        stateToChange.State = newState;
-        stateToChange.State.EnterState(this);
-
-
-    }
-
-
-    public virtual void ChangeToNewState(PlayerState newState, PointerIN<PInputManager, PlayerState> stateToChange)
-    {
-        Debug.Log(newState);
-
-        if (!(newState == stateToChange.State))
-        {
-            stateToChange.State.ExitState(this);
-            stateToChange.State = newState;
-            stateToChange.State.EnterState(this);
-        }
-
-    }
+   
 
   
     #region Initialization, Update, and Event Methods
@@ -358,21 +349,21 @@ public class PInputManager : StateManagerIN
     {
         for (int x = 0; x < allRunningStatesArray.Length; x++)
         {
-            allRunningStatesArray[x].State.HandleKeyDownInput(this, keyCode);
+            allRunningStatesArray[x].Inputs.HandleKeyDownInput( keyCode);
         }
     }
     void InputKeyUp(KeyCode keyCode)
     {
         for (int x = 0; x < allRunningStatesArray.Length; x++)
         {
-            allRunningStatesArray[x].State.HandleKeyUpInput(this, keyCode);
+            allRunningStatesArray[x].Inputs.HandleKeyUpInput( keyCode);
         }
     }
     void InputKeyPressed(KeyCode keyCode)
     {
         for (int x = 0; x < allRunningStatesArray.Length; x++)
         {
-            allRunningStatesArray[x].State.HandleKeyPressedInput(this, keyCode);
+            allRunningStatesArray[x].Inputs.HandleKeyPressedInput( keyCode);
         }
     }
 

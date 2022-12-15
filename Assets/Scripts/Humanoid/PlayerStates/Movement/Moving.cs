@@ -85,7 +85,7 @@ public class Moving : NotMoving
     }
     void Sprint() { }
 
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyDownInput( KeyCode keyCode)
     {
         if (keyCode == KeyCode.LeftShift)
         {
@@ -93,7 +93,7 @@ public class Moving : NotMoving
         }
     }
    
-    public override void HandleKeyUpInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyUpInput( KeyCode keyCode)
     {
         if (keyCode == KeyCode.LeftShift)
         {
@@ -124,10 +124,9 @@ public class Moving : NotMoving
         public virtual void ChangeToState(FiniteState<Submoving> newState, StatePointer<Submoving, Walking> stateToChange)
         {
             Debug.Log(newState);
-
-            stateToChange.State.ExitState(this);
+            stateToChange.State.ExitState();
             stateToChange.State = newState;
-            stateToChange.State.EnterState(this);
+            stateToChange.State.EnterState();
 
 
         }
@@ -151,7 +150,7 @@ public class Moving : NotMoving
         {
             
         }
-        public override void EnterState(Submoving stateManager)
+        public override void EnterState()
         {
             Moving m = manager.Moving;
             float current = m.stamina;
@@ -174,7 +173,7 @@ public class Moving : NotMoving
       
         }
 
-        public override void EnterState(Submoving stateManager)
+        public override void EnterState()
         {
             Moving m = manager.Moving;
             float current = m.stamina;
@@ -186,7 +185,7 @@ public class Moving : NotMoving
            
         }
 
-        public override void ExitState(Submoving stateManager)
+        public override void ExitState()
         {
             manager.Moving.StopRoutine();
         }

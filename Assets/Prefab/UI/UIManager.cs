@@ -6,12 +6,18 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] PlayerUI playerUIFab;
     PlayerUI playerUI;
-   public static UIManager Create(UIManager fab, PInputManager h)
+     void CreatePlayerUI(PInputManager h)
+    {
+        PInputManager.UIInfoBoard board = h.uiInfo;
+        playerUI = PlayerUI.Create(playerUIFab, board, h.SC);
+        
+    }
+   public static UIManager Create(UIManager fab , PInputManager h)
     {
         UIManager ui = Instantiate(fab);
-        PInputManager.UIInfoBoard board = h.uiInfo;
-        ui.playerUI = PlayerUI.Create(ui.playerUIFab, board, h.SC);
-
+        ui.CreatePlayerUI(h);
+        
+            
         return ui;
     }
    

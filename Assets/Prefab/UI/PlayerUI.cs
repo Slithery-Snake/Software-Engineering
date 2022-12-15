@@ -21,15 +21,15 @@ public class PlayerUI : MonoBehaviour
     }
     void Init()
     { staminaChange = LerpBar.Create(stamina, sc.StaminaBarMax, 0, stamina.gameObject);
-        board.StaminaChanged += (float target) =>
+        board.StaminaChanged += (object t, float target) =>
         {
             staminaChange.StartLerp(target, sc.StaminaBarTick);   };
 
         health.minValue = 0;
         health.maxValue = sc.Health;
         health.value = health.maxValue;
-        board.HealthChanged += (float target) => { health.value = target; };
-        board.BulletTimeChanged += (float target) => { bBar.value = target; };
+        board.HealthChanged += (object t, float target) => { health.value = target; };
+        board.BulletTimeChanged += (object t, float target) => { bBar.value = target; };
         bBar.minValue = 0;
         bBar.maxValue = sc.SlowBarMax;
         bBar.value = 0;
