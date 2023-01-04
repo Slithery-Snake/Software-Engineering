@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class PlayOneShot : MonoBehaviour {
-    public string fileName;
-    void Update()
+public class PlayAudio : MonoBehaviour
+{
+    public AudioClip clip;
+    public float volume = 1;
+    void Start()
     {
-        audioSource.PlayOneShot(fileName[Random.Range(0, fileName.length - 1)], Random.Range(0.75f, 1));
+        AudioSource.PlayClipAtPoint(clip, transform.position, volume);
     }
 }

@@ -23,27 +23,33 @@ public class Shooting : Item<WeaponData>
     BulletTag bTag = null;
 
     public HotBarItem HotBar { get => hotBar; }
+    public bool IsReloading { get => isReloading;  }
+    public bool HasAmmo { get => hasAmmo;}
+    public bool CanFire { get => canFire;  }
 
     // public new WeaponData  ItemData { get => itemData;  }
     public void SetTag(BulletTag t)
     {
         bTag = t;
     }
-    public static Shooting CreateShooting(GameObject gun, BulletSpawn p , Transform barrelTransform, WeaponData data)
+    public static Shooting CreateShooting(GameObject gun, BulletSpawn p , Transform barrelTransform, WeaponData data, bool chamber)
     {
         Shooting r = gun.AddComponent<Shooting>();
         r.barrelTransform = barrelTransform;
         r.itemData = data;
 
-        r.InitializeShooting(p); 
+        r.InitializeShooting(p, chamber); 
         r.hotBar = HotBarItem.CreateHotBar(r.TriggerDown, null, r.TriggerRelease, null, r.itemData, r.gameObject);
         return r;
     }
-    void InitializeShooting( BulletSpawn bulletSpawn)
+    void InitializeShooting( BulletSpawn bulletSpawn, bool c)
     {
 
 
-
+        hasAmmo = c;
+        if(c) { inChamber = itemData.magSize; }
+         else {inChamber = 0; }
+        
        ammoType = itemData.AmmoSource;
         magSize = itemData.magSize;
         reloadTime = itemData.reloadTime;
@@ -53,7 +59,6 @@ public class Shooting : Item<WeaponData>
     }
     public void LoadBullets(Ammo reserves)
     {
-        Debug.Log(reserves.Count);
         int bulletsToFull = magSize - inChamber;
         if (reserves.Count <= bulletsToFull)
         {
@@ -85,7 +90,7 @@ public class Shooting : Item<WeaponData>
     }
      void Shoot()
     {
-        if (!searDown && canFire && hasAmmo)
+        if (CanFire && hasAmmo )
         {
             //RaycastHit rayInfo;
             inChamber--;
@@ -100,13 +105,15 @@ public class Shooting : Item<WeaponData>
             Vector3 direction = barrelTransform.forward;
             // bullet.transform.rotation = barrelTransform.rotation;
             Vector3 position = barrelTransform.position;
-           // bullet.transform.position = position;
+            // bullet.transform.position = position;
             bullet.Shoot(position, direction, bTag);
+           // searDown = ItemData.isAuto;
             // bullet.Rg.velocity = 
-           // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
+            // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
             //shooting bullet stuff
-
+            Debug.Log("BANG");
         }
+        
     }
 
      void TriggerDown()
@@ -116,7 +123,7 @@ public class Shooting : Item<WeaponData>
        
             triggerDown = true;
             Shoot();
-            searDown = !itemData.isAuto;
+            searDown = true;
       
 
     }

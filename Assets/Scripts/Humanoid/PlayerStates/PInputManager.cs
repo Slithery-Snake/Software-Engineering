@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+
+
 public class MonoCall<T> : IMonoCall<T>
 {
   
     UnityAction<T> toCall;
     public void Call(T h)
     {
+        if(toCall !=null)
         toCall(h);
     }
     public bool IsNull()
@@ -40,7 +43,10 @@ public class MonoCall : IMonoCall
     UnityAction toCall;
     public void Call()
     {
-        toCall();
+        if (toCall != null)
+        {
+            toCall();
+        }
     }
     public bool IsNull()
     {
@@ -60,38 +66,64 @@ public class MonoCall : IMonoCall
         toCall -= remove;
     }
 }
+public class MonoCalls
+{
+
+    public MonoCall awakeCall = new MonoCall();
+    public MonoCall startCall = new MonoCall();
+    public MonoCall updateCall = new MonoCall();
+    public MonoCall fixedUpdateCall = new MonoCall();
+    public MonoCall lateUpdateCall = new MonoCall();
+    public MonoAcessors accessors;
+    public MonoCalls ()
+    {
+         accessors = new MonoAcessors(this);
+
+
+
+    }
+
+
+    public class MonoAcessors
+    {
+        public MonoAcessors  (MonoCalls f)
+        {
+            calls = f;
+        }
+        MonoCalls calls;
+        public IMonoCall AwakeCall { get => calls.awakeCall; }
+        public IMonoCall StartCall { get => calls.startCall; }
+        public IMonoCall UpdateCall { get => calls.updateCall; }
+        public IMonoCall FixedUpdateCall { get => calls.fixedUpdateCall; }
+        public IMonoCall LateUpdateCall { get => calls.lateUpdateCall; }
+    }
+}
+
 public interface IMonoCall
 {
 
     public void Listen(UnityAction add);
     public void Deafen(UnityAction remove);
 }
+[Serializable]
+public class TagManager
+{
+    public Collider[] hitBoxes;
+    public BulletTag tag;
+    public  void AddTagsToHitBoxes(IShootable shootable)
+    {
+       for(int i = 0; i < hitBoxes.Length; i ++)
+        {
+            ShootBox.Create(tag, shootable, hitBoxes[i]);
+        }
+    }
+     public BulletTag Tag { get => tag; }
+}
 public class PInputManager : StateManager
 {
-    [Serializable]
-    public class TagManager
-    {
-        [SerializeField] ShootBox[] hitBoxes;
-        [SerializeField] BulletTag tag;
-
-        public BulletTag Tag { get => tag;  }
-    }
+ 
     [SerializeField]TagManager tagManager;
 
-    MonoCall awakeCall = new MonoCall();
-    MonoCall startCall = new MonoCall();
-    MonoCall updateCall = new MonoCall();
-    MonoCall fixedUpdateCall = new MonoCall();
-    MonoCall lateUpdateCall = new MonoCall();
-    public IMonoCall AwakeCall { get => awakeCall; }
-    public IMonoCall StartCall { get => startCall; }
-    public IMonoCall UpdateCall { get => updateCall; }
-    public IMonoCall FixedUpdateCall { get => fixedUpdateCall; }
-    public IMonoCall LateUpdateCall { get => lateUpdateCall; }
-   
-   
-
- 
   
 
 
@@ -107,9 +139,16 @@ public class PInputManager : StateManager
         public Transform hotBarTransform;
      
     }
+    MonoCalls calls = new MonoCalls();
+
+  
+
+
     [SerializeField] Parts playerParts;
     Movement movement;
-    
+    PlayerStatePointer<Grounded> jumpState;
+    Grounded onGround;
+    InAir falling;
     private PlayerStatePointer<NotMoving> movementState;
     private NotMoving notMoving;
     private Moving moving;
@@ -165,45 +204,25 @@ public class PInputManager : StateManager
     List<Pointer<PInputManager, FiniteState<PInputManager>>> allRunningStates;
     Pointer<PInputManager, FiniteState<PInputManager>>[] allRunningStatesArray;
 
-    List<StateManagerComponent<PInputManager>> components;
-
-    StateManagerComponent<PInputManager>[] componentsArray;
+ 
 
     #region Component Events
     //Event system for components in the future maybe???
     
-
-    public struct WhichEvent<T> where T : ComponentArgs
-    {
-        public UnityAction<T> Event;
-        public T ComponentArgs { get; private set; }
-        WhichEvent(T componentArgs)
-        {
-            ComponentArgs = componentArgs;
-            Event = null;
-        }
-    }
-    public class ComponentArgs : EventArgs
-    {
-        public StateManagerComponent<PInputManager> Source { get; private set; }
-
-        ComponentArgs(StateManagerComponent<PInputManager> source)
-        {
-            Source = source;
-        }
-    }
-
+    public MonoCalls.MonoAcessors MonoAcessors { get => calls.accessors; }
+    public TagManager TagManager { get => tagManager; }
+    public PlayerStatePointer<Grounded> JumpState { get => jumpState;  }
+    public Grounded OnGround { get => onGround; }
+    public InAir Falling { get => falling; }
 
     #endregion
-     void Test() { Debug.Log("awoken"); }
+    void Test() { Debug.Log("awoken"); }
     void Awake()
     {
-        components = new List<StateManagerComponent<PInputManager>>();
-        movement = new Movement(this, components, playerParts.pController, playerParts.groundCheck, playerParts.jumpFloorMask, playerParts.body);
-        look = new MouseLook(this, components, playerParts.body, playerParts.mainCamera.transform);
-        inventory = new Inventory(this, components, playerParts.itemGameObject, playerParts.hotBarTransform, tagManager.Tag);
+        movement = new Movement(calls.accessors,  playerParts.pController, playerParts.groundCheck, playerParts.jumpFloorMask, playerParts.body);
+        look = new MouseLook(calls.accessors, playerParts.body, playerParts.mainCamera.transform);
+        inventory = new Inventory(calls.accessors, playerParts.itemGameObject, playerParts.hotBarTransform, tagManager.Tag);
 
-        InitializeComponentsArray();     
         keyInputEventsList = new List<KeyInputEvents>();
         allRunningStates = new List<Pointer<PInputManager, FiniteState<PInputManager>>>();
         keyInputEvents = new KeyInputEvents(keyInputEventsList);
@@ -220,6 +239,9 @@ public class PInputManager : StateManager
         equippedGun = new EquippedGun(this, inventory);
         reloading = new Reloading(this, inventory);
         hotBarState = new PlayerStatePointer<NotEquipped>(notEquipped, allRunningStates, this);
+        onGround = new Grounded(this, movement);
+        falling = new InAir(this, movement);
+        jumpState = new PlayerStatePointer<Grounded>(falling, allRunningStates, this);
         AwakeComponents();
 
     }
@@ -276,35 +298,27 @@ public class PInputManager : StateManager
     }
     void AwakeComponents()
     {
-        if (!awakeCall.IsNull())
-            awakeCall.Call();
+       
+            calls.awakeCall.Call();
         
     }
     void StartComponents()
     {
-        if (!startCall.IsNull())
-            startCall.Call();
+            calls.startCall.Call();
     }
     void UpdateComponents()
     {
-        if (!updateCall.IsNull())
-            updateCall.Call();
+            calls.updateCall.Call();
     }
     void LateUpdateComponents()
     {
-        if (!lateUpdateCall.IsNull())
-            lateUpdateCall.Call();
+            calls.lateUpdateCall.Call();
     }
     void FixedUpdateComponents()
     {
-        if (!fixedUpdateCall.IsNull())
-            fixedUpdateCall.Call();
+            calls.fixedUpdateCall.Call();
     }
-    void InitializeComponentsArray()
-    {
-
-        componentsArray = components.ToArray();
-    }
+  
    
     void InputKeyDown(KeyCode keyCode)
     {

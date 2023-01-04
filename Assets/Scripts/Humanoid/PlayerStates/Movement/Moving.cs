@@ -5,27 +5,15 @@ using System;
 
 public class Moving : NotMoving
 {
-    protected float moveX;
-    protected float moveZ;
+    protected Movement movement;
     public Moving(PInputManager parent, Movement movement) : base(parent, movement)
     {
-       
-  }
-
-    public override void EnterState(PInputManager stateManager)
-    {
-        moveX = 0;
-        moveZ = 0;
-        manager.UpdateCall.Listen(Update);
+        this.movement = movement;
 
     }
 
-    public override void ExitState(PInputManager stateManager)
-    {
-        manager.UpdateCall.Deafen(Update);
 
-    }
-    void Update()
+    protected override void Update()
     {
         moveX = Input.GetAxis("Horizontal");
         moveZ = Input.GetAxis("Vertical");
@@ -36,22 +24,6 @@ public class Moving : NotMoving
         }
     }
   
-
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
-    {
-         }
-
-    public override void HandleKeyPressedInput(PInputManager stateManager, KeyCode keyCode)
-    {
-
-    }
-
-    public override void HandleKeyUpInput(PInputManager stateManager, KeyCode keyCode)
-    {
-
-
-    }
-
 
     
 

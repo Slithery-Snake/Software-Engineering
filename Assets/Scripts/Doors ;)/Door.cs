@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Door : MonoBehaviour
+public class Door : MonoBehaviour, Iinteractable
 {
     public bool IsOpen = false;
     [SerializeField]
@@ -99,5 +99,10 @@ public class Door : MonoBehaviour
             yield return null;
             time += Time.deltaTime * Speed;
         }
+    }
+
+    public void Interacted(PInputManager source)
+    {
+        
     }
 }
