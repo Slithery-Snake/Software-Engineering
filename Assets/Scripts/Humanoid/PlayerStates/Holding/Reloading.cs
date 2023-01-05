@@ -15,8 +15,8 @@ public class Reloading : EquippedGun
     {
         SetItem();
         SetGun();
-        inventory.Reload();
         inventory.CurrentGun.Shooting.ReloadDone += ReloadDone;
+        inventory.Reload();
 
         
     }
@@ -24,6 +24,7 @@ public class Reloading : EquippedGun
    void ReloadDone()
     {
         PInputManager p = manager;
+
         p.ChangeToState(p.EquippedGun, p.HotBarState);
     }
     public override void ExitState()

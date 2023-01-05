@@ -21,6 +21,7 @@ public static class Constants
     public static readonly int levelEndScene = 11;
 }
 
+
 public class GameManager : MonoBehaviour
 { int loadedScene;
     public class GameManagerState : StateManager
@@ -39,6 +40,7 @@ public class GameManager : MonoBehaviour
             this.manager = manager;
             inMenu = new InMenu(this);
             point = new StatePointer<GameManagerState, FiniteState<GameManagerState>>(inMenu, this);
+
         }
 
         public  void ChangeToStateIG( Pointer stateToChange, int i)
@@ -51,15 +53,29 @@ public class GameManager : MonoBehaviour
         {
             int i;
             Scene1 scene;
+            GameManager gameManager;
+          
+          void DisplayDeath(int i)
+            {
+             DeathMenu deathMenu =   gameManager.uiManager.ToggleDeathMenu(true);
+                void Retry() { gameManager.uiManager.ToggleDeathMenu(false); gameManager.Restart(i); deathMenu.Retry -= Retry; }
+                void ToMenu() { manager.ChangeToState(manager.inMenu, manager.point); deathMenu.Menu -= ToMenu; }
+                deathMenu.Menu += ToMenu;
+                deathMenu.Retry += Retry;
+                
+                
+            }
+
             public InGame(GameManagerState manager, int i) : base(manager)
             {
                 this.i = i;
+                PInputManager.PlayerDied += () => { DisplayDeath(i); };
+                gameManager = manager.manager;
             }
 
             public override void EnterState()
             {
                 scene = new Scene1(i, manager.manager);
-                Debug.Log("enter");
 
             }
 
@@ -102,10 +118,17 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
+    void Restart(int i )
+    {
+        // UnloadScene(i);
+        //    unloadingOperation.completed += (AsyncOperation) => { LoadScene(i); };
+        gameState.ChangeToStateIG(gameState.Point, i);
+    }
     AsyncOperation loadingOperation;
     AsyncOperation unloadingOperation;
-    List<AsyncOperation> operations;
+    List<AsyncOperation> unloadingOperations;
+    List<AsyncOperation> loadingOperations;
+
     GameManagerState gameState;
 
     [SerializeField] BulletSpawn bulletSpawn;
@@ -117,11 +140,13 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        operations = new List<AsyncOperation>();
-
+        unloadingOperations = new List<AsyncOperation>();
+        loadingOperations = new List<AsyncOperation>();
         gameState = new GameManagerState(this);
     }
 
+    
+   
     public abstract class SceneCreation {
         protected int index;
         protected GameManager manager;
@@ -138,11 +163,11 @@ public class GameManager : MonoBehaviour
     }
     public class Scene1 : SceneCreation
     {   
-        BulletSpawn bSpawn;
-        ItemManager itemManager;
-        UIManager ui;
-        HumanoidManager hu;
-        PInputManager player;
+       public BulletSpawn bSpawn;
+        public ItemManager itemManager;
+        public UIManager ui;
+        public HumanoidManager hu;
+        public PInputManager player;
       
         public Scene1(int index, GameManager manager) : base(index, manager)
         {
@@ -166,9 +191,12 @@ public class GameManager : MonoBehaviour
             hu.CreateEnemy(new Vector3(0, 8, 0));
            
             ui = UIManager.Create(manager.uiManager, player);
-            itemManager.CreateGun(new Vector3(3, 3, 0), 1, true);
-            itemManager.CreateAmmo(new Vector3(2, 3, 3), 20, 1000);
-              SoundCentral.Create(manager.soundManager);
+            itemManager.CreateGun(new Vector3(3, 3, 0), 2, true);
+            itemManager.CreateAmmo(new Vector3(2, 3, 3), 21, 1000);
+            itemManager.CreateGun(new Vector3(0, 3, 0), 3, true);
+            itemManager.CreateAmmo(new Vector3(1, 3, 3), 22, 1000);
+            itemManager.CreateItem( new Vector3(4,3,4), 100);
+            SoundCentral.Create(manager.soundManager);
 
           
         }
@@ -206,17 +234,15 @@ public class GameManager : MonoBehaviour
         this.loadedScene = sceneIndex;
      //   if (loadingOperation != null) { return; }
         loadingOperation = SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Additive);
-        operations.Add(loadingOperation);
+        loadingOperations.Add(loadingOperation);
         loadingOperation.completed += LoadOperationDone;
     
     }
 
     public void UnloadScene(int sceneIndex)
     {
-        this.loadedScene = sceneIndex;
-        if (unloadingOperation != null) { return; }
         unloadingOperation = SceneManager.UnloadSceneAsync(sceneIndex);
-        operations.Add(unloadingOperation);
+        unloadingOperations.Add(unloadingOperation);
         unloadingOperation.completed += UnloadOperationDone;
 
     }
@@ -226,10 +252,10 @@ public class GameManager : MonoBehaviour
     }
     void LoadOperationDone(AsyncOperation ao)
     {
-        if (operations.Contains(loadingOperation))
+        if (loadingOperations.Contains(loadingOperation))
         {
-            operations.Remove(loadingOperation);
-            if (operations.Count == 0)
+            loadingOperations.Remove(loadingOperation);
+            if (loadingOperations.Count == 0)
             {
                 SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(loadedScene));
             }
@@ -255,11 +281,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("to the menu");
     }
-    public void Restart()
-    {
-      //  LoadScene(sceneIndex);
-    }
-
+  
 
 
 }

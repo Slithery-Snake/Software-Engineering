@@ -5,6 +5,7 @@ using UnityEngine;
 public class Ammo : Item<AmmoSC>, Iinteractable
 {
     [SerializeField] int count = 0;
+    
     public static Ammo  CreateAmmo(Ammo pref, int count, Vector3 cord, Quaternion rotation)
     {
         Ammo am = Instantiate(pref, cord, rotation);
@@ -19,6 +20,5 @@ public class Ammo : Item<AmmoSC>, Iinteractable
         Destroy(gameObject);
     }
 
-   
   
 }

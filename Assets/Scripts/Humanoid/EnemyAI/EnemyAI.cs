@@ -15,21 +15,20 @@ namespace EnemyStuff
 {
     [Serializable] struct EnemyParts
     {
-        public Transform body;
         public Transform hBarTransform;
         public Transform itemGameObject;
         public EnemySC enemySC;
         public TagManager tag;
-        public Transform head;
+        public HumanoidParts hParts;
     }
-    public class EnemyAI : BehaviourTree
+    public class EnemyAI : BehaviourTree, StatusEffect.StatusEffectManager.IStatusEeffectable, StatusEffect.StatusEffectManager.IStunnable
     {
         public static EnemyAI CreateEnemy(EnemyAI prefab, Vector3 v, ItemManager itemManager)
         {
             EnemyAI e =Instantiate(prefab, v, Quaternion.identity);
             e.Init(itemManager);
-            
             return e;
+            
         }
 
         public static event EventHandler EnemyKilled;
@@ -40,21 +39,24 @@ namespace EnemyStuff
         ShootNode shootNode;
         ReloadNode reloadNode;
         Health health;
+        StatusEffect.StatusEffectManager status;
+        HandPosManage handPos;
+        public StatusEffect.StatusEffectManager StatusEffectManager => status;
 
-     
         private void Init(ItemManager manager)
         {
-            inventory = new Inventory(calls.accessors, enemyParts.itemGameObject, enemyParts.hBarTransform, enemyParts.tag.Tag);
-            inventory.AddAmmo(manager.CreateAmmo(Vector3.zero, 20,1000));
+            handPos = new HandPosManage(calls.accessors, enemyParts.hParts.Parts1.rHand, enemyParts.hParts.Parts1.lHand);
+            inventory = new Inventory(calls.accessors, enemyParts.itemGameObject, enemyParts.hBarTransform, enemyParts.tag.Tag, health, handPos);
+            inventory.AddAmmo(manager.CreateAmmo(Vector3.zero, 22,1000));
             health = new Health(enemyParts.enemySC);
             health.HealthBelowZero += () => { EnemyKilled.Invoke(this, null); };
             EnemyKilled += Die;
-            enemyParts.tag.AddTagsToHitBoxes(health);
-
-            shootNode = new ShootNode(inventory, enemyParts.body, enemyParts.enemySC);
-            lookNode = new LookAtNode(enemyParts.body,enemyParts.head, enemyParts.enemySC);
+            enemyParts.tag.AddTagsToHitBoxes(health, this);
+            status = new StatusEffect.StatusEffectManager(calls.accessors, health, this);
+            shootNode = new ShootNode(inventory, enemyParts.hParts.Parts1.body, enemyParts.enemySC);
+            lookNode = new LookAtNode(enemyParts.hParts.Parts1.body, enemyParts.hParts.Parts1.head, enemyParts.enemySC);
             reloadNode = new ReloadNode(inventory);
-            inventory.AddGun(manager.CreateGun(Vector3.zero, 1,true));
+            inventory.AddGun(manager.CreateGun(Vector3.zero, 3,true));
 
 
         }
@@ -81,6 +83,11 @@ namespace EnemyStuff
             Node root = first;
 
             return root;
+        }
+
+        public void Stun(double stunTime)
+        {
+            throw new NotImplementedException();
         }
     }
     public class LookAtNode : Node
@@ -226,7 +233,7 @@ namespace EnemyStuff
                 state = NodeState.RUNNING;
 
             }
-            if(shoot.HasAmmo == false)
+            if(shoot.NeedReload())
             {
                 state = NodeState.FAILURE;
 
@@ -235,12 +242,12 @@ namespace EnemyStuff
         }
     }
     public class ReloadNode : Node
-    {
+    {   
        
         Inventory inventory;
         enum RelState {doneReload, notReload, reloading }
         RelState rel = RelState.notReload;
-        
+        bool completeIdeal = false;
         Shooting myGun;
         public ReloadNode(Inventory inventory) 
         {
@@ -248,32 +255,50 @@ namespace EnemyStuff
 
         }
         void ReloadDone()
-        {   
-            rel = RelState.notReload;
+        {
+
+            rel = RelState.doneReload;
+            completeIdeal = false;
             inventory.CurrentGun.Shooting.IdealReloadState -= ReloadDone;
+            
             return;
         }
+        //once reload is done, if not ideal, reload again
+        void ReloadAgain()
+        { Shooting shooting = inventory.CurrentGun.Shooting;
+            if (!shooting.IsEmpty() && !completeIdeal)
+            {
 
+                rel = RelState.doneReload;
+
+                inventory.CurrentGun.Shooting.ReloadDone -= ReloadAgain;
+                inventory.CurrentGun.Shooting.IdealReloadState -= ReloadDone;
+
+
+            }
+            if (rel != RelState.doneReload)
+            {
+                completeIdeal = true;
+                inventory.Reload();
+            } else
+            {
+                inventory.CurrentGun.Shooting.ReloadDone -= ReloadAgain;
+
+            }
+
+        }
         public override NodeState Evaluate()
         {   
             if(rel ==RelState.doneReload) { state = NodeState.SUCCESS; rel = RelState.notReload;  return state; }
             if(inventory.HaveAmmoForGun() && rel == RelState.notReload)
             {
-                Debug.Log("reload");
                 state = NodeState.RUNNING;
                 rel = RelState.reloading;
                 inventory.Reload();
-                bool done = false;
-                void ReloadAgain()
-                {
-                    done = true;
-                 }
+               
                 inventory.CurrentGun.Shooting.ReloadDone += ReloadAgain;
                 inventory.CurrentGun.Shooting.IdealReloadState += ReloadDone;
-                if(!done)
-                {
-                    inventory.Reload();
-                }
+            
 
             }
 

@@ -45,3 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerUIFab: {fileID: 4366064671929623754, guid: 31ea96a38505d8e41b2dea36f1be180e, type: 3}
+  deathMenuFab: {fileID: 4909529249675635243, guid: 293c69f01076a9647801d1e3b9c34971, type: 3}

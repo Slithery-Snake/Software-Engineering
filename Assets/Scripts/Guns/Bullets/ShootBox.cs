@@ -13,15 +13,17 @@ public class ShootBox : MonoBehaviour
      IShootable shootable;
    
     public IShootable Shootable { get => shootable;}
+    StatusEffect.StatusEffectManager.IStatusEeffectable statusEffectManager;
+    public StatusEffect.StatusEffectManager.IStatusEeffectable Status { get => statusEffectManager; }
 
     public IShootable GetShootable()
     {
         return shootable;
     }
-    public static ShootBox Create(BulletTag tag, IShootable shootable, Collider coll)
+    public static ShootBox Create(BulletTag tag, IShootable shootable, Collider coll, StatusEffect.StatusEffectManager.IStatusEeffectable statusEffectManager)
     {
        ShootBox b = coll.gameObject.AddComponent<ShootBox>();
-       
+        b.statusEffectManager = statusEffectManager;
         b.Init(tag, shootable);
 
         return b;

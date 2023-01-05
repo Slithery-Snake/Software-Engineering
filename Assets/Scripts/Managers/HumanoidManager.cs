@@ -28,6 +28,10 @@ public class HumanoidManager : MonoBehaviour
     
     public PInputManager CreatePlayer(Vector3 v)
     {
+        if(player != null)
+        {
+            Destroy(player);
+        }
         player = Instantiate(playerPrefab, v, Quaternion.identity);
         playerTransform = player.transform;
         return player;

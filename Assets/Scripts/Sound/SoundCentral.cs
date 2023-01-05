@@ -5,7 +5,8 @@ using UnityEngine.Audio;
 using System;
 using UnityEngine.Events;
 using UnityEngine.Pool;
-
+using System.Threading;
+using System.Threading.Tasks;
 public class SoundCentral : SingletonBaseClass<SoundCentral>
 {
     public static void Create(SoundCentral pref)
@@ -16,10 +17,12 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
     }
     public delegate void PlaySoundAt(Vector3 v, SoundTypes s);
     public enum SoundTypes {
+         
+        PistolShoot, PistolMag, PistolCharge, SMGShoot, SMGMag, SMGCharge,   ShottyShoot, ShottyMag, ShottyCharge
 
-        PistolShoot, ShottyShoot, SMGShoot
-        
     }
+    AudioSource playAtPointFab;
+
     private void Init()
     {
         soundQueue = new Queue<SoundAndLocation>();
@@ -29,6 +32,9 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
             // IObjectPool<AudioClip> pool = new ObjectPool<AudioClip>();
             soundToClips.Add(soundsToAudios[i].type, soundsToAudios[i].clip);
         }
+        playAtPointFab = new GameObject().AddComponent<AudioSource>();
+
+        
 
     }
     [Serializable]
@@ -42,11 +48,12 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
     {
         public SoundTypes type;
         public Vector3 v;
-
-        public SoundAndLocation(SoundTypes type, Vector3 v)
+        public GameObject source;
+        public SoundAndLocation(SoundTypes type, Vector3 v, GameObject source)
         {
             this.type = type;
             this.v = v;
+            this.source = source;
         }
     }
     Queue<SoundAndLocation> soundQueue;
@@ -67,23 +74,31 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         if(soundQueue.Count > 0)
         {
             SoundAndLocation SAL = soundQueue.Dequeue();
-            PlaySound(SAL.v, SAL.type);
+            PlaySound(SAL);
         }
     }
-    UnityAction<Vector3> ListenEvent(SoundTypes type)
+  
+   public void Invoke(Vector3 v, SoundTypes i, GameObject source)
     {
-        return (Vector3 v) => { PlaySound( v, type); };
-    }
-   public void Invoke(Vector3 v, SoundTypes i)
-    {
-       soundQueue.Enqueue(new SoundAndLocation(i, v));
+       soundQueue.Enqueue(new SoundAndLocation(i, v, source));
+        
     }
     
-    void PlaySound( Vector3 pos, SoundTypes i)
+    async void PlaySound( SoundAndLocation sal)
     {
         AudioClip clip = null;
-            soundToClips.TryGetValue(i, out clip);
-        AudioSource.PlayClipAtPoint(clip, pos);
+            soundToClips.TryGetValue(sal.type, out clip);
+        AudioSource source = Instantiate(playAtPointFab);
+        source.clip = clip;
+        source.transform.position = sal.v;
+        source.transform.SetParent(sal.source.transform);
+        source.Play();
+        await Task.Delay((int)(clip.length * 1000));
+        if (source != null)
+        {
+            Destroy(source.gameObject);
+        }
+
     }
-    
+
 }

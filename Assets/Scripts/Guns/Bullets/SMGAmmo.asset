@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: SMGAmmo
   m_EditorClassIdentifier: 
   itemID: 21
+  mass: 1
   bulletType: {fileID: 11400000, guid: 6f566d4aa7b3fc14ab113a9fd7f3050d, type: 2}

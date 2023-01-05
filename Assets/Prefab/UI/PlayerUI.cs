@@ -11,9 +11,9 @@ public class PlayerUI : MonoBehaviour
     PInputManager.UIInfoBoard board;
     PlayerSC sc;
     LerpBar staminaChange;
-    public static PlayerUI Create(PlayerUI fab, PInputManager.UIInfoBoard board, PlayerSC sc)
+    public static PlayerUI Create(PlayerUI fab, PInputManager.UIInfoBoard board, PlayerSC sc, Transform parent)
     {
-        PlayerUI ui = Instantiate(fab);
+        PlayerUI ui = Instantiate(fab, parent);
         ui.board = board;
         ui.sc = sc;
         ui.Init();
@@ -28,7 +28,7 @@ public class PlayerUI : MonoBehaviour
         health.minValue = 0;
         health.maxValue = sc.Health;
         health.value = health.maxValue;
-        board.HealthChanged += (object t, float target) => { health.value = target; };
+        board.HealthChanged += ( float target) => { health.value = target; };
         board.BulletTimeChanged += (object t, float target) => { bBar.value = target; };
         bBar.minValue = 0;
         bBar.maxValue = sc.SlowBarMax;

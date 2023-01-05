@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: ShotGunAmmo
   m_EditorClassIdentifier: 
   itemID: 22
+  mass: 1
   bulletType: {fileID: 11400000, guid: 323af5dbe68f7cc4baaed8ea29533584, type: 2}

@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: PistolAmmo
   m_EditorClassIdentifier: 
   itemID: 20
+  mass: 1
   bulletType: {fileID: 11400000, guid: 992c4f82a2865944fac3a0566e60c1a8, type: 2}

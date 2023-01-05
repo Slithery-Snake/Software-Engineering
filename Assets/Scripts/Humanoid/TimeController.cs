@@ -114,7 +114,6 @@ public class TimeController : StateManagerComponent
             
         }
         ValueUpdated?.Invoke(this, bulletBar);
-        Debug.Log(bulletBar + " bbar");
     }  
     void StartDecrease()
     {

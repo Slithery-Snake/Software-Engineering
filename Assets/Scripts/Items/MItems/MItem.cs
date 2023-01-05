@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class MItem : Item<MItemSC>, Iinteractable
 {
+   
     public void Interacted(PInputManager source)
     {
         

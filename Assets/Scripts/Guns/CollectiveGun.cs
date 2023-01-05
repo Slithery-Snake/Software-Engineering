@@ -2,13 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CollectiveGun : MonoBehaviour, Iinteractable
+public class CollectiveGun : Item<WeaponData>, Iinteractable
 {
-    [SerializeField] WeaponData weaponData;
     BulletSpawn bSpool;
     [SerializeField]Transform barrelTransform;
     [SerializeField] Shooting shooting;
-    public WeaponData WeaponData { get => weaponData;  }
     public Shooting Shooting { get => shooting; }
 
     public static CollectiveGun CreateGun(CollectiveGun prefab, BulletSpawn p, Vector3 position, Quaternion rotation, bool fullChamber)
@@ -24,10 +22,11 @@ public class CollectiveGun : MonoBehaviour, Iinteractable
     }
     void Init(bool full)
     {
-        Shooting.InitShoot(shooting, bSpool, barrelTransform, weaponData, full);
+        Shooting.InitShoot(shooting, bSpool, barrelTransform, itemData, full, this);
        
        
     }
+   
     public void Interacted(PInputManager source)
     {
         source.Inventory.AddGun(this);

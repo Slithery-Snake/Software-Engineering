@@ -10,7 +10,8 @@ public class ItemManager : MonoBehaviour
     Dictionary<int, CollectiveGun> gunDict;
     [SerializeField] List<Ammo> ammo;
     Dictionary<int, Ammo> ammoDict;
-
+    [SerializeField] List<Creatable> generalItem;
+    Dictionary<int, Creatable> itemDict;
 
     BulletSpawn bulletSpawn;
     public static ItemManager CreateItemManager(ItemManager prefab, BulletSpawn bulletSpawn)
@@ -29,7 +30,7 @@ public class ItemManager : MonoBehaviour
         for (int i = 0; i < guns.Count; i++)
         {
             CollectiveGun item = guns[i];
-            gunDict.Add(item.WeaponData.ItemID, item);
+            gunDict.Add(item.ItemID, item);
         }
         ammoDict = new Dictionary<int, Ammo>();
         for (int i = 0; i < ammo.Count; i++)
@@ -37,6 +38,17 @@ public class ItemManager : MonoBehaviour
             Ammo item = ammo[i];
             ammoDict.Add(item.ItemID, item);
         }
+        itemDict = new Dictionary<int, Creatable>();
+        for (int i = 0; i < generalItem.Count; i++)
+        {
+            Creatable item = generalItem[i];
+            itemDict.Add(item.ItemID, item);
+        }
+    }
+    public void CreateItem(Vector3 v, int id)
+    {
+        itemDict.TryGetValue(id, out Creatable g);
+        Instantiate(g, v, Quaternion.identity);
     }
     public CollectiveGun CreateGun(Vector3 v, int id, bool chamber)
     {

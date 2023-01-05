@@ -29,7 +29,7 @@ public class Inventory : StateManagerComponent
     MonoCall<IntGun> gunAdded;
     //Stack<int> gunSlots s` new Stack<int>();
     Dictionary<int, CollectiveGun> guns;
-    MonoCall<int> equippedSlot;
+    public event UnityAction<int, HotBarItemSC > EquippedSlot;
     public bool HaveAmmoForGun()
     {if (currentGun != null)
         {
@@ -71,7 +71,6 @@ public class Inventory : StateManagerComponent
     {
         if (reloadToken != null)
         {
-            Debug.Log("DISPOSED");
             reloadToken.Cancel();
             reloadToken.Dispose();
             reloadToken = null;
@@ -89,11 +88,12 @@ public class Inventory : StateManagerComponent
     public IMonoCall<int> Picked { get => picked; }
     public IMonoCall<IntGun> GunAdded { get => gunAdded; }
     public IMonoCall GunEquipped { get => gunEquipped; }
-    public IMonoCall<int> EquippedSlot { get => equippedSlot; }
     public int CurrentSlot { get => currentSlot; }
     public HotBarItem CurrentEquipped { get => currentEquipped;}
     public CollectiveGun CurrentGun { get => currentGun;  }
 
+    Health health;
+    private readonly HandPosManage handPos;
 
     public bool ItemIsInSlot(int i)
     {
@@ -129,7 +129,6 @@ public class Inventory : StateManagerComponent
         if(gun !=null) {
             currentGun = gun;
             if (!gunEquipped.IsNull()) { gunEquipped.Call(); }
-            Debug.Log("gun hecked " + currentGun);
         }
        
     }
@@ -158,19 +157,20 @@ public class Inventory : StateManagerComponent
         }
     }
 
-    public Inventory(MonoCalls.MonoAcessors manager, Transform itemGameObject, Transform hotBarTransform, BulletTag tag) : base(manager)
+    public Inventory(MonoCalls.MonoAcessors manager, Transform itemGameObject, Transform hotBarTransform, BulletTag tag, Health health, HandPosManage handPos) : base(manager)
     {
         this.itemGameObject = itemGameObject;
         items = new HotBarItem[hotBarSize];
         ammo = new Dictionary<AmmoSC, Ammo>();
         this.hotBarTransform = hotBarTransform;
         guns = new Dictionary<int, CollectiveGun>();
-        equippedSlot = new MonoCall<int>();
         gunEquipped = new MonoCall();
         gunAdded = new MonoCall<IntGun>();
         picked = new MonoCall<int>();
-        equippedSlot.Listen(CheckGunEquip);
+        EquippedSlot+= (int i, HotBarItemSC s)=> { CheckGunEquip(i); };
         this.tag = tag;
+        this.health = health;
+        this.handPos = handPos;
     }
     void DeactivateItem(HotBarItem item)
     {
@@ -196,9 +196,10 @@ public class Inventory : StateManagerComponent
         itemTransform.localPosition = hotBarItem.ItemData.HoldLocalSpace;
         itemTransform.localRotation = Quaternion.identity;
         currentEquipped = hotBarItem;
-        Debug.Log("crrent " + CurrentEquipped);
-                    if (!equippedSlot.IsNull()) { equippedSlot.Call(index); }
+        handPos.SetLHand( hotBarItem.ItemData.LHandPos);
+        handPos.SetRHand(hotBarItem.ItemData.RHandPos);
 
+        EquippedSlot?.Invoke(index, hotBarItem.ItemData);
         return hotBarItem;
     }
     public void UnequipHotBar( )
@@ -207,6 +208,7 @@ public class Inventory : StateManagerComponent
         {
             DeactivateItem(currentEquipped);
             currentEquipped = null;
+            handPos.SetDefault();
         }
     }
    
@@ -224,7 +226,10 @@ public class Inventory : StateManagerComponent
         }
         
     }
-  
+ public void TryAddHotBar(HotBarItem i)
+    {
+        AddHotBarItem(i);
+    }
      bool AddHotBarItem(HotBarItem item)
     {
         for(int i = 0; i < hotBarSize; i ++)
@@ -233,6 +238,7 @@ public class Inventory : StateManagerComponent
             {
                 items[i] = item;
                 item.transform.SetParent(itemGameObject, true);
+                item.OgItem.Held();
                 DeactivateItem(item);
                 if (!picked.IsNull())
                 {

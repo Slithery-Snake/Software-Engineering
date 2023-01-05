@@ -4,12 +4,12 @@ using UnityEngine;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Events;
-
+[System.Serializable]
 public class ShottyShoot : Shooting
 {
     [SerializeField] ShottySC shottySC;
-    bool roundChambered = true;
-    bool needEjection = false;
+    protected bool needEjection = false;
+
     public override bool GetCanFire()
     {
         return roundChambered && !needEjection && canFire; ;
@@ -41,6 +41,7 @@ public class ShottyShoot : Shooting
                 bullet.Shoot(position, direction, bTag);
             }
             InvokeShotEvent(position);
+       //     InvokeShotEvent(position);
 
             invoke = StartCoroutine(Invoke(weaponCDTime, WeaponCoolDown));
 
@@ -48,7 +49,6 @@ public class ShottyShoot : Shooting
             // bullet.Rg.velocity = 
             // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
             //shooting bullet stuff
-            Debug.Log("BANG");
         }
 
     }
@@ -64,43 +64,52 @@ public class ShottyShoot : Shooting
         if (inChamber > 0) { hasAmmo = true; }
         return true;
     }
-    public override async Task ReloadTask( CancellationToken t, Ammo am)
+
+    public override async Task ReloadTask(CancellationToken t, Ammo am)
     {
         try
         {
             isReloading = true;
 
-             if( needEjection == false && LoadBullets(am))
+            if (needEjection == false && LoadBullets(am))
             {
-
+                Debug.Log("RELOAD");
                 await Task.Delay(itemData.reloadTime * 100);
                 inChamber++;
                 am.Count--;
-                if(inChamber == magSize)
-                {
-                    InvokeIdealReload();
-                }
+                InvokeMagSwap();
+
                 if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
             }
-            if(needEjection || roundChambered == false)
+            if (needEjection || roundChambered == false)
             {
-                await Task.Delay(shottySC.PumpTime * 100);
+                InvokeCharge();
+                await Task.Delay(itemData.PumpTime * 100);
                 if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
-                
+
                 needEjection = false;
-                if(inChamber > 0)
+                if (inChamber > 0)
                 {
                     roundChambered = true;
                 }
-            }
-            InvokeReloadDone();
 
+            }
+
+            if (inChamber > 0) { hasAmmo = true; }
+
+            if ( roundChambered && inChamber == magSize)
+            {
+                InvokeIdealReload();
+            }
 
             isReloading = false;
+            InvokeReloadDone();
 
         }
         catch (OperationCanceledException)
         {
+            Debug.Log("canceleed");
+
             isReloading = false;
         }
 

@@ -27,7 +27,6 @@ public class BulletTag : ScriptableObject
    
     void OnEnable()
     {
-        Debug.Log("BULLETTAG AWAKE");
         tagToAction = new Dictionary<BulletTag, UnityAction<IShootable, Bullet>>();
        
         

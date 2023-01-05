@@ -13,9 +13,16 @@ MonoBehaviour:
   m_Name: ShotGun
   m_EditorClassIdentifier: 
   itemID: 3
-  holdLocalSpace: {x: 0.17, y: 0, z: 0}
+  mass: 1
+  holdLocalSpace: {x: 0.02, y: -0.85, z: 2.3}
+  HotBarName: Bennelli M4
+  lHandPos: {x: 0.052, y: 0.619, z: 2.552}
+  rHandPos: {x: 0.12, y: 0.592, z: 1.538}
   magSize: 7
-  reloadTime: 30
-  weaponCDTime: 0.2
+  reloadTime: 2
+  weaponCDTime: 1
   ammoSource: {fileID: 11400000, guid: 09603f103b6793b42b0b306d695bb358, type: 2}
-  shootSound: 1
+  shootSound: 6
+  magSound: 7
+  chargeSoundd: 8
+  pumpTume: 4

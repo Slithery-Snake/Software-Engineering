@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using System.Threading.Tasks;
 using System.Threading;
-public class Shooting : Item<WeaponData>
+public class Shooting : MonoBehaviour
 {
     protected float weaponCDTime;
     protected bool canFire = true;
@@ -20,6 +20,8 @@ public class Shooting : Item<WeaponData>
     protected BulletTag bTag = null;
     public event UnityAction IdealReloadState;
     public event UnityAction ReloadDone;
+    protected WeaponData itemData;
+    protected bool roundChambered = true;
     protected void InvokeIdealReload()
     {
         IdealReloadState?.Invoke();
@@ -33,6 +35,12 @@ public class Shooting : Item<WeaponData>
     public HotBarItem HotBar { get => hotBar; }
     public bool IsReloading { get => isReloading;  }
     public bool HasAmmo { get => hasAmmo;}
+    public  WeaponData ItemData { get => itemData;  }
+
+    public virtual bool NeedReload()
+    {
+        return !roundChambered || !hasAmmo;
+    }
 
     public virtual bool GetCanFire()
     {
@@ -44,16 +52,19 @@ public class Shooting : Item<WeaponData>
     {
         bTag = t;
     }
-    public static Shooting InitShoot(Shooting r,  BulletSpawn p , Transform barrelTransform, WeaponData data, bool chamber)
+    public static Shooting InitShoot(Shooting r,  BulletSpawn p , Transform barrelTransform, WeaponData data, bool chamber, Creatable c)
     {
         r.barrelTransform = barrelTransform;
         r.itemData = data;
 
         r.InitializeShooting(p, chamber); 
-        r.hotBar = HotBarItem.CreateHotBar(r.TriggerDown, null, r.TriggerRelease, null, r.itemData, r.gameObject);
+        r.hotBar = HotBarItem.CreateHotBar(r.TriggerDown, null, r.TriggerRelease, null, r.itemData, r.gameObject, c);
         return r;
     }
-
+    public bool IsEmpty()
+    {
+        return !hasAmmo;
+    }
     protected void InitializeShooting( BulletSpawn bulletSpawn, bool c)
     {
 
@@ -68,19 +79,45 @@ public class Shooting : Item<WeaponData>
         bulletPool = bulletSpawn.RequestPool(ammoType.BulletType);
 
     }
+    protected virtual void InvokeCharge()
+    {
+        SoundCentral.Instance.Invoke(transform.position, itemData.ChargeSound, gameObject);
+
+    }
+    protected virtual void InvokeMagSwap()
+    {
+        SoundCentral.Instance.Invoke(transform.position, itemData.MagSound, gameObject);
+    }
    public virtual async Task ReloadTask( CancellationToken t, Ammo am)
     {
         try
         {
             isReloading = true;
+            if (roundChambered == false && hasAmmo)
+            {
+                InvokeCharge();
+                await Task.Delay(itemData.PumpTime * 100);
+                if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
 
-            await Task.Delay(itemData.reloadTime * 100);
-            if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
-            LoadBullets(am);
-            
+                roundChambered = true;
+                Debug.Log("chambered");
+            } else
+            if (LoadBullets(am) ) 
+            {
+                InvokeMagSwap();
+                await Task.Delay(itemData.reloadTime * 100);
+                if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
+                LoadActualBullets(am);
+            } 
+           
             isReloading = false;
+            if (roundChambered)
+            {
+                InvokeIdealReload();
+            }
             InvokeReloadDone();
-            InvokeIdealReload();
+
+         
 
         }
         catch (OperationCanceledException)
@@ -88,6 +125,22 @@ public class Shooting : Item<WeaponData>
             isReloading = false;
         }
 
+    }
+    void LoadActualBullets(Ammo reserves)
+    {
+        int bulletsToFull = magSize - inChamber;
+      
+        if (reserves.Count <= bulletsToFull)
+        {
+            magSize += reserves.Count;
+            reserves.Count = 0;
+            return;
+        }
+
+        inChamber = magSize;
+        reserves.Count -= bulletsToFull;
+        if (inChamber > 0) { hasAmmo = true; }
+        return;
     }
    protected  virtual bool LoadBullets(Ammo reserves)
     {
@@ -98,13 +151,10 @@ public class Shooting : Item<WeaponData>
         }
         if (reserves.Count <= bulletsToFull)
         {
-            magSize += reserves.Count;
-            reserves.Count = 0;
             return true;
         }
 
-        inChamber = magSize;
-        reserves.Count -= bulletsToFull;
+     
           if(inChamber > 0) { hasAmmo = true; }
         return true;
     }
@@ -126,7 +176,7 @@ public class Shooting : Item<WeaponData>
     }
     protected virtual void Shoot()
     {
-        if (GetCanFire() && hasAmmo )
+        if (GetCanFire() && hasAmmo && roundChambered )
         {
             //RaycastHit rayInfo;
             inChamber--;
@@ -135,6 +185,7 @@ public class Shooting : Item<WeaponData>
             if (inChamber <= 0)
             {
                 hasAmmo = false;
+                roundChambered = false;
             }
             Bullet bullet = bulletPool.RequestBullet();//bulletPool.RequestBullet();
             Vector3 direction = barrelTransform.forward;
@@ -154,7 +205,7 @@ public class Shooting : Item<WeaponData>
     }
     protected void InvokeShotEvent(Vector3 v)
     {
-        SoundCentral.Instance.Invoke(v, itemData.ShootSound);
+        SoundCentral.Instance.Invoke(v, itemData.ShootSound, gameObject);
 
     }
     protected virtual void TriggerDown()

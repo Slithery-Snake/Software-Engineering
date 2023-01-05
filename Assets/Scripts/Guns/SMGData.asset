@@ -13,9 +13,16 @@ MonoBehaviour:
   m_Name: SMGData
   m_EditorClassIdentifier: 
   itemID: 2
-  holdLocalSpace: {x: 0.17, y: -0.5, z: 0.7}
+  mass: 1
+  holdLocalSpace: {x: 0.1, y: -0.5, z: 0.95}
+  HotBarName: Uzi
+  lHandPos: {x: 0.077, y: 0.94, z: 1.25}
+  rHandPos: {x: 0.08, y: 0.85, z: 0.955}
   magSize: 30
-  reloadTime: 1
+  reloadTime: 20
   weaponCDTime: 0.1
   ammoSource: {fileID: 11400000, guid: e3d329d507feb864d903fdecf88c6644, type: 2}
-  shootSound: 2
+  shootSound: 3
+  magSound: 4
+  chargeSoundd: 5
+  pumpTume: 10

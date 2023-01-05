@@ -8,9 +8,11 @@ public class AutoShooting : Shooting
 {
     Coroutine shootRout;
     protected override void Shoot()
-    {if (canFire)
+    {if (hasAmmo&& canFire && roundChambered )
         {
+            StopRout();
             shootRout = StartCoroutine(Shooting());
+            
         }
     }
   
