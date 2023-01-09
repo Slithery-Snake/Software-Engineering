@@ -32,6 +32,7 @@ public class Grounded : PlayerState
     {
         if(keycode == KeyCode.Space)
         {
+            SoundCentral.Instance.Invoke(manager.transform.position, SoundCentral.SoundTypes.Jump);
             movement.Jump();
             manager.ChangeToState(manager.Falling, manager.JumpState);
         }

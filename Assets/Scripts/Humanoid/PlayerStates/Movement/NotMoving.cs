@@ -31,7 +31,6 @@ public class NotMoving : PlayerState
     {
         moveX = Input.GetAxis("Horizontal");
         moveZ = Input.GetAxis("Vertical");
-        movement.MovingFunction(moveX, moveZ);
         if (moveX != 0 || moveZ != 0)
         {
             manager.ChangeToState(manager.Moving, manager.MovementState);

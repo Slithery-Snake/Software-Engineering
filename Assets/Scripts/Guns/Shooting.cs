@@ -13,7 +13,7 @@ public class Shooting : MonoBehaviour
     protected bool hasAmmo = true;
     protected int magSize;
     protected bool isReloading = false;
-    protected Coroutine invoke;
+    protected Task invoke;
     protected int inChamber = 0;
     protected BulletSpawn.BulletPool bulletPool;
     protected HotBarItem hotBar;
@@ -52,13 +52,13 @@ public class Shooting : MonoBehaviour
     {
         bTag = t;
     }
-    public static Shooting InitShoot(Shooting r,  BulletSpawn p , Transform barrelTransform, WeaponData data, bool chamber, Creatable c)
+    public static Shooting InitShoot(Shooting r,  BulletSpawn p , Transform barrelTransform, WeaponData data, bool chamber, Creatable c, Interactable inter)
     {
         r.barrelTransform = barrelTransform;
         r.itemData = data;
 
         r.InitializeShooting(p, chamber); 
-        r.hotBar = HotBarItem.CreateHotBar(r.TriggerDown, null, r.TriggerRelease, null, r.itemData, r.gameObject, c);
+        r.hotBar = HotBarItem.CreateHotBar(r.TriggerDown, null, r.TriggerRelease, null, r.itemData, r.gameObject, c, inter);
         return r;
     }
     public bool IsEmpty()
@@ -81,12 +81,12 @@ public class Shooting : MonoBehaviour
     }
     protected virtual void InvokeCharge()
     {
-        SoundCentral.Instance.Invoke(transform.position, itemData.ChargeSound, gameObject);
+        SoundCentral.Instance.Invoke(transform.position, itemData.ChargeSound);
 
     }
     protected virtual void InvokeMagSwap()
     {
-        SoundCentral.Instance.Invoke(transform.position, itemData.MagSound, gameObject);
+        SoundCentral.Instance.Invoke(transform.position, itemData.MagSound);
     }
    public virtual async Task ReloadTask( CancellationToken t, Ammo am)
     {
@@ -133,12 +133,12 @@ public class Shooting : MonoBehaviour
         if (reserves.Count <= bulletsToFull)
         {
             magSize += reserves.Count;
-            reserves.Count = 0;
+            reserves.SetCount( 0);
             return;
         }
 
         inChamber = magSize;
-        reserves.Count -= bulletsToFull;
+        reserves.SetCount(reserves.Count- bulletsToFull);
         if (inChamber > 0) { hasAmmo = true; }
         return;
     }
@@ -168,11 +168,19 @@ public class Shooting : MonoBehaviour
     {
         
     }
-    protected IEnumerator Invoke(float time, UnityAction hi)
+    protected async Task Invoke(float time, UnityAction hi)
     {
         
-        yield return new WaitForSeconds(time);
+        await Task.Delay((int)(time*1000));
         hi();
+    }
+    protected Vector3 Randomize( Vector3 direction)
+    {
+        float x = UnityEngine.Random.Range(-itemData.Radius, itemData.Radius);
+        float y = UnityEngine.Random.Range(-itemData.Radius, itemData.Radius);
+
+        direction += new Vector3(x, y, 0);
+        return direction;
     }
     protected virtual void Shoot()
     {
@@ -189,23 +197,24 @@ public class Shooting : MonoBehaviour
             }
             Bullet bullet = bulletPool.RequestBullet();//bulletPool.RequestBullet();
             Vector3 direction = barrelTransform.forward;
+            
+            direction = Randomize(direction);
             // bullet.transform.rotation = barrelTransform.rotation;
             Vector3 position = barrelTransform.position;
             // bullet.transform.position = position;
             bullet.Shoot(position, direction, bTag);
             InvokeShotEvent(position);
-            invoke = StartCoroutine(Invoke(weaponCDTime, WeaponCoolDown));
+            invoke = Invoke(weaponCDTime, WeaponCoolDown);
             // searDown = ItemData.isAuto;
             // bullet.Rg.velocity = 
             // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
             //shooting bullet stuff
-            Debug.Log("BANG");
         }
         
     }
     protected void InvokeShotEvent(Vector3 v)
     {
-        SoundCentral.Instance.Invoke(v, itemData.ShootSound, gameObject);
+        SoundCentral.Instance.Invoke(v, itemData.ShootSound);
 
     }
     protected virtual void TriggerDown()

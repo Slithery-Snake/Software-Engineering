@@ -14,6 +14,9 @@ public class WeaponData : HotBarItemSC
     [SerializeField] SoundCentral.SoundTypes chargeSoundd;
 
     [SerializeField] int pumpTume;
+    [SerializeField] float radius;
+
+    public float Radius { get => radius; }
     public int PumpTime { get => pumpTume; }
     public AmmoSC AmmoSource { get => ammoSource; }
     public SoundCentral.SoundTypes ShootSound { get => shootSound;}

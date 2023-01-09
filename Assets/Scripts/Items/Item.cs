@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public abstract class Creatable: MonoBehaviour
 {
@@ -25,6 +26,11 @@ public abstract class Item<T> : Creatable where T : ItemSC
 {
     [SerializeField] protected T itemData;
     public T ItemData { get => itemData; }
+    public event UnityAction Destroyed;
    public override int ItemID { get => itemData.ItemID; }
+    protected void OnDestroy()
+    {
+        Destroyed?.Invoke(); 
+    }
 
 }

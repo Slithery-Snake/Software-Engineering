@@ -6,19 +6,25 @@ public  class HotBarItem : MonoBehaviour
 {
    
    
-    [SerializeField] protected UnityAction use1;
-    [SerializeField] protected UnityAction use2;
-    [SerializeField] protected UnityAction use1Up;
-    [SerializeField] protected UnityAction use2Up;
+    [SerializeField] public event UnityAction use1;
+    [SerializeField] public event UnityAction use2;
+    [SerializeField] public event UnityAction use1Up;
+    [SerializeField] public event UnityAction use2Up;
     Creatable ogItem;
+   
     //  [SerializeField] UnityAction rDown;
     // [SerializeField] UnityAction rUp;
+    public event UnityAction Destroyed;
 
     protected HotBarItemSC sc;
-
+    protected Interactable interact;
     public HotBarItemSC ItemData { get => sc; }
     public Creatable OgItem { get => ogItem; }
-
+    public Interactable Interact { get => interact; }
+    private void OnDestroy()
+    {
+        Destroyed?.Invoke();
+    }
     public void Use1()
     {
         if(use1 !=null)
@@ -49,7 +55,7 @@ public  class HotBarItem : MonoBehaviour
     //  public UnityAction RDown { get => rDown; }
     //   public UnityAction RUp { get => rUp;  }
 
-    public static HotBarItem CreateHotBar(UnityAction use1, UnityAction use2, UnityAction up1, UnityAction up2, HotBarItemSC itemData, GameObject objectToAdd, Creatable c)
+    public static HotBarItem CreateHotBar(UnityAction use1, UnityAction use2, UnityAction up1, UnityAction up2, HotBarItemSC itemData, GameObject objectToAdd, Creatable c, Interactable inter)
     {
         HotBarItem h = objectToAdd.AddComponent<HotBarItem>();
 
@@ -58,6 +64,7 @@ public  class HotBarItem : MonoBehaviour
         h.use1Up = up1;
         h.use2Up = up2;
         h.sc = itemData;
+        h.interact = inter;
         h.ogItem = c;
         
         return h;

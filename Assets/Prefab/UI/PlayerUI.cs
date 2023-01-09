@@ -11,11 +11,15 @@ public class PlayerUI : MonoBehaviour
     PInputManager.UIInfoBoard board;
     PlayerSC sc;
     LerpBar staminaChange;
+    HotBarUI[] hotBarUIs;
+    [SerializeField] HotBarUI hbarUI;
+    [SerializeField] Transform hbarGrid;
     public static PlayerUI Create(PlayerUI fab, PInputManager.UIInfoBoard board, PlayerSC sc, Transform parent)
     {
         PlayerUI ui = Instantiate(fab, parent);
         ui.board = board;
         ui.sc = sc;
+        
         ui.Init();
         return ui;
     }
@@ -26,6 +30,13 @@ public class PlayerUI : MonoBehaviour
             staminaChange.StartLerp(target, sc.StaminaBarTick);   };
 
         health.minValue = 0;
+        hotBarUIs = new HotBarUI[sc.InventorySlots];
+
+        for(int i = 0; i< sc.InventorySlots; i++)
+        {
+            hotBarUIs[i] = Instantiate(hbarUI, hbarGrid);
+            hotBarUIs[i].SetEmpty();
+        }
         health.maxValue = sc.Health;
         health.value = health.maxValue;
         board.HealthChanged += ( float target) => { health.value = target; };
@@ -33,8 +44,19 @@ public class PlayerUI : MonoBehaviour
         bBar.minValue = 0;
         bBar.maxValue = sc.SlowBarMax;
         bBar.value = 0;
+        board.UnequippedSlot += EmptyHotBar;
+        board.EquippedSlot += SetHotBar;
+    }
+    void SetHotBar(int i, HotBarItemSC str)
+    {
+        hotBarUIs[i].SetText(str.HotBarName1);
+    }
+    void EmptyHotBar(int i)
+    {
+        hotBarUIs[i].SetEmpty();
     }
 }
+
 public class LerpBar :MonoBehaviour
 {
     Slider slider;

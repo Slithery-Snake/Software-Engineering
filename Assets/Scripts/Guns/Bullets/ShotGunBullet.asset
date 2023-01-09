@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: ShotGunBullet
   m_EditorClassIdentifier: 
   fin: 0
-  damage: 0
+  damage: 40
   forceMagnitude: 150

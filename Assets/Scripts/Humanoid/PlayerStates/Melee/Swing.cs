@@ -20,7 +20,6 @@ public class Swing : NotAttacking
     }
     public override void EnterState()
     {
-        Debug.Log("light triggered");
         melee.MeleeSoureOBJ.Anim.SetTrigger("Light");
 
         melee.AttackSetUp(melee.MeleeSoureOBJ.LightType);
@@ -31,7 +30,6 @@ public class Swing : NotAttacking
     {
         melee.StopAttack();
         manager.StartCoroutine(CD(sc.Light.coolDown));
-        Debug.Log("light done");
 
     }
     public override void HandleKeyDownInput(KeyCode keyCode)

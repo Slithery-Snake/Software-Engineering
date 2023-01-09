@@ -188,13 +188,15 @@ public class GameManager : MonoBehaviour
             //   player = hu.CreatePlayer(new Vector3(0, 8, -8));
             //  hu.CreateEnemy(new Vector3(0, 8, 0));
             player = hu.CreatePlayer(new Vector3(0, 8, -8));
-            hu.CreateEnemy(new Vector3(0, 8, 0));
-           
+            //hu.CreateEnemy(new Vector3(0, 8, 0), 1,20, 0);
+            hu.CreateEnemy(new Vector3(0, 6, 0), 0);
+          //  hu.CreateEnemy(new Vector3(3, 6, 0), 180);
+
             ui = UIManager.Create(manager.uiManager, player);
             itemManager.CreateGun(new Vector3(3, 3, 0), 2, true);
-            itemManager.CreateAmmo(new Vector3(2, 3, 3), 21, 1000);
-            itemManager.CreateGun(new Vector3(0, 3, 0), 3, true);
-            itemManager.CreateAmmo(new Vector3(1, 3, 3), 22, 1000);
+            itemManager.CreateAmmo(new Vector3(2, 3, 3), 21, 1000, false);
+            itemManager.CreateGun(new Vector3(7, 3, 0), 3, true);
+            itemManager.CreateAmmo(new Vector3(5, 3, 3), 22, 1000, false);
             itemManager.CreateItem( new Vector3(4,3,4), 100);
             SoundCentral.Create(manager.soundManager);
 

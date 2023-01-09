@@ -16,24 +16,5 @@ public class TimeTest : MonoBehaviour
     }
     bool slow = false;
     // Update is called once per frame
-    void Update()
-    {
-       /* if(Input.GetKeyDown(KeyCode.G))
-        {
-            slow = !slow;
-            if (slow)
-            {
-                TimeController.Slow = timeSlow;
-                Time.timeScale = timeSlow;
-                Time.fixedDeltaTime = defaultFixedDelta * Time.timeScale;
-                TimeController.PlayerDelta = playerSlowAdvantage;
-            } else
-            {
-                TimeController.Slow = 1;
-                Time.fixedDeltaTime = defaultFixedDelta;
-                Time.timeScale = defaultTimeScale;
-                TimeController.PlayerDelta = 1;
-            }
-        }*/
-    }
+ 
 }

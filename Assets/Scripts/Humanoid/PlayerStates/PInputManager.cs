@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using System.Reflection;
 using System.Linq;
-
+using Unity;
+using System.Collections;
 public class MonoCall<T> : IMonoCall<T>
 {
   
@@ -120,13 +121,18 @@ public class TagManager
     }
      public BulletTag Tag { get => tag; }
 }
-public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IStunnable, StatusEffect.StatusEffectManager.IStatusEeffectable
+public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IStunnable, StatusEffect.StatusEffectManager.IStatusEeffectable, SourceProvider
 {
  
     [SerializeField]TagManager tagManager;
 
 
-
+    public event UnityAction PlayerMoved {
+        add { movement.Moved += value; }
+        remove { movement.Moved -= value; }
+    
+    
+    }
 
    
     [Serializable]
@@ -223,7 +229,7 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
     public TimeDisabled TimeDisabled { get => timeDisabled; }
     public TimeNormal NormalTime { get => normalTime;  }
     public TimeSlow SlowTime { get => slowTime;  }
-    public StatusEffect.StatusEffectManager StatusEffectManager { get => statusEffectManager; }
+    public StatusEffect.StatusEffectManager Status { get => statusEffectManager; }
   
 
     PlayerStatePointer<TimeDisabled> timeState;
@@ -254,7 +260,7 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
         health = new Health(playerParts.sC);
         handposition = new HandPosManage(calls.accessors, playerParts.hParts.Parts1.rHand, playerParts.hParts.Parts1.lHand);
 
-        inventory = new Inventory(calls.accessors, playerParts.itemGameObject, playerParts.hotBarTransform, tagManager.Tag, health, handposition);
+        inventory = new Inventory(calls.accessors, playerParts.itemGameObject, playerParts.hotBarTransform, tagManager.Tag, health, handposition, playerParts.sC);
         keyInputEventsList = new List<KeyInputEvents>();
         allRunningStates = new List<PointerIN>();
         keyInputEvents = new KeyInputEvents(keyInputEventsList);
@@ -327,12 +333,18 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
             add { p.bTime.ValueUpdated += value; }
             remove { p.bTime.ValueUpdated -= value; }
         }
+        public event UnityAction<int, HotBarItemSC> EquippedSlot {
+            add { p.inventory.PickedUpSlot += value; }
+            remove { p.inventory.PickedUpSlot -= value; }
+        }
+        public event UnityAction<int> UnequippedSlot
+        {
+            add { p.inventory.DroppedSlot += value; }
+            remove { p.inventory.DroppedSlot -= value; }
+        }
 
-        
-        
 
-
-}
+    }
 
 
 
@@ -446,6 +458,26 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
         if (Input.GetKeyUp(KeyCode.Alpha1))
         {
             keyInputEvents.OnKeyUp(KeyCode.Alpha1);
+
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            keyInputEvents.OnKeyDown(KeyCode.Alpha3);
+
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha3))
+        {
+            keyInputEvents.OnKeyUp(KeyCode.Alpha3);
+
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            keyInputEvents.OnKeyDown(KeyCode.Alpha4);
+
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha4))
+        {
+            keyInputEvents.OnKeyUp(KeyCode.Alpha4);
 
         }
         if (Input.GetKeyDown(KeyCode.C))
@@ -579,7 +611,6 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
             keyInputEvents.OnKeyDown(KeyCode.Tab);
         }
 
-
         UpdateComponents();
     }
     void LateUpdate()
@@ -591,10 +622,23 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
         FixedUpdateComponents();
     }
 
-   
+    Coroutine stunRout;
     public void Stun(double stunTime)
     {
-        throw new NotImplementedException();
+        Debug.Log("player stunned");
+        if(stunRout !=null)
+        {
+            StopCoroutine(stunRout);
+
+        }
+        stunRout = StartCoroutine(StunProcedure(stunTime));
+    }
+   protected IEnumerator StunProcedure(double stunTime)
+    {
+        moving.Stun(true);
+        yield return new WaitForSeconds((float)stunTime);
+        moving.Stun(false);
+
     }
 }
 public class KeyInputEvents
@@ -674,7 +718,6 @@ public abstract class StatusEffect
         public class StunType
         : Enumeration
         {
-            public static StunType MeleeStun = new(1, nameof(MeleeStun), 10.5);
             public readonly double stunTimeSec;
 
             public StunType(int id, string name, double stunTimeSec) : base(id, name)
@@ -687,7 +730,7 @@ public abstract class StatusEffect
 
         public interface IStatusEeffectable
         {
-            public StatusEffectManager StatusEffectManager { get; }
+            public StatusEffectManager Status { get; }
         }
         public interface IStunnable
         {
@@ -729,16 +772,17 @@ public abstract class StatusEffect
 
         public class StunApply : StatusEffect
         {
-            private readonly StunType stunType;
+            private readonly double stunTime;
 
-            public StunApply(StunType stunType) : base()
+            public StunApply(double  stunTime) : base()
             {
-                this.stunType = stunType;
+                this.stunTime = stunTime;
+                Debug.Log("stunned applied");
             }
 
             protected override void ApplyEffect(StatusEffectManager manager)
             {
-                manager.stun.Stun(stunType.stunTimeSec);
+                manager.stun.Stun(stunTime);
             }
         }
         public class HealthApply : StatusEffect

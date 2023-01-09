@@ -13,7 +13,7 @@ public class Equipped : NotEquipped
     public override void EnterState()
     {
         inventory.GunEquipped.Listen(GG);
-
+        inventory.DroppedSlot += ChangeBack;
         inventory.EquipHotBar(inventory.CurrentSlot);
         SetItem();
     }
@@ -31,6 +31,11 @@ public class Equipped : NotEquipped
     {
         inventory.GunEquipped.Deafen(GG);
     }
+    void ChangeBack(int i)
+    {
+        manager.ChangeToState(manager.NotEquipped, manager.HotBarState);
+
+    }
     void GG ()
     {
         manager.ChangeToState(manager.EquippedGun, manager.HotBarState);
@@ -45,6 +50,10 @@ public class Equipped : NotEquipped
         {
             item.Use2();
 
+        }
+        if(keyCode == KeyCode.X)
+        {
+            inventory.DropCurrent();
         }
     }
     protected void KeyUpUse(KeyCode keyCode)

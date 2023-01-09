@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using EnemyStuff;
 using System;
+using UnityEngine.Events;
 public class HumanoidManager : MonoBehaviour
 {
  [SerializeField]   PInputManager playerPrefab;
@@ -10,6 +11,12 @@ public class HumanoidManager : MonoBehaviour
      static PInputManager player;
     static List<Collider> isPlayerColliderDic;
     static Transform playerTransform;
+    public static event UnityAction PlayerMoved 
+    {
+        add { player.PlayerMoved += value; }
+        remove { player.PlayerMoved -= value; }
+
+    }
     ItemManager itemManager;
 
     public static Transform PlayerTransform { get => playerTransform; }
@@ -20,9 +27,14 @@ public class HumanoidManager : MonoBehaviour
         return h;
     }
    
-    public EnemyAI CreateEnemy(Vector3 v)
+    public EnemyAI CreateEnemy(Vector3 v, int guid, int auid, int degree)
     {
-        EnemyAI enemy = EnemyAI.CreateEnemy(enemyPrefab, v, itemManager);
+        EnemyAI enemy = EnemyAI.CreateEnemy(enemyPrefab, v, itemManager, guid, auid, degree);
+        return enemy;
+    }
+    public EnemyAI CreateEnemy(Vector3 v, int degree)
+    {
+        EnemyAI enemy = EnemyAI.CreateMeleeEnemy(enemyPrefab, v, degree);
         return enemy;
     }
     

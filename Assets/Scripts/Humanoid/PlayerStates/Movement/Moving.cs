@@ -7,16 +7,19 @@ using System;
 public class Moving : NotMoving
 {
     protected PlayerSC sc;
-    float modifier;
+    float speed;
     float stamina;
+    float percent = 1;
     Submoving submoving;
     public event EventHandler<float> StaminaChanged;
+    float modifier;
 
+   
     public Moving(PInputManager parent, Movement movement, PlayerSC sc) : base(parent, movement)
     {
         this.movement = movement;
         this.sc = sc;
-        modifier = sc.WalkSpeed;
+        speed = sc.WalkSpeed;
         stamina = sc.StaminaBarMax;
         submoving = new Submoving(this);
 
@@ -25,6 +28,10 @@ public class Moving : NotMoving
   
     Coroutine routine;
     bool isRunning;
+    public void Stun(bool b) {
+
+        percent = b ? (1-(sc.StunMovementPercentReduct / 100)) : 1;
+    }
 
     void StopRoutine()
     {
@@ -41,6 +48,7 @@ public class Moving : NotMoving
 
         routine = manager.StartCoroutine(Decay());
     }
+
     IEnumerator Decay()
     {
         WaitForSeconds wait = new WaitForSeconds(sc.StaminaBarTick);
@@ -83,16 +91,23 @@ public class Moving : NotMoving
 
         
     }
-    void Sprint() { }
+    bool canRun = true;
 
     public override void HandleKeyDownInput( KeyCode keyCode)
     {
-        if (keyCode == KeyCode.LeftShift)
+        if (keyCode == KeyCode.LeftShift && canRun)
         {
             submoving.ChangeToState(submoving.Running, submoving.State);
+            canRun = false;
+            manager.StartCoroutine(SetRunTrue());
         }
     }
-   
+    WaitForSeconds wait = new WaitForSeconds(1);
+   IEnumerator SetRunTrue()
+    {
+        yield return wait;
+        canRun = true;
+    }
     public override void HandleKeyUpInput( KeyCode keyCode)
     {
         if (keyCode == KeyCode.LeftShift)
@@ -102,9 +117,10 @@ public class Moving : NotMoving
         }
     }
     protected override void Update()
-    {
+    {   
         moveX = Input.GetAxis("Horizontal");
         moveZ = Input.GetAxis("Vertical");
+        modifier = speed * percent;
         
         movement.MovingFunction(moveX * modifier, moveZ*modifier);
         if (moveX == 0 && moveZ == 0)
@@ -144,6 +160,7 @@ public class Moving : NotMoving
         public Walking Walking { get => walking; }
         public Moving Moving { get => parent; }
     }
+  
     public class Running : Walking
     {
         public Running(Submoving manager) : base(manager)
@@ -152,12 +169,13 @@ public class Moving : NotMoving
         }
         public override void EnterState()
         {
+            SoundCentral.Instance.Invoke( manager.Moving.manager.transform.position, SoundCentral.SoundTypes.Sprint);
             Moving m = manager.Moving;
             float current = m.stamina;
             if (current > 0)
             {
                 m.StartDecay();
-                m.modifier = m.sc.RunSpeed;
+                m.speed = m.sc.RunSpeed;
             } else
             {
                 manager.ChangeToState(manager.Walking, manager.State);
@@ -172,7 +190,7 @@ public class Moving : NotMoving
         {
       
         }
-
+       
         public override void EnterState()
         {
             Moving m = manager.Moving;
@@ -181,7 +199,7 @@ public class Moving : NotMoving
             {
                 m.StartRegen();
             }
-            m.modifier = m.sc.WalkSpeed;
+            m.speed = m.sc.WalkSpeed;
            
         }
 

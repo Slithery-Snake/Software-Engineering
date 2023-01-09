@@ -18,6 +18,7 @@ MonoBehaviour:
   HotBarName: Bennelli M4
   lHandPos: {x: 0.052, y: 0.619, z: 2.552}
   rHandPos: {x: 0.12, y: 0.592, z: 1.538}
+  holdRotation: {x: 0, y: 0, z: 0}
   magSize: 7
   reloadTime: 2
   weaponCDTime: 1
@@ -26,3 +27,4 @@ MonoBehaviour:
   magSound: 7
   chargeSoundd: 8
   pumpTume: 4
+  radius: 0.03

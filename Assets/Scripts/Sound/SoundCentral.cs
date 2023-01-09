@@ -1,4 +1,4 @@
-using System.Collections;
+    using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -18,7 +18,7 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
     public delegate void PlaySoundAt(Vector3 v, SoundTypes s);
     public enum SoundTypes {
          
-        PistolShoot, PistolMag, PistolCharge, SMGShoot, SMGMag, SMGCharge,   ShottyShoot, ShottyMag, ShottyCharge
+        PistolShoot, PistolMag, PistolCharge, SMGShoot, SMGMag, SMGCharge,   ShottyShoot, ShottyMag, ShottyCharge, Sprint, Jump, LightPunch, HeavyPunch, Heal
 
     }
     AudioSource playAtPointFab;
@@ -78,9 +78,9 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         }
     }
   
-   public void Invoke(Vector3 v, SoundTypes i, GameObject source)
+   public void Invoke(Vector3 v, SoundTypes i)
     {
-       soundQueue.Enqueue(new SoundAndLocation(i, v, source));
+       soundQueue.Enqueue(new SoundAndLocation(i, v, null));
         
     }
     
@@ -91,7 +91,7 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         AudioSource source = Instantiate(playAtPointFab);
         source.clip = clip;
         source.transform.position = sal.v;
-        source.transform.SetParent(sal.source.transform);
+     //   source.transform.SetParent(sal.source.transform);
         source.Play();
         await Task.Delay((int)(clip.length * 1000));
         if (source != null)

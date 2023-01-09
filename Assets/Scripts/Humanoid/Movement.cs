@@ -5,8 +5,8 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using System;
 public class Movement : StateManagerComponent
-{   
-
+{
+    public  event UnityAction Moved;
     public Movement(MonoCalls.MonoAcessors manager, CharacterController pController, Transform groundCheck, LayerMask gMask, Transform body) : base(manager)
     {
         this.pController = pController;
@@ -23,8 +23,8 @@ public class Movement : StateManagerComponent
     CharacterController pController; //Reference to PlayerControler
     Transform body;
     float speed = 6f;
-    float jumpHeight = 0.04f;
-    float grav = -0.5f;
+    float jumpHeight = 0.02f;
+    float grav = -0.1f;
     float groundDistance = 0.4f;
     float stamina;
     public Vector3 Velocity;
@@ -76,8 +76,8 @@ public class Movement : StateManagerComponent
     {
         float p = TimeController.PlayerDelta;
         float f = Time.deltaTime;
-        this.x = x * speed * f *p;
-        this.z = z * speed * f*p;
+        this.x = x  * f *p;
+        this.z = z * f*p;
         xzChange = new Vector3(this.x,0,this.z);
     }
     void Move( float x, float z) 
@@ -85,7 +85,7 @@ public class Movement : StateManagerComponent
         //this.x = x * speed * Time.deltaTime;
         //this.z = z * speed * Time.deltaTime;
         CalcXZChange(x, z);
-
+        Moved?.Invoke();
         moveTranslation = body.right * xzChange.x + body.forward * xzChange.z;// assign the x moveamount and the y move amount to the vector
        pController.Move(moveTranslation); // call the move function from pController, transalte by the vector, multiply by speed and Time.Deltatime for speed and smoothing.
     }
@@ -98,6 +98,7 @@ public class Movement : StateManagerComponent
         if (isGrounded == true && yVeloc.y < 0)
         {
             yVeloc.y = -2f;
+            
             return true;
         }
         return false;

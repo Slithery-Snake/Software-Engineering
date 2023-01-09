@@ -10,10 +10,14 @@ public class HumanoidSC : ScriptableObject
     public float Health { get => health; }
     public MeleeStats Light { get => light;  }
     public MeleeStats Heavy { get => heavy; }
+    public double StunTime { get => stunTime;  }
 
-   [SerializeField] protected MeleeStats light;
+    [SerializeField] protected MeleeStats light;
     [SerializeField] protected MeleeStats heavy;
+    [SerializeField] protected double stunTime;
+    [SerializeField] protected int inventorySlots;
 
+    public int InventorySlots { get => inventorySlots; }
 
 }
 [Serializable]

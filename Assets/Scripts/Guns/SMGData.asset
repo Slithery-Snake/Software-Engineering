@@ -18,11 +18,13 @@ MonoBehaviour:
   HotBarName: Uzi
   lHandPos: {x: 0.077, y: 0.94, z: 1.25}
   rHandPos: {x: 0.08, y: 0.85, z: 0.955}
+  holdRotation: {x: 0, y: 0, z: 0}
   magSize: 30
-  reloadTime: 20
+  reloadTime: 10
   weaponCDTime: 0.1
   ammoSource: {fileID: 11400000, guid: e3d329d507feb864d903fdecf88c6644, type: 2}
   shootSound: 3
   magSound: 4
   chargeSoundd: 5
   pumpTume: 10
+  radius: 0.05
