@@ -33,7 +33,7 @@ public class MouseLook :StateManagerComponent
         }
 
 
-        Iinteractable interactHit = rayInfo.transform.GetComponent<Iinteractable>();
+        Iinteractable interactHit = rayInfo.transform.GetComponent<Interactable>();
         if (interactHit != null)
         {
             interactHit.Interacted(player);
@@ -73,5 +73,10 @@ public class MouseLook :StateManagerComponent
       void Update()
     { if(LookDele != null)
         LookDele();
+    }
+
+    protected override void CleanUp()
+    {
+        
     }
 }

@@ -26,7 +26,6 @@ public class WindUp : NotAttacking
     }
     public override void EnterState()
     {
-        Debug.Log("wind");
         melee.MeleeSoureOBJ.Anim.SetTrigger("WindUp");
 
        windupRout = manager.StartCoroutine(WindUpRout(whatStats.windUp, nextState));
@@ -34,7 +33,6 @@ public class WindUp : NotAttacking
     }
     IEnumerator WindUpRout(float wait, NotAttacking next )
     {
-        Debug.Log("timelogged");
          startTime = Time.time;
 
         yield return new WaitForSeconds(wait);
@@ -56,7 +54,6 @@ public class WindUp : NotAttacking
         nextState = manager.Swinging;
         StopWindUp();
         heavy = false;
-        Debug.Log("leave wind up state");
     }
     public override void HandleKeyDownInput(KeyCode keyCode)
     {
@@ -68,7 +65,6 @@ public class WindUp : NotAttacking
             this.whatStats = sc.Heavy;
             nextState = manager.SwingingHeavy;
             float wait = whatStats.windUp - (Time.time - startTime);
-            Debug.Log(Time.time - startTime);
             windupRout = manager.StartCoroutine(WindUpRout(wait, nextState));
 
         }

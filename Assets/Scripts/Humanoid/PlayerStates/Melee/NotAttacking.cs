@@ -18,7 +18,6 @@ public class NotAttacking : PlayerState
     public override void EnterState()
     {
 
-        Debug.Log("non atk");
         
     }
 

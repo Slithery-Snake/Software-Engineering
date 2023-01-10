@@ -34,16 +34,13 @@ public class ShottyShoot : Shooting
             {
                 Bullet bullet = bulletPool.RequestBullet();//bulletPool.RequestBullet();
                 
-                float x =  UnityEngine.Random.Range(-shottySC.Radius, shottySC.Radius) * 0.1f;
-                float y =  UnityEngine.Random.Range(-shottySC.Radius, shottySC.Radius) * 0.1f;
-
-                direction += new Vector3(x, y, 0);
-                bullet.Shoot(position, direction, bTag);
+              
+                bullet.Shoot(position, Randomize(direction), bTag);
             }
             InvokeShotEvent(position);
        //     InvokeShotEvent(position);
 
-            invoke = StartCoroutine(Invoke(weaponCDTime, WeaponCoolDown));
+            invoke = Invoke(weaponCDTime, WeaponCoolDown);
 
             // searDown = ItemData.isAuto;
             // bullet.Rg.velocity = 
@@ -76,7 +73,7 @@ public class ShottyShoot : Shooting
                 Debug.Log("RELOAD");
                 await Task.Delay(itemData.reloadTime * 100);
                 inChamber++;
-                am.Count--;
+                am.SetCount(am.Count - 1);
                 InvokeMagSwap();
 
                 if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }

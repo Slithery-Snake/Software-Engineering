@@ -19,19 +19,22 @@ MonoBehaviour:
     coolDown: 0.5
     windUp: 0.25
   heavy:
-    dmg: 1000
+    dmg: 1
     length: 0.25
     coolDown: 2
-    windUp: 3
+    windUp: 1
+  stunTime: 4
+  inventorySlots: 4
   timeSlow: 10
   slowAdvantage: 5
   slowBarMax: 10
   slowBarDecrement: 1
   slowBarIncrement: 2
-  runSpeed: 10
-  walkSpeed: 1
-  staminaBarMax: 100
+  runSpeed: 6
+  walkSpeed: 4
+  staminaBarMax: 50
   staminaBarDecrement: 1
   staminaBarTick: 0.2
   staminaIncrement: 1
   staminaWaitUntilRegen: 2
+  stunMovementPercentReduction: 90

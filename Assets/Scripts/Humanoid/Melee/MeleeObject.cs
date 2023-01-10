@@ -14,7 +14,7 @@ public class MeleeManager : StateManagerComponent
 
    
     MeleeType.MeleeObject currentMelee;
-   
+
 
     public MeleeType.MeleeObject MeleeSoureOBJ { get => currentMelee; }
 
@@ -34,7 +34,6 @@ public class MeleeManager : StateManagerComponent
         {
             currentMelee = meleeL;
         } else { currentMelee = meleeR; }
-        Debug.Log(currentMelee);
 
 
     }
@@ -52,14 +51,21 @@ public class MeleeManager : StateManagerComponent
         currentMelee.SetActive(false);        
     }
 
+    protected override void CleanUp()
+    {
+    }
+
     public class MeleeType : Enumeration
     {
         UnityAction<Collider> attackType;
+        private readonly MeleeStats stats;
 
-        public MeleeType(int id, string name, UnityAction<Collider> attackType) : base(id, name)
+        public MeleeStats Stats => stats;
+
+        public MeleeType(int id, string name, UnityAction<Collider> attackType, MeleeStats stats) : base(id, name)
         {
             this.attackType = attackType;
-
+            this.stats = stats;
         }
      
         public class MeleeObject : MonoBehaviour
@@ -68,17 +74,16 @@ public class MeleeManager : StateManagerComponent
             UnityAction<Collider> collided;
             Collider handCollider;
             Animator anim;
+
             public static MeleeObject Create(  HumanoidSC sc, Collider collider, Animator meleeAnim)
             {
 
                 MeleeObject hi = collider.transform.gameObject.AddComponent<MeleeObject>();
                 
                 hi.sc = sc;
-                hi.HeavyType = new MeleeType(1, nameof(HeavyType), hi.Heavy);
-                hi.LightType = new MeleeType(2, nameof(LightType), hi.Light);
-                hi.NoneType = new MeleeType(3, nameof(NoneType), hi.NullAttack);
+                hi.HeavyType = new MeleeType(1, nameof(HeavyType), hi.Heavy, sc.Heavy);
+                hi.LightType = new MeleeType(2, nameof(LightType), hi.Light, sc.Light);
                 hi.handCollider = collider;
-                Debug.Log( collider + " " + hi);
                 hi.SetActive(false);
                 hi.anim = meleeAnim;
 
@@ -104,21 +109,21 @@ public class MeleeManager : StateManagerComponent
             }
             static StatusEffect.StatusEffectManager GetStatus(Collider collision)
             {
-                return collision?.GetComponent<ShootBox>()?.Status?.StatusEffectManager;
+                return collision?.GetComponent<ShootBox>()?.Status?.Status;
             }
-            void NullAttack(Collider collision)
-            {
-                Debug.Log("null attack");
-            }
+           
             void Heavy(Collider collision)
             {
-                GetStatus(collision)?.AddStatusEffect(new StatusEffect.StatusEffectManager.Melee(sc.Light.dmg));
-                Debug.Log("heavy attack");
+                GetStatus(collision)?.AddStatusEffect(new StatusEffect.StatusEffectManager.Melee(sc.Heavy.dmg));
+                
+                collision?.GetComponent<ShootBox>()?.Status?.Status.AddStatusEffect(new StatusEffect.StatusEffectManager.StunApply(sc.StunTime));
+                SoundCentral.Instance.Invoke(transform.position, SoundCentral.SoundTypes.HeavyPunch);
+
             }
             void Light(Collider collision)
             {
-                GetStatus(collision)?.AddStatusEffect(new StatusEffect.StatusEffectManager.Melee(sc.Heavy.dmg));
-                Debug.Log("light attack");
+                GetStatus(collision)?.AddStatusEffect(new StatusEffect.StatusEffectManager.Melee(sc.Light.dmg));
+                SoundCentral.Instance.Invoke(transform.position, SoundCentral.SoundTypes.LightPunch);
 
             }
             private void OnTriggerEnter(Collider other)

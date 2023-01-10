@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: 100
   mass: 1
-  holdLocalSpace: {x: 0, y: -1, z: 2}
-  HotBarName: HealthPack
-  healAmount: 50
+  holdLocalSpace: {x: 0, y: -1, z: 1.5}
+  HotBarName: Health Pack
+  lHandPos: {x: -0.6, y: 0.9, z: 1.35}
+  rHandPos: {x: 0.6, y: 0.9, z: 1.35}
+  holdRotation: {x: -80, y: 0, z: 0}

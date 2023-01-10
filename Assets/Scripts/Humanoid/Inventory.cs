@@ -18,8 +18,6 @@ public class Inventory : StateManagerComponent
         public UnityAction ToCall { get => toCall; }
     }
 
-
-    int hotBarSize = 4;
      HotBarItem[] items;
     Transform itemGameObject;
     Dictionary<AmmoSC, Ammo> ammo;
@@ -30,6 +28,11 @@ public class Inventory : StateManagerComponent
     //Stack<int> gunSlots s` new Stack<int>();
     Dictionary<int, CollectiveGun> guns;
     public event UnityAction<int, HotBarItemSC > EquippedSlot;
+    public event UnityAction<int> UnequippedSlot;
+    public event UnityAction<int, HotBarItemSC> PickedUpSlot;
+    public event UnityAction<int> DroppedSlot;
+    MonoCall someItemDropped = new MonoCall();
+    MonoCall someItemAddded = new MonoCall();
     public bool HaveAmmoForGun()
     {if (currentGun != null)
         {
@@ -91,6 +94,8 @@ public class Inventory : StateManagerComponent
     public int CurrentSlot { get => currentSlot; }
     public HotBarItem CurrentEquipped { get => currentEquipped;}
     public CollectiveGun CurrentGun { get => currentGun;  }
+    public IMonoCall SomeItemAddded { get => someItemAddded;  }
+    public IMonoCall SomeItemDropped { get => someItemDropped;  }
 
     Health health;
     private readonly HandPosManage handPos;
@@ -115,10 +120,11 @@ public class Inventory : StateManagerComponent
           gunAdded.Call(new IntGun(i, gun));
 
             };
-        picked.Listen( tempHandler);
+        picked.Listen(tempHandler);
         gun.SetTag(tag);
         AddHotBarItem(gun.Shooting.HotBar);     
         picked.Deafen( tempHandler);
+
 
     }
    
@@ -156,21 +162,29 @@ public class Inventory : StateManagerComponent
 
         }
     }
-
-    public Inventory(MonoCalls.MonoAcessors manager, Transform itemGameObject, Transform hotBarTransform, BulletTag tag, Health health, HandPosManage handPos) : base(manager)
+    int hotBarSlots;
+    void TempCheckGun(int i, HotBarItemSC sc) { CheckGunEquip(i); }
+    public Inventory(MonoCalls.MonoAcessors manager, Transform itemGameObject, Transform hotBarTransform, BulletTag tag, Health health, HandPosManage handPos, HumanoidSC sc) : base(manager)
     {
         this.itemGameObject = itemGameObject;
-        items = new HotBarItem[hotBarSize];
+         hotBarSlots = sc.InventorySlots;
+        items = new HotBarItem[hotBarSlots];
         ammo = new Dictionary<AmmoSC, Ammo>();
         this.hotBarTransform = hotBarTransform;
         guns = new Dictionary<int, CollectiveGun>();
         gunEquipped = new MonoCall();
         gunAdded = new MonoCall<IntGun>();
         picked = new MonoCall<int>();
-        EquippedSlot+= (int i, HotBarItemSC s)=> { CheckGunEquip(i); };
+        EquippedSlot += TempCheckGun;
+        DroppedSlot += RemoveGun;
         this.tag = tag;
         this.health = health;
         this.handPos = handPos;
+    }
+    protected override void CleanUp()
+    {
+        EquippedSlot -= TempCheckGun;
+        DroppedSlot -= RemoveGun;
     }
     void DeactivateItem(HotBarItem item)
     {
@@ -185,8 +199,7 @@ public class Inventory : StateManagerComponent
     {
         //currentSlot = index;
         
-        if(currentEquipped != null) { UnequipHotBar(); } 
-        
+        if(currentEquipped != null) { UnequipHotBar(); }
         
         HotBarItem hotBarItem;
       hotBarItem = items[index]; 
@@ -194,18 +207,39 @@ public class Inventory : StateManagerComponent
         Transform itemTransform = hotBarItem.transform;
         itemTransform.SetParent(hotBarTransform);
         itemTransform.localPosition = hotBarItem.ItemData.HoldLocalSpace;
-        itemTransform.localRotation = Quaternion.identity;
+        itemTransform.localEulerAngles = hotBarItem.ItemData.HoldRotation;
         currentEquipped = hotBarItem;
         handPos.SetLHand( hotBarItem.ItemData.LHandPos);
         handPos.SetRHand(hotBarItem.ItemData.RHandPos);
-
         EquippedSlot?.Invoke(index, hotBarItem.ItemData);
+        hotBarItem.Destroyed += VoidCurrentEquipped;
+        
         return hotBarItem;
+    }
+    void VoidCurrentEquipped()
+    {
+        currentEquipped.Destroyed -= VoidCurrentEquipped;
+
+        guns[currentSlot] = null;
+        items[currentSlot] = null;
+        currentEquipped = null;
+        handPos.SetDefault();
+        InvokeDropped();
+
+
+    }
+    void InvokeDropped()
+    {
+        DroppedSlot?.Invoke(currentSlot);
+        someItemDropped.Call();
     }
     public void UnequipHotBar( )
     {
         if (currentEquipped != null)
         {
+            currentEquipped.Destroyed -= VoidCurrentEquipped;
+
+            UnequippedSlot?.Invoke(currentSlot);
             DeactivateItem(currentEquipped);
             currentEquipped = null;
             handPos.SetDefault();
@@ -217,7 +251,9 @@ public class Inventory : StateManagerComponent
     {
         if(ammo.ContainsKey(am.ItemData))
         {
-            ammo[am.ItemData].Count += am.Count;
+            ammo.TryGetValue(am.ItemData, out Ammo amm);
+            amm.SetCount(amm.Count + am.Count);
+
             
         }
         else
@@ -226,34 +262,52 @@ public class Inventory : StateManagerComponent
         }
         
     }
+    void RemoveGun(int i)
+    {
+        guns.Remove(i);
+    }
+    public void DropCurrent()
+    {if (currentEquipped != null)
+        {
+
+            currentEquipped.transform.SetParent(null);
+            currentEquipped.OgItem.OnFloor();
+            
+            currentEquipped.Interact.enabled = true;
+            VoidCurrentEquipped();
+
+
+        }
+    }
  public void TryAddHotBar(HotBarItem i)
     {
         AddHotBarItem(i);
+
     }
      bool AddHotBarItem(HotBarItem item)
     {
-        for(int i = 0; i < hotBarSize; i ++)
+        for(int i = 0; i < hotBarSlots; i ++)
         {
             if(items[i] ==null)
             {
                 items[i] = item;
                 item.transform.SetParent(itemGameObject, true);
                 item.OgItem.Held();
+                item.Interact.enabled = false;
                 DeactivateItem(item);
+                PickedUpSlot?.Invoke(i, item.ItemData);
+
                 if (!picked.IsNull())
                 {
                     picked.Call(i);
                 }
+                someItemAddded.Call();
+
                 return true;
             }
         }
         return false;
     }
 
-    
-
-   
-
- 
-
+  
 }

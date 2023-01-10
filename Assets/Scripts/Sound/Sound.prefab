@@ -63,3 +63,15 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 2574bb3ec624a6147afe478f3f68fdd1, type: 3}
   - type: 8
     clip: {fileID: 8300000, guid: 708897e4e3635c8419c830200acd729b, type: 3}
+  - type: 9
+    clip: {fileID: 8300000, guid: d02bdae0150e9d84099200300fc1ee0c, type: 3}
+  - type: 10
+    clip: {fileID: 8300000, guid: 987e8614ac4a1404db26aefb63e567d3, type: 3}
+  - type: 11
+    clip: {fileID: 8300000, guid: 6866c8615d3110545b184b7684dbeaff, type: 3}
+  - type: 12
+    clip: {fileID: 8300000, guid: b12b52f84b3260847a60957ca23ee30d, type: 3}
+  - type: 13
+    clip: {fileID: 8300000, guid: ed6eb29c8fe7b0548b49b866bedf619b, type: 3}
+  - type: 14
+    clip: {fileID: 8300000, guid: 5d45e0d7371109449a97818e9494b1c5, type: 3}

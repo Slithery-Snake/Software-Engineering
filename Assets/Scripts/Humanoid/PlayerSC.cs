@@ -16,6 +16,7 @@ public class PlayerSC : HumanoidSC
     [SerializeField] private float staminaBarTick;
     [SerializeField] private float staminaIncrement;
     [SerializeField] private float staminaWaitUntilRegen;
+    [SerializeField] private float stunMovementPercentReduction;
     public float TimeSlow { get => timeSlow;  }
     public float SlowAdvantage { get => slowAdvantage; }
     public float SlowBarMax { get => slowBarMax;  }
@@ -28,4 +29,6 @@ public class PlayerSC : HumanoidSC
     public float StaminaBarTick { get => staminaBarTick;  }
     public float StaminaIncrement { get => staminaIncrement; }
     public float StaminaWaitUntilRegen { get => staminaWaitUntilRegen; }
+    public float StunMovementPercentReduct { get => stunMovementPercentReduction; }
+   
 }

@@ -6,7 +6,7 @@ public class Health : IShootable
     
     protected float currentHealth;
     public event UnityAction<float> HealthChanged;
-
+   
     public event UnityAction HealthBelowZero;
     protected HumanoidSC sC;
 

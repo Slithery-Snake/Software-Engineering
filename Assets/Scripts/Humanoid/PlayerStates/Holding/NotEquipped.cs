@@ -28,7 +28,7 @@ public class NotEquipped : PlayerState
         {
            
 
-            if (inventory.ItemIsInSlot(slot))
+            if (inventory.ItemIsInSlot(slot)&& manager.MeleePointer.State == manager.NotAttackingState)
             {
                 
                 inventory.SetSlot(slot);

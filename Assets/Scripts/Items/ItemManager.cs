@@ -56,11 +56,11 @@ public class ItemManager : MonoBehaviour
         gunDict.TryGetValue(id, out CollectiveGun g);
        return CollectiveGun.CreateGun(g, bulletSpawn, v, Quaternion.identity, chamber);
     }
-    public Ammo CreateAmmo(Vector3 v, int id, int count)
+    public Ammo CreateAmmo(Vector3 v, int id, int count, bool inf)
     {
         ammoDict.TryGetValue(id, out Ammo g);
-        g.Count = count;
-       return Ammo.CreateAmmo(g, count, v, Quaternion.identity);
+     ///   g.SetCount(count);
+       return Ammo.CreateAmmo(g, count, v, Quaternion.identity, inf);
     }
     // Start is called before the first frame update
    

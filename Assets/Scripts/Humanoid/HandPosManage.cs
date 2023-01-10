@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
 public class HandPosManage : StateManagerComponent
 {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
     Vector3 rDefault;
@@ -30,5 +30,9 @@ public class HandPosManage : StateManagerComponent
     {
         rHand.localPosition = rDefault;
         lHand.localPosition = lDefault;
+    }
+
+    protected override void CleanUp()
+    {
     }
 }

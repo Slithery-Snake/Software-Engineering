@@ -15,7 +15,7 @@ public class Reloading : EquippedGun
     {
         SetItem();
         SetGun();
-        inventory.CurrentGun.Shooting.ReloadDone += ReloadDone;
+        inventory.CurrentGun.Shooting.Reloaded.Listen( ReloadDone);
         inventory.Reload();
 
         
@@ -29,7 +29,7 @@ public class Reloading : EquippedGun
     }
     public override void ExitState()
     {
-        inventory.CurrentGun.Shooting.ReloadDone -= ReloadDone;
+        inventory.CurrentGun.Shooting.Reloaded.Deafen(ReloadDone);
 
         inventory.StopReload();
         base.ExitState();

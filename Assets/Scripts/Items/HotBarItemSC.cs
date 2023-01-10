@@ -10,8 +10,10 @@ public class HotBarItemSC : ItemSC
     [SerializeField] string HotBarName;
     [SerializeField] Vector3 lHandPos;
     [SerializeField] Vector3 rHandPos;
+    [SerializeField] Vector3 holdRotation;
     public Vector3 HoldLocalSpace { get => holdLocalSpace; }
     public string HotBarName1 { get => HotBarName;  }
     public Vector3 LHandPos { get => lHandPos;  }
     public Vector3 RHandPos { get => rHandPos;  }
+    public Vector3 HoldRotation { get => holdRotation; }
 }
