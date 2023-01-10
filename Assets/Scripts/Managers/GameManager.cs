@@ -1,10 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.Events;
-
-using System;
+using UnityEngine.SceneManagement;
 [System.Serializable]
 
 public static class Constants
