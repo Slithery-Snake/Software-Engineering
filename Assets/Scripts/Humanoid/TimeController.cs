@@ -3,8 +3,10 @@ using System;
 using EnemyStuff;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine.Events;
 public class TimeNormal : TimeDisabled
-{
+{   
+    
     public TimeNormal(PInputManager manager, TimeController time) : base(manager, time)
     {
     }
@@ -23,6 +25,10 @@ public class TimeNormal : TimeDisabled
 }
 public class TimeSlow : TimeDisabled
 {
+    static MonoCall timeSlowAttempted = new MonoCall();
+
+    public static IMonoCall TimeSlowAttempted { get => timeSlowAttempted; }
+
     public TimeSlow(PInputManager manager, TimeController time) : base(manager, time)
     {
  
@@ -30,6 +36,7 @@ public class TimeSlow : TimeDisabled
 
     public override void EnterState()
     {
+        timeSlowAttempted.Call();
         time.BarZero += Time_BarZero;
 
         time.SetSlow(true);
@@ -92,7 +99,7 @@ public class TimeController : StateManagerComponent
     public static float Slow { get => slow; }
     public static float PlayerDelta { get => playerDelta;  }
     public float BulletBar { get => bulletBar; }
-    public event EventHandler<float> ValueUpdated;
+    public event UnityAction<float> ValueUpdated;
 
     Task task;
     CancellationTokenSource source;
@@ -102,8 +109,14 @@ public class TimeController : StateManagerComponent
         defaultTimeScale = Time.timeScale;
         this.sC = sC;
         bulletBar = 0;
-        EnemyAI.EnemyKilled += (object j, EventArgs f) => { EnemyKilled(); };
+        EnemyAI.EnemyKilled +=  EnemyKilled;
     }
+    protected override void CleanUp()
+    {
+        EnemyAI.EnemyKilled -= EnemyKilled;
+
+    }
+
     void EnemyKilled()
     {
         bulletBar += sC.SlowBarIncrement;
@@ -113,7 +126,7 @@ public class TimeController : StateManagerComponent
             bulletBar = sC.SlowBarMax;
             
         }
-        ValueUpdated?.Invoke(this, bulletBar);
+        ValueUpdated?.Invoke( bulletBar);
     }  
     void StartDecrease()
     {
@@ -148,7 +161,7 @@ public class TimeController : StateManagerComponent
                 }
                 if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
                 bulletBar -= decrease;
-                ValueUpdated?.Invoke(this, bulletBar);
+                ValueUpdated?.Invoke( bulletBar);
 
 
 
@@ -185,5 +198,5 @@ public class TimeController : StateManagerComponent
         }
     }
 
-    
+   
 }

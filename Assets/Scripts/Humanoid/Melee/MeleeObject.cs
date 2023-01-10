@@ -51,6 +51,10 @@ public class MeleeManager : StateManagerComponent
         currentMelee.SetActive(false);        
     }
 
+    protected override void CleanUp()
+    {
+    }
+
     public class MeleeType : Enumeration
     {
         UnityAction<Collider> attackType;

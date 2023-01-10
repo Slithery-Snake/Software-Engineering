@@ -8,13 +8,15 @@ public class UIManager : MonoBehaviour
     PlayerUI playerUI;
     [SerializeField] DeathMenu deathMenuFab;
     DeathMenu deathMenu;
-     void CreatePlayerUI(PInputManager h)
+
+    public PlayerUI PlayerUI { get => playerUI; }
+
+    void CreatePlayerUI(PInputManager h)
     {
         PInputManager.UIInfoBoard board = h.uiInfo;
         playerUI = PlayerUI.Create(playerUIFab, board, h.SC, transform);
         
     }
-    
    public static UIManager Create(UIManager fab , PInputManager h)
     {
         UIManager ui = Instantiate(fab);

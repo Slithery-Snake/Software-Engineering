@@ -19,7 +19,6 @@ public class Shooting : MonoBehaviour
     protected HotBarItem hotBar;
     protected BulletTag bTag = null;
     public event UnityAction IdealReloadState;
-    public event UnityAction ReloadDone;
     protected WeaponData itemData;
     protected bool roundChambered = true;
     protected void InvokeIdealReload()
@@ -29,13 +28,19 @@ public class Shooting : MonoBehaviour
 
     protected void InvokeReloadDone()
     {
-        ReloadDone?.Invoke();
+        reloaded.Call();
     }
 
     public HotBarItem HotBar { get => hotBar; }
     public bool IsReloading { get => isReloading;  }
     public bool HasAmmo { get => hasAmmo;}
     public  WeaponData ItemData { get => itemData;  }
+    protected MonoCall someBulletShot = new MonoCall();
+    protected MonoCall empty = new MonoCall();
+    protected MonoCall reloaded = new MonoCall();
+    public  IMonoCall SomeBulletShot { get => someBulletShot; }
+    public  IMonoCall Empty { get => empty;  }
+    public IMonoCall Reloaded { get => reloaded; }
 
     public virtual bool NeedReload()
     {
@@ -194,6 +199,7 @@ public class Shooting : MonoBehaviour
             {
                 hasAmmo = false;
                 roundChambered = false;
+                empty.Call();
             }
             Bullet bullet = bulletPool.RequestBullet();//bulletPool.RequestBullet();
             Vector3 direction = barrelTransform.forward;
@@ -212,9 +218,11 @@ public class Shooting : MonoBehaviour
         }
         
     }
+
     protected void InvokeShotEvent(Vector3 v)
     {
         SoundCentral.Instance.Invoke(v, itemData.ShootSound);
+        someBulletShot.Call();
 
     }
     protected virtual void TriggerDown()

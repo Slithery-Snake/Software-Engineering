@@ -121,7 +121,11 @@ public class Movement : StateManagerComponent
         pController.Move(yVeloc*TimeController.Slow); // move by the velocity
     }
 
-  
+    protected override void CleanUp()
+    {
+    }
+
+
     //
 
     //

@@ -9,8 +9,9 @@ public class HealthPack : Item<HotBarItemSC>, Iinteractable
     HotBarItem hbar;
     StatusEffect.StatusEffectManager status;
     Interactable interact;
+    static MonoCall healed;
 
-    
+    public static IMonoCall Healed { get => healed; }
 
     public void Interacted(SourceProvider source)
     {
@@ -27,7 +28,7 @@ public class HealthPack : Item<HotBarItemSC>, Iinteractable
     void Heal()
     {
         SoundCentral.Instance.Invoke(transform.position, SoundCentral.SoundTypes.Heal);
-
+        healed.Call();
         status?.AddStatusEffect(new StatusEffect.StatusEffectManager.HealthApply());
         Destroy(gameObject);
         

@@ -74,4 +74,9 @@ public class MouseLook :StateManagerComponent
     { if(LookDele != null)
         LookDele();
     }
+
+    protected override void CleanUp()
+    {
+        
+    }
 }

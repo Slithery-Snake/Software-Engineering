@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class StateManagerIN: MonoBehaviour
 {
@@ -39,16 +40,19 @@ interface ComponentOfManager<out T> where T :StateManagerIN
 {
 
 }
-public abstract class StateManagerComponent//: ComponentOfManager<T> where T: StateManager
+public abstract class StateManagerComponent: IDisposable //: ComponentOfManager<T> where T: StateManager,
 {
     protected MonoCalls.MonoAcessors manager;
     public StateManagerComponent(MonoCalls.MonoAcessors manager)
     {
         this.manager = manager;
+        manager.Destroyed.Listen(Dispose);
     }
- 
+    protected abstract void CleanUp();
+    public void Dispose()
+    {
+        manager.Destroyed.Deafen(Dispose);
 
-
-
-
+        CleanUp();
+    }
 }

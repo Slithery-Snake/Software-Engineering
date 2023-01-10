@@ -149,6 +149,7 @@ MonoBehaviour:
   stamina: {fileID: 7993800512085982571}
   health: {fileID: 6116265429815258185}
   bBar: {fileID: 6329742037746966632}
+  messageText: {fileID: 892201760357851422}
   hbarUI: {fileID: 2791060903976675458, guid: 1114fac47db9e16448f5ed17e08d17be, type: 3}
   hbarGrid: {fileID: 1584063978923683726}
 --- !u!1001 &5892429806220526049
@@ -292,6 +293,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 136c4734b5c749740bf7da8c0fc606e9, type: 3}
+--- !u!114 &892201760357851422 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6748540096253354239, guid: 136c4734b5c749740bf7da8c0fc606e9, type: 3}
+  m_PrefabInstance: {fileID: 5892429806220526049}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &1584063978923683726 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4917267219476262511, guid: 136c4734b5c749740bf7da8c0fc606e9, type: 3}

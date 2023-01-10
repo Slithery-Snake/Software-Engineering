@@ -11,7 +11,7 @@ public class Swing : NotAttacking
         cDoff = false;
         yield return new WaitForSeconds(wait);
         cDoff = true;
-        Debug.Log("cd over");
+       // Debug.Log("cd over");
     }
     public Swing(PInputManager manager, MeleeManager melee) : base(manager, melee)
     {

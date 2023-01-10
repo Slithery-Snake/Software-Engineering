@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
+using UnityEngine.Events;
 
 public class Moving : NotMoving
 {
@@ -11,7 +11,7 @@ public class Moving : NotMoving
     float stamina;
     float percent = 1;
     Submoving submoving;
-    public event EventHandler<float> StaminaChanged;
+    public event UnityAction<float> StaminaChanged;
     float modifier;
 
    
@@ -57,7 +57,7 @@ public class Moving : NotMoving
         do
         {
             stamina -= inc;
-            StaminaChanged.Invoke(this, stamina);
+            StaminaChanged.Invoke(stamina);
 
             if(stamina <= end )
             {
@@ -77,7 +77,7 @@ public class Moving : NotMoving
         float end = sc.StaminaBarMax;
       do  {
             stamina += inc;
-            StaminaChanged.Invoke(this, stamina);
+            StaminaChanged.Invoke( stamina);
 
             if(stamina >= end)
             {

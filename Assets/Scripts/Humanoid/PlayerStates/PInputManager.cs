@@ -23,6 +23,7 @@ public class MonoCall<T> : IMonoCall<T>
         }
         return false;
     }
+
     public void Listen(UnityAction<T> add)
     {
         toCall += add;
@@ -42,7 +43,7 @@ public interface IMonoCall<T>
 public class MonoCall : IMonoCall
 {
 
-    UnityAction toCall;
+UnityAction toCall;
     public void Call()
     {
         if (toCall != null)
@@ -76,6 +77,7 @@ public class MonoCalls
     public MonoCall updateCall = new MonoCall();
     public MonoCall fixedUpdateCall = new MonoCall();
     public MonoCall lateUpdateCall = new MonoCall();
+    public MonoCall destroyed = new MonoCall();
     public MonoAcessors accessors;
     public MonoCalls ()
     {
@@ -93,6 +95,7 @@ public class MonoCalls
             calls = f;
         }
         MonoCalls calls;
+        public IMonoCall Destroyed { get => calls.destroyed; }
         public IMonoCall AwakeCall { get => calls.awakeCall; }
         public IMonoCall StartCall { get => calls.startCall; }
         public IMonoCall UpdateCall { get => calls.updateCall; }
@@ -296,6 +299,7 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
         health.HealthBelowZero += Death;
        
     }
+
     public static event UnityAction PlayerDied;
    void Death()
     {
@@ -317,7 +321,7 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
         {
             this.p = p;
         }
-        public event EventHandler<float> StaminaChanged
+        public event UnityAction<float> StaminaChanged
         {
 
             add { p.moving.StaminaChanged += value; }
@@ -328,7 +332,7 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
         add { p.health.HealthChanged += value; }
     remove { p.health.HealthChanged -= value; }
         }
-        public event EventHandler<float> BulletTimeChanged
+        public event UnityAction<float> BulletTimeChanged
         {
             add { p.bTime.ValueUpdated += value; }
             remove { p.bTime.ValueUpdated -= value; }
@@ -343,7 +347,10 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
             remove { p.inventory.DroppedSlot -= value; }
         }
 
-
+        protected override void CleanUp()
+        {
+           
+        }
     }
 
 
@@ -369,6 +376,10 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
             keyEvent.KeyPress += InputKeyPressed;
             keyEvent.KeyUp += InputKeyUp;
         }
+    }
+    void OnDestroy()
+    {
+        calls.destroyed.Call();
     }
     void InitializeStatesArray()
     {
@@ -625,13 +636,13 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
     Coroutine stunRout;
     public void Stun(double stunTime)
     {
-        Debug.Log("player stunned");
         if(stunRout !=null)
         {
             StopCoroutine(stunRout);
 
         }
-        stunRout = StartCoroutine(StunProcedure(stunTime));
+        if (gameObject.activeInHierarchy == true) {
+            stunRout = StartCoroutine(StunProcedure(stunTime)); }
     }
    protected IEnumerator StunProcedure(double stunTime)
     {
@@ -756,6 +767,11 @@ public abstract class StatusEffect
             }
 
         }
+
+        protected override void CleanUp()
+        {
+        }
+
         public class Melee : StatusEffect
         {
             int damage;
@@ -777,7 +793,7 @@ public abstract class StatusEffect
             public StunApply(double  stunTime) : base()
             {
                 this.stunTime = stunTime;
-                Debug.Log("stunned applied");
+              //  Debug.Log("stunned applied");
             }
 
             protected override void ApplyEffect(StatusEffectManager manager)

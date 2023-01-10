@@ -8,6 +8,7 @@ using UnityEngine.Events;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.AI;
+
     /*
      Is Visible? >
     Turn Towards Person and IsWithinRange? >
@@ -36,7 +37,7 @@ namespace EnemyStuff
             return e;
             
         }
-        public static EnemyAI CreateMeleeEnemy(EnemyAI prefab, Vector3 v, int degreeDirect)
+        public static EnemyAI CreateMeleeEnemy(EnemyAI prefab, Vector3 v, float degreeDirect)
         {
             EnemyAI e = Instantiate(prefab, v, Quaternion.Euler(new Vector3(0, degreeDirect, 0)));
             e.Init();
@@ -45,7 +46,7 @@ namespace EnemyStuff
             return e;
         }
 
-        public static event EventHandler EnemyKilled;
+        public static event UnityAction EnemyKilled;
        [SerializeField] EnemyParts enemyParts;
         [SerializeField] NavMeshAgent pathfinder;
         MonoCalls calls = new MonoCalls();
@@ -60,15 +61,22 @@ namespace EnemyStuff
         Follow follow;
         public StatusEffect.StatusEffectManager Status => status;
         Node second;
-        void Die(object obj, EventArgs e)
+        void Die()
         {
             EnemyKilled -= Die;
             health.HealthBelowZero -= Execute;
             follow.Dispose();
             Destroy(gameObject);
-
            
 
+        }
+     
+        private void OnDestroy()
+        {
+            calls.destroyed.Call();
+            EnemyKilled -= Die;
+            health.HealthBelowZero -= Execute;
+            follow.Dispose();
         }
         private void Init()
         {
@@ -78,17 +86,18 @@ namespace EnemyStuff
             health.HealthBelowZero += Execute;
             EnemyKilled += Die;
             enemyParts.tag.AddTagsToHitBoxes(health, this);
-            lookNode = new LookAtNode(enemyParts.hParts.Parts1.body, enemyParts.hParts.Parts1.head, enemyParts.enemySC);
+            lookNode = new LookAtNode(enemyParts.hParts.Parts1.body, enemyParts.hParts.Parts1.head, enemyParts.enemySC, health);
             
             status = new StatusEffect.StatusEffectManager(calls.accessors, health, this);
-            
-       
+
+            follow = new Follow(pathfinder, lookNode, enemyParts.enemySC, enemyParts.hParts.Parts1.body);
+
 
         }
-      
+
         void Execute()
         {
-            EnemyKilled.Invoke(this, null);
+            EnemyKilled.Invoke();
         }
         void InitWeap(int weap, int amm, ItemManager manager)
         {
@@ -105,7 +114,6 @@ namespace EnemyStuff
             melee = new MeleeManager(calls.accessors, enemyParts.enemySC, enemyParts.hParts.Parts1.lHandCol, enemyParts.hParts.Parts1.rHandCol, enemyParts.hParts.Parts1.lHandAnim, enemyParts.hParts.Parts1.rHandAnim);
             meleeNode = new MeleeNode(enemyParts.hParts.Parts1.body, enemyParts.enemySC, melee);
             canMelee = new ShouldMelee(enemyParts.hParts.Parts1.body, enemyParts.enemySC);
-            follow = new Follow(pathfinder,lookNode, enemyParts.enemySC, enemyParts.hParts.Parts1.body);
 
 
 
@@ -169,13 +177,17 @@ namespace EnemyStuff
             navMesh.stoppingDistance = sc.FollowStoppingDistance;
             stopDistance = sc.FollowStoppingDistance;
             navMesh.speed = sc.Speed;
-          //  navMesh.updatePosition = false;
+         
+
+            //  navMesh.updatePosition = false;
         }
+    
+        
+
         protected virtual void StartFollow()
         {
 
-            Debug.Log("startFollow");
-            HumanoidManager.PlayerMoved += SetPlayerDestination;
+            HumanoidManager.PlayerMovedCall.Listen( SetPlayerDestination);
 
         }
         public void ResumeFollow()
@@ -201,7 +213,7 @@ namespace EnemyStuff
 
         public void Dispose()
         {
-            HumanoidManager.PlayerMoved -= SetPlayerDestination;
+            HumanoidManager.PlayerMovedCall.Deafen( SetPlayerDestination);
             lookNode.FirstSighted -= StartFollow;
 
 
@@ -302,20 +314,29 @@ namespace EnemyStuff
         Transform transform;
         Transform head;
         EnemySC SC;
+        private readonly Health health;
         Transform player;
-        public LookAtNode(Transform transform,Transform head, EnemySC SC)
+        public LookAtNode(Transform transform,Transform head, EnemySC SC, Health health)
         {
             this.transform = transform;
             this.SC = SC;
+            this.health = health;
             player = HumanoidManager.PlayerTransform;
             //radianView = SC.ViewAngle/2 * Mathf.Deg2Rad;
 
             this.head = head;
             EvalFunction = FirstEval;
-         //   EvalFunction = DefaultEvaluation;
+            //   EvalFunction = DefaultEvaluation;
+            health.HealthChanged += FirstHit;
         }
         int ignoreAllButSolidCoverAndPlayer = (1 << Constants.environment | 1 << Constants.playerMask);
-    
+    void FirstHit(float f)
+        {
+            
+            if(EvalFunction != DefaultEvaluation) { EvalFunction = DefaultEvaluation; }
+            health.HealthChanged -= FirstHit;
+
+        }
         NodeState FirstEval()
         {
             if (ExtraSensory() || (IsVisible() && IsExposed()) && IsWithinAngle())
@@ -513,7 +534,7 @@ namespace EnemyStuff
 
                 rel = RelState.doneReload;
 
-                inventory.CurrentGun.Shooting.ReloadDone -= ReloadAgain;
+                inventory.CurrentGun.Shooting.Reloaded.Deafen(ReloadAgain);
                 inventory.CurrentGun.Shooting.IdealReloadState -= ReloadDone;
 
 
@@ -524,7 +545,7 @@ namespace EnemyStuff
                 inventory.Reload();
             } else
             {
-                inventory.CurrentGun.Shooting.ReloadDone -= ReloadAgain;
+                inventory.CurrentGun.Shooting.Reloaded.Deafen( ReloadAgain);
 
             }
 
@@ -538,7 +559,7 @@ namespace EnemyStuff
                 rel = RelState.reloading;
                 inventory.Reload();
                
-                inventory.CurrentGun.Shooting.ReloadDone += ReloadAgain;
+                inventory.CurrentGun.Shooting.Reloaded.Listen(ReloadAgain);
                 inventory.CurrentGun.Shooting.IdealReloadState += ReloadDone;
             
 

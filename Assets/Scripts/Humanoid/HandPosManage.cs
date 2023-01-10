@@ -32,5 +32,7 @@ public class HandPosManage : StateManagerComponent
         lHand.localPosition = lDefault;
     }
 
-   
+    protected override void CleanUp()
+    {
+    }
 }
