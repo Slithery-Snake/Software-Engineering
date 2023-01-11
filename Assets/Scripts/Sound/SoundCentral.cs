@@ -135,10 +135,9 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         source.clip = clip;
         source.transform.SetParent(sal.v, true);
         //   source.transform.SetParent(sal.source.transform);
-        if (source.enabled == true)
-        {
+       
             source.Play();
-        }
+        
         await Task.Delay((int)(clip.length * 1000));
         if (source != null)
         {

@@ -13,15 +13,14 @@ public class HeavySwing : Swing
 
         melee.MeleeSoureOBJ.SetMelee(melee.MeleeSoureOBJ.HeavyType);
         melee.AttackSetUp(melee.MeleeSoureOBJ.HeavyType) ;
-        Debug.Log("heavy");
-
+      
     }
 
     public override void ExitState()
     {
         melee.StopAttack();
         manager.StartCoroutine(CD(sc.Heavy.coolDown));
-        Debug.Log("heavy done");
+     
 
 
     }

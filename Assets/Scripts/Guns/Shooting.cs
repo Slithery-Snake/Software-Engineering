@@ -141,7 +141,10 @@ public class Shooting : MonoBehaviour
             reserves.SetCount( 0);
             return;
         }
-
+        if(reserves.Infinity)
+        {
+            inChamber = magSize;
+        }
         inChamber = magSize;
         reserves.SetCount(reserves.Count- bulletsToFull);
         if (inChamber > 0) { hasAmmo = true; }
@@ -154,7 +157,7 @@ public class Shooting : MonoBehaviour
         {
             return false;
         }
-        if (reserves.Count <= bulletsToFull)
+        if (reserves.Count <= bulletsToFull || reserves.Infinity)
         {
             return true;
         }

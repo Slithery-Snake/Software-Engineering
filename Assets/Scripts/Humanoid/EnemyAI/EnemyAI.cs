@@ -28,7 +28,7 @@ namespace EnemyStuff
     }
     public class EnemyAI : BehaviourTree, StatusEffect.StatusEffectManager.IStatusEeffectable, StatusEffect.StatusEffectManager.IStunnable
     {
-        public static EnemyAI CreateEnemy(EnemyAI prefab, Vector3 v, ItemManager itemManager, int gid, int aid, int degreeDirect)
+        public static EnemyAI CreateEnemy(EnemyAI prefab, Vector3 v, ItemManager itemManager, int gid, int aid, float degreeDirect)
         {
             EnemyAI e =Instantiate(prefab, v, Quaternion.Euler(new Vector3(0,degreeDirect,0)));
             e.Init();
@@ -188,6 +188,7 @@ namespace EnemyStuff
         {
 
             HumanoidManager.PlayerMovedCall.Listen( SetPlayerDestination);
+            SetPlayerDestination();
 
         }
         public void ResumeFollow()

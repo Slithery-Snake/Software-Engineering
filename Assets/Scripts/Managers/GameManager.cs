@@ -29,11 +29,12 @@ public class GameManager : MonoBehaviour
    
     public static class SpawnData
     {
-        public static List<AmmoSpawn> ammo = new List<AmmoSpawn>();
-        public static List<GunSpawn> guns = new List<GunSpawn>();
-        public static List<EnemySpawn> enemy = new List<EnemySpawn>();
+        public static List<AmmoSpawn> ammo;
+        public static List<GunSpawn> guns;
+        public static List<EnemySpawn> enemy;
+        public static List<EnemyGunner> gunners;
 
-        public static List<ItemSpawn> item = new List<ItemSpawn>();
+        public static List<ItemSpawn> item;
         public static PlayerSpawn whereSpawn;
         public static ExitPoint exitPoint;
         
@@ -43,9 +44,26 @@ public class GameManager : MonoBehaviour
             guns.Clear();
            enemy.Clear();
             item.Clear();
+            gunners.Clear();
+            whereSpawn = null;
+            exitPoint = null;
         }
 
     }
+    private void Awake()
+    {
+        
+        unloadingOperations = new List<AsyncOperation>();
+        loadingOperations = new List<AsyncOperation>();
+        gameState = new GameManagerState(this);
+           SpawnData.ammo = new List<AmmoSpawn>();
+        SpawnData.gunners = new List<EnemyGunner>();
+        SpawnData.guns = new List<GunSpawn>();
+        SpawnData.enemy = new List<EnemySpawn>();
+
+        SpawnData.item = new List<ItemSpawn>();
+}
+
     private void OnDestroy()
     {
         gameState.Dispose();
@@ -62,6 +80,7 @@ public class GameManager : MonoBehaviour
      
         List<SceneCreation> levelScenes;
         int levelIndex = 0;
+        int finalLevelIndex = 3 ;
         StatePointer<GameManagerState,FiniteState<GameManagerState>> point;
         protected GameManager manager;
         InGame inGame;
@@ -72,6 +91,10 @@ public class GameManager : MonoBehaviour
         public Pointer Point { get => point;  }
        public void Dispose()
         {
+            foreach(SceneCreation sc in levelScenes)
+            {
+                sc.Dispose();
+            }
             levelScenes.Clear();
             inGame = null;
             inMenu = null;
@@ -116,13 +139,20 @@ public class GameManager : MonoBehaviour
             void OnLevelComplete()
             {
                 Debug.Log("LEVEL COMPLETE, YOU ARE THE BIGEST BIRD");
+                
                 manager.levelIndex++;
-                manager.ChangeToStateIG(manager.point, sceneIndex++);
+                if (manager.levelIndex > manager.finalLevelIndex)
+                {
+                    manager.ChangeToState(manager.inMenu, manager.point );
+                } else
+                {
+                    manager.ChangeToStateIG(manager.point, sceneIndex++);
+
+                }
             }
             public InGame(GameManagerState manager, int i) : base(manager)
             {
                 this.sceneIndex = i + manager.levelIndex;
-                PInputManager.PlayerDied += Death;
                 gameManager = manager.manager;
 
             }
@@ -130,10 +160,16 @@ public class GameManager : MonoBehaviour
 
             public override void EnterState()
             {
-                manager.levelScenes[manager.levelIndex].StartLoadAndCreate(sceneIndex);
+                SceneCreation sCreation = manager.levelScenes[manager.levelIndex];
+                if(sCreation == null)
+                {
+                    manager.ChangeToState(manager.inMenu, manager.point);
+                }
+                sCreation.StartLoadAndCreate(sceneIndex);
 
                 scene = manager.levelScenes[manager.levelIndex];
                     scene.LevelDone += OnLevelComplete;
+                PInputManager.PlayerDied += Death;
 
             }
 
@@ -206,13 +242,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] SoundCentral soundManager;
    
 
-    private void Awake()
-    {
-        unloadingOperations = new List<AsyncOperation>();
-        loadingOperations = new List<AsyncOperation>();
-        gameState = new GameManagerState(this);
-    }
-
+  
     
    
     public abstract class SceneCreation: IDisposable
@@ -270,55 +300,68 @@ public class GameManager : MonoBehaviour
             manager.UnloadScene(index);
         }
     }
+  
+
     public class Scene1 : DefaultSpawnScene
     {
-
-
-        static Queue<Messages> messages;
-        static Messages currentMessage;
+       
+        
 
         public Scene1( GameManager manager) : base( manager)
         {
-            messages = new Queue<Messages>();
+            messageManage = new MessageManage(manager);
         }
+        MessageManage messageManage;
+        void MessagesDone()
+        {
+            MessageManage.Messages.MessageEmpty -= MessagesDone;
+            InvokeLevelDone();
+
+        }
+      
         void OnGunEquipped()
         {
+            MessageManage.Messages.MessageEmpty += MessagesDone;
+
             player.Inventory.GunEquipped.Deafen(OnGunEquipped);
 
             Inventory pInventory = player.Inventory;
             
             Shooting shooting = pInventory.CurrentGun.Shooting;
-            messages.Enqueue(new Messages("Fire the weapon (left click)", 2000, shooting.SomeBulletShot));
-            messages.Enqueue(new Messages("Now reload the weapon (press r)", 2000, shooting.Reloaded));
-            messages.Enqueue(new Messages("Now fire until the weapon is empty", 2000, shooting.Empty));
-            messages.Enqueue(new Messages("Now reload the weapon (press r)", 2000, shooting.Reloaded));
-            messages.Enqueue(new Messages("See how it won't fire? You need to chambr the bullet (press r again)", 2000, shooting.Reloaded));
-            messages.Enqueue(new Messages("Equip your medkit and use it(press number to unequip then equip medkit, then left click to use)", 2000, HealthPack.Healed));
-            messages.Enqueue(new Messages("Your combat suit can't protect against everything. Use medkits when needded.", 2000));
-            messages.Enqueue(new Messages("Be sure to drop things to make space in your hands (press x)", 2000, pInventory.SomeItemDropped));
-            messages.Enqueue(new Messages("Good. You may lose ammunition, so let's learn about CQC", 2000));
-            messages.Enqueue(new Messages("Try a strike (left click with nothing equipped)", 2000));
-            messages.Enqueue(new Messages("A strike is fast and hurts others well", 2000));
-            messages.Enqueue(new Messages("Try a grapple (left click then left click again", 2000));
-            messages.Enqueue(new Messages("A grapple is weak but disorients others well", 2000));
-            messages.Enqueue(new Messages("Good Job Agent. Let me introduce myself. I am your operator. We have been tasked with infiltrating the criminal shadow organization Leviathan.", 5000));
-            messages.Enqueue(new Messages("The fact that we're attacking them has nothing to do with the fact that they are a crime organization. Rather, they have not been paying their taxes.", 5000));
-            messages.Enqueue(new Messages("As an enforcer for the IRS, teach them to never mess with us, and get their tax dollars!", 5000));
+            
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Fire the weapon. (left click)", 2000, shooting.SomeBulletShot));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Now reload the weapon. (press r)", 2000, shooting.Reloaded));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Now fire until the weapon is empty.", 2000, shooting.Empty));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Now reload the weapon. (press r)", 2000, shooting.Reloaded));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("You need to chamber the bullet because you've emptied your magazine. (press r again)", 3000, shooting.Reloaded));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Equip your medkit and use it. (press number to unequip then equip medkit, then left click to use)", 2000, HealthPack.Healed));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Your combat suit can't protect against everything. Use medkits when needed.", 4000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Be sure to drop things to make space in your hands. (equip and press x)", 3000, pInventory.SomeItemDropped));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Good. You may run out of ammunition, so let's learn about CQC.", 5000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Try a strike. (left click with nothing equipped)", 2000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("A strike is fast and hurts others well.", 4000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Try a grapple. (left click then left click again", 2000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("A grapple is weak but disorients others well.", 5000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Good Job Agent. Let me introduce myself. As you can tell, I am your operator. We have been tasked with infiltrating the criminal shadow organization known as the Agency.", 10000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("The fact that we're attacking them has nothing to do with the fact that they are a crime organization. Rather, they have not been paying their taxes.", 8000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("As an enforcer for the IRS, teach them to never mess with us, and steal their tax dollars", 7000));
+            
+
 
         }
         protected override void AdditionalCreation()
         {
             base.AdditionalCreation();
-            messages.Enqueue(new Messages("", 3000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("", 3000));
 
-            messages.Enqueue(new Messages("Hello  agent, let's get straight into it", 3000));
-            messages.Enqueue(new Messages("Get used to your combat suit. Try Moving around. (WASD to move, space to jump, shift to sprint)", 4000,HumanoidManager.PlayerMovedCall));
-            messages.Enqueue(new Messages("Good. On your interface, you'll see a red, blue, and black bar. The red bar is your health, the blue bar is your stamina, and the black bar are your adrenaline levels (press B to toggle an adrenaline rush)", 6000, TimeSlow.TimeSlowAttempted));
-            messages.Enqueue(new Messages("You aren't in a dangeorus situation for now, so nothing will happen (kill enemies to build up adrenaline)", 8000));
-            
-            messages.Enqueue(new Messages("Pick up those items and ammo (press E when close and looking)" , 2000, player.Inventory.SomeItemAddded));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Hello  agent, let's get straight into it", 3000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Get used to your combat suit. Try Moving around. (WASD to move, space to jump, shift to sprint)", 4000,HumanoidManager.PlayerMovedCall));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Good. On your interface, you'll see a red, blue, and black bar. The red bar is your health, the blue bar is your stamina, and the black bar are your adrenaline levels (press V to toggle an adrenaline rush)", 6000, TimeSlow.TimeSlowAttempted));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("You aren't in a dangeorus situation for now, so nothing will happen (kill enemies to build up adrenaline)", 8000));
+
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Pick up those items and ammo (press E when close and looking)" , 2000, player.Inventory.SomeItemAddded));
             player.Inventory.GunEquipped.Listen(OnGunEquipped);
-            messages.Enqueue(new Messages("Good now equip the gun (use number keys to eqiup)", 2000, player.Inventory.GunEquipped));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Good now equip the gun (use number keys to eqiup)", 2000, player.Inventory.GunEquipped));
             Inventory pInventory = player.Inventory;
            
 
@@ -331,115 +374,168 @@ public class GameManager : MonoBehaviour
 
 
 
-            Text.text = messages.Peek().TextToDisplay;
-            currentMessage = messages.Peek();
-            currentMessage.StartListening();
+            Text.text = MessageManage.messages.Peek().TextToDisplay;
+            MessageManage.currentMessage = MessageManage.messages.Peek();
+            MessageManage.currentMessage.StartListening();
         }
         protected override void CleanUp()
         {
             base.CleanUp();
-            currentMessage.Stop();
-            
-            currentMessage = null;
-        
-            messages.Clear();
-           
-           // Debug.Log("message scleared");
+            MessageManage.Messages.MessageEmpty -= MessagesDone;
+            messageManage.Dispose();
+            // Debug.Log("message scleared");
         }
 
-
-        public class Messages
+        public class MessageManage : IDisposable
         {
-          
-            public string TextToDisplay;
-            public int waitUntilNextDisplayMS;
-            private readonly IMonoCall call;
-            CancellationTokenSource source;
-            public void StartListening()
+            GameManager manager;
+
+            public MessageManage(GameManager manager)
             {
-                if (call != null)
-                {
-                    call.Listen(Fulfilled);
-                }
-                else
-                {
-                    Fulfilled();
-                }
+                this.manager = manager;
+                messages = new Queue<Messages>();
+                currentMessage = null;
             }
-            async void Run(CancellationToken token)
-            {try
+
+            public static Queue<Messages> messages;
+            public static Messages currentMessage;
+
+            public void Dispose()
+            {
+
+                MessageManage.currentMessage.Stop();
+               
+                MessageManage.currentMessage = null;
+
+                MessageManage.messages.Clear();
+            }
+
+
+            public class Messages
+            {
+
+                public string TextToDisplay;
+                public int waitUntilNextDisplayMS;
+                private readonly IMonoCall call;
+                CancellationTokenSource source;
+                public static event UnityAction MessageEmpty;
+                public void StartListening()
                 {
-                    if (token.IsCancellationRequested)
+                    if (call != null)
                     {
-                        token.ThrowIfCancellationRequested();
+                        call.Listen(Fulfilled);
                     }
-                    
-                    await CoolDown();
-                    
-
-
-                    if (token.IsCancellationRequested)
+                    else
+                    {
+                        Fulfilled();
+                    }
+                }
+                async void Run(CancellationToken token)
+                {
+                    try
+                    {
+                        if (token.IsCancellationRequested)
                         {
                             token.ThrowIfCancellationRequested();
                         }
-                    TextToDisplay = "";
-                    messages.Dequeue();
-                    currentMessage = messages.Peek();
-                    Text.text = messages.Peek().TextToDisplay;
-                    
-                    messages.Peek().StartListening();
-                    SoundCentral.Instance.Invoke(HumanoidManager.PlayerTransform, SoundCentral.SoundTypes.Message);
-                   // Debug.Log("soundRequest " + TextToDisplay);
+
+                        await CoolDown();
+
+
+
+                        if (token.IsCancellationRequested)
+                        {
+                            token.ThrowIfCancellationRequested();
+                        }
+                        else
+                        {
+                            TextToDisplay = "";
+                            if (messages.Count > 0)
+                            {
+                                currentMessage = messages.Dequeue();
+
+                                Text.text = currentMessage.TextToDisplay;
+
+
+                                currentMessage.StartListening();
+                            }
+                            else
+                            {
+                                MessageEmpty?.Invoke();
+                            }
+                            SoundCentral.Instance.Invoke(HumanoidManager.PlayerTransform, SoundCentral.SoundTypes.Message);
+                        }
+                        // Debug.Log("soundRequest " + TextToDisplay);
+                    }
+                    catch (OperationCanceledException e)
+                    {
+                        Debug.Log("sound cancelled " + e);
+                    }
+                    finally
+                    {
+                        source?.Dispose();
+
+
+
+                    }
                 }
-                catch(OperationCanceledException e)
+                public void Stop()
                 {
-                    Debug.Log("sound cancelled " + e);
+                    //  Debug.Log("attempt cancel "+ source);
+                    source?.Cancel();
+
                 }
-                finally
+                async Task CoolDown()
                 {
-                    source?.Dispose();
+                    await Task.Delay(waitUntilNextDisplayMS);
 
                 }
-            }
-            public void Stop()
-            {
-               // Debug.Log("attempt cancel "+ source);
-
-                source?.Cancel();
-
-            }
-            async Task CoolDown()
-            {
-                await Task.Delay(waitUntilNextDisplayMS);
-
-            }
-            void  Fulfilled()
-            {
-               // Debug.Log("fulfilled");
-                source = new CancellationTokenSource();
-                CancellationToken t = source.Token;
-                Run(t);
-                call?.Deafen(Fulfilled);
+                void Fulfilled()
+                {
+                    // Debug.Log("fulfilled");
+                    source = new CancellationTokenSource();
+                    CancellationToken t = source.Token;
+                    call?.Deafen(Fulfilled);
+                    Run(t);
 
 
 
-            }
 
-            public Messages(string str,int  waitUntilNextDisplayMS = 0, IMonoCall call = null)
-            {
-                TextToDisplay = str;
-                this.waitUntilNextDisplayMS = waitUntilNextDisplayMS;
-                this.call = call;
-               
+                }
+
+                public Messages(string str, int waitUntilNextDisplayMS = 0, IMonoCall call = null)
+                {
+                    TextToDisplay = str;
+                    this.waitUntilNextDisplayMS = waitUntilNextDisplayMS;
+                    this.call = call;
+
+                }
             }
         }
     }
 
+    public class Scene2 : DefaultSpawnScene
+    {
+        public Scene2(GameManager manager) : base(manager)
+        {
+        
+        }
+
+        protected override void AdditionalCreation()
+        {
+            base.AdditionalCreation();
+        }
+
+        protected override void CleanUp()
+        {
+            base.CleanUp();
+        }
+    }
 
     public class DefaultSpawnScene : SceneCreation
     {   
       
-        int enemiesLeft;
+        protected int enemiesLeft;
 
         public int EnemiesLeft { get => enemiesLeft;  }
         
@@ -478,8 +574,11 @@ public class GameManager : MonoBehaviour
             }
             EnemyStuff.EnemyAI.EnemyKilled += ReduceEnemy;
             enemiesLeft = SpawnData.enemy.Count;
-            SpawnData.exitPoint.InExit += InEx;
-            SpawnData.exitPoint.InExit += NotInEx;
+            if (SpawnData.exitPoint != null)
+            {
+                SpawnData.exitPoint.InExit += InEx;
+                SpawnData.exitPoint.OutExit += NotInEx;
+            }
 
             //  hu.CreateEnemy(new Vector3(3, 6, 0), 180);
             for (int i = 0; i < SpawnData.guns.Count; i++)
@@ -500,15 +599,24 @@ public class GameManager : MonoBehaviour
                 itemManager.CreateItem(e.transform.position, e.ID);
 
             }
-        
-          
+            for (int i = 0; i < SpawnData.gunners.Count; i++)
+            {
+                EnemyGunner e = SpawnData.gunners[i];
+                hu.CreateEnemy( e.transform.position,  e.gunID, e.ammoID, e.transform.eulerAngles.y, e.enemyPReFab);
+
+            }
+
+
         }
 
         protected override void CleanUp()
         {   
             EnemyStuff.EnemyAI.EnemyKilled -= ReduceEnemy;
-            SpawnData.exitPoint.InExit -= InEx;
-            SpawnData.exitPoint.InExit -= NotInEx;
+            if (SpawnData.exitPoint != null)
+            {
+                SpawnData.exitPoint.InExit -= InEx;
+                SpawnData.exitPoint.InExit -= NotInEx;
+            }
             SpawnData.ClearAll();
 
         }

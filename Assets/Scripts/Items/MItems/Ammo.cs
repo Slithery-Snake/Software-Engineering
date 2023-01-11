@@ -20,8 +20,9 @@ public class Ammo : Item<AmmoSC>, Iinteractable
     }
     public int Count { get => count; }
     public UnityAction<int> SetCount { get => setCount; }
+    public bool Infinity { get => infinity;  }
 
-     void CountLimited(int i)
+    void CountLimited(int i)
     {
         count = i;
     }

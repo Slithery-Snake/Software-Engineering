@@ -30,9 +30,14 @@ public class HumanoidManager : MonoBehaviour
         return h;
     }
    
-    public EnemyAI CreateEnemy(Vector3 v, int guid, int auid, int degree)
+    public EnemyAI CreateEnemy(Vector3 v, int guid, int auid, float degree)
     {
         EnemyAI enemy = EnemyAI.CreateEnemy(enemyPrefab, v, itemManager, guid, auid, degree);
+        return enemy;
+    }
+    public EnemyAI CreateEnemy(Vector3 v, int guid, int auid, float degree, EnemyAI prefab)
+    {
+        EnemyAI enemy = EnemyAI.CreateEnemy(prefab, v, itemManager, guid, auid, degree);
         return enemy;
     }
     public EnemyAI CreateEnemy(Vector3 v, float degree, EnemyAI pefab)
@@ -41,7 +46,7 @@ public class HumanoidManager : MonoBehaviour
         return enemy;
     }
 
-    public EnemyAI CreateEnemy(Vector3 v, int degree)
+    public EnemyAI CreateEnemy(Vector3 v, float degree)
     {
         EnemyAI enemy = EnemyAI.CreateMeleeEnemy(enemyPrefab, v, degree);
         return enemy;

@@ -9,7 +9,7 @@ public class HealthPack : Item<HotBarItemSC>, Iinteractable
     HotBarItem hbar;
     StatusEffect.StatusEffectManager status;
     Interactable interact;
-    static MonoCall healed;
+    static MonoCall healed = new MonoCall();
 
     public static IMonoCall Healed { get => healed; }
 

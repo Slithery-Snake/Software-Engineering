@@ -249,16 +249,28 @@ public class Inventory : StateManagerComponent
    
     public void AddAmmo(Ammo am)
     {
+
         if(ammo.ContainsKey(am.ItemData))
         {
-            ammo.TryGetValue(am.ItemData, out Ammo amm);
-            amm.SetCount(amm.Count + am.Count);
+            if (am.Infinity)
+            {
 
-            
+
+                ammo.Remove(am.ItemData);
+                ammo.Add(am.ItemData, am);
+                
+
+            }            
+            else
+            {
+                ammo.TryGetValue(am.ItemData, out Ammo amm);
+                amm.SetCount(amm.Count + am.Count);
+            }
         }
         else
         {
             ammo.Add(am.ItemData, am);
+            
         }
         
     }
