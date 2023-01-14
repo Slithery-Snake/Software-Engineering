@@ -18,7 +18,7 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
     public delegate void PlaySoundAt(Vector3 v, SoundTypes s);
     public enum SoundTypes {
          
-        PistolShoot, PistolMag, PistolCharge, SMGShoot, SMGMag, SMGCharge,   ShottyShoot, ShottyMag, ShottyCharge, Sprint, Jump, LightPunch, HeavyPunch, Heal, Message
+        PistolShoot, PistolMag, PistolCharge, SMGShoot, SMGMag, SMGCharge,   ShottyShoot, ShottyMag, ShottyCharge, Sprint, Jump, LightPunch, HeavyPunch, Heal, Message, GunClick
 
     }
     AudioSource playAtPointFab;
@@ -35,6 +35,7 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
             soundToClips.Add(soundsToAudios[i].type, soundsToAudios[i].clip);
         }
         playAtPointFab = new GameObject().AddComponent<AudioSource>();
+        playAtPointFab.spatialBlend = 1;
 
         
 
@@ -57,10 +58,13 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
     {
         public SoundTypes type;
         public Vector3 v;
-        public SoundAndLocation(SoundTypes type, Vector3 v )
+        public bool twoDSound;
+
+        public SoundAndLocation(SoundTypes type, Vector3 v, bool twoDSound = false)
         {
             this.type = type;
             this.v = v;
+            this.twoDSound = twoDSound;
         }
     }
     Queue<SoundAndLocation> soundQueue;
@@ -95,7 +99,11 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         tQueue.Enqueue(new SoundAndTransform(i, v));
 
     }
+    public void Invoke(Transform v, SoundTypes i, bool twoD)
+    {
+        tQueue.Enqueue(new SoundAndTransform(i, v, twoD));
 
+    }
     public void Invoke(Vector3 v, SoundTypes i)
     {
        soundQueue.Enqueue(new SoundAndLocation(i, v));
@@ -105,10 +113,12 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
     {
         public SoundTypes type;
         public Transform v;
-        public SoundAndTransform(SoundTypes type, Transform v)
+        public bool twoDSound;
+        public SoundAndTransform(SoundTypes type, Transform v, bool twoDSound = false)
         {
             this.type = type;
             this.v = v;
+            this.twoDSound = twoDSound;
         }
     }
     async void PlaySound( SoundAndLocation sal)
@@ -118,6 +128,10 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         AudioSource source = Instantiate(playAtPointFab);
         source.clip = clip;
         source.transform.position = sal.v;
+        if(sal.twoDSound)
+        {
+            source.spatialBlend = 0;
+        }
      //   source.transform.SetParent(sal.source.transform);
         source.Play();
         await Task.Delay((int)(clip.length * 1000));
@@ -135,8 +149,11 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         source.clip = clip;
         source.transform.SetParent(sal.v, true);
         //   source.transform.SetParent(sal.source.transform);
-       
-            source.Play();
+        if (sal.twoDSound)
+        {
+            source.spatialBlend = 0;
+        }
+        source.Play();
         
         await Task.Delay((int)(clip.length * 1000));
         if (source != null)

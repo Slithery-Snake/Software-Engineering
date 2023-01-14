@@ -137,7 +137,10 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
     
     }
 
-   
+   public IMonoCall GetMeleeAttackEvent()
+    {
+        return melee.AttackAttempt;
+    }
     [Serializable]
     public struct Parts
     {
@@ -257,13 +260,14 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
     void Test() { Debug.Log("awoken"); }
     void Awake()
     {
-        movement = new Movement(calls.accessors,  playerParts.pController, playerParts.groundCheck, playerParts.jumpFloorMask, playerParts.hParts.Parts1.body);
         look = new MouseLook(calls.accessors, playerParts.hParts.Parts1.body, playerParts.mainCamera.transform);
         bTime = new TimeController(calls.accessors, playerParts.sC);
         health = new Health(playerParts.sC);
         handposition = new HandPosManage(calls.accessors, playerParts.hParts.Parts1.rHand, playerParts.hParts.Parts1.lHand);
 
         inventory = new Inventory(calls.accessors, playerParts.itemGameObject, playerParts.hotBarTransform, tagManager.Tag, health, handposition, playerParts.sC);
+        movement = new Movement(calls.accessors, playerParts.pController, playerParts.groundCheck, playerParts.jumpFloorMask, playerParts.hParts.Parts1.body);
+
         keyInputEventsList = new List<KeyInputEvents>();
         allRunningStates = new List<PointerIN>();
         keyInputEvents = new KeyInputEvents(keyInputEventsList);
@@ -287,8 +291,11 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
         normalTime = new TimeNormal(this, bTime);
         slowTime = new TimeSlow(this, bTime);
         timeState = new PlayerStatePointer<TimeDisabled>(normalTime, allRunningStates,this);
-        statusEffectManager = new StatusEffect.StatusEffectManager(calls.accessors, health, this);
-        melee = new MeleeManager(calls.accessors, playerParts.sC, playerParts.hParts.Parts1.lHandCol, playerParts.hParts.Parts1.rHandCol, playerParts.hParts.Parts1.lHandAnim, playerParts.hParts.Parts1.rHandAnim);
+        statusEffectManager = new StatusEffect.StatusEffectManager(calls.accessors, health, this, tagManager.tag);
+        playerParts.hParts.Parts1.rHandAnim.updateMode = AnimatorUpdateMode.UnscaledTime;
+        playerParts.hParts.Parts1.lHandAnim.updateMode = AnimatorUpdateMode.UnscaledTime;
+
+        melee = new MeleeManager(calls.accessors, playerParts.sC, playerParts.hParts.Parts1.lHandCol, playerParts.hParts.Parts1.rHandCol, playerParts.hParts.Parts1.lHandAnim, playerParts.hParts.Parts1.rHandAnim, tagManager.tag);
         notAttackingState = new NotAttacking(this, melee);
         swinging = new Swing(this, melee);
         windUp = new WindUp(this, melee);
@@ -500,15 +507,7 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
         {
             keyInputEvents.OnKeyUp(KeyCode.C);
         }
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            keyInputEvents.OnKeyDown(KeyCode.X);
-        }
-
-        if (Input.GetKeyUp(KeyCode.X))
-        {
-            keyInputEvents.OnKeyUp(KeyCode.X);
-        }
+       
 
         if (Input.GetKeyDown(KeyCode.W))
         {
@@ -569,10 +568,14 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
             keyInputEvents.OnKeyDown(KeyCode.Space);
 
         }
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.X))
         {
-            keyInputEvents.OnKeyPressed(KeyCode.Space);
-            ;
+            keyInputEvents.OnKeyDown(KeyCode.X);
+        }
+
+        if (Input.GetKeyUp(KeyCode.X))
+        {
+            keyInputEvents.OnKeyUp(KeyCode.X);
         }
 
         if (Input.GetKeyUp(KeyCode.Space))
@@ -736,8 +739,10 @@ public abstract class StatusEffect
                 this.stunTimeSec = stunTimeSec;
             }
         }
+
         Health health;
         IStunnable stun;
+        private readonly BulletTag myTag;
 
         public interface IStatusEeffectable
         {
@@ -747,21 +752,24 @@ public abstract class StatusEffect
         {
             public void Stun(double stunTime);
         }
-        public StatusEffectManager(MonoCalls.MonoAcessors manager, Health health, IStunnable stun) : base(manager)
+        public StatusEffectManager(MonoCalls.MonoAcessors manager, Health health, IStunnable stun, BulletTag myTag) : base(manager)
         {
             statusEffects = new HashSet<StatusEffect>();
+            this.manager = manager;
             this.health = health;
             this.stun = stun;
+            this.myTag = myTag;
         }
         HashSet<StatusEffect> statusEffects; // statuseffectcs should be stackable but like not happening here so lazy implementation aw yeah penguins are cool i like monkeys software engineering is funky
-        public void AddStatusEffect(StatusEffect effect)
+        public void AddStatusEffect(StatusEffect effect, BulletTag tag)
         {
-            if (effect != null)
+            if (effect != null )
             {
-
-                if (effect.lengthMS <= 0)
-                {
-                    effect.ApplyEffect(this);
+                if (tag == null || tag.Hit.Contains(myTag)) {
+                    if (effect.lengthMS <= 0)
+                    {
+                        effect.ApplyEffect(this);
+                    }
                 }
               
             }

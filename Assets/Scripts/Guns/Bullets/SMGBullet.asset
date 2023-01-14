@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SMGBullet
   m_EditorClassIdentifier: 
   fin: 0
-  damage: 10
+  damage: 15
   forceMagnitude: 120

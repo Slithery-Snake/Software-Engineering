@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fin: 0
   damage: 25
-  forceMagnitude: 10
+  forceMagnitude: 140

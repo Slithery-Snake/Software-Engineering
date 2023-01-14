@@ -63,20 +63,24 @@ namespace EnemyStuff
         Node second;
         void Die()
         {
-            EnemyKilled -= Die;
             health.HealthBelowZero -= Execute;
+            lookNode.Dispose();
             follow.Dispose();
             Destroy(gameObject);
            
 
         }
-     
+        public bool IsExposed()
+        {
+           return lookNode.IsExposed();
+        }
         private void OnDestroy()
         {
             calls.destroyed.Call();
-            EnemyKilled -= Die;
             health.HealthBelowZero -= Execute;
             follow.Dispose();
+            reloadNode?.Dispose();
+            melee?.Dispose();
         }
         private void Init()
         {
@@ -84,11 +88,11 @@ namespace EnemyStuff
             inventory = new Inventory(calls.accessors, enemyParts.itemGameObject, enemyParts.hBarTransform, enemyParts.tag.Tag, health, handPos, enemyParts.enemySC);
             health = new Health(enemyParts.enemySC);
             health.HealthBelowZero += Execute;
-            EnemyKilled += Die;
+            
             enemyParts.tag.AddTagsToHitBoxes(health, this);
             lookNode = new LookAtNode(enemyParts.hParts.Parts1.body, enemyParts.hParts.Parts1.head, enemyParts.enemySC, health);
             
-            status = new StatusEffect.StatusEffectManager(calls.accessors, health, this);
+            status = new StatusEffect.StatusEffectManager(calls.accessors, health, this, enemyParts.tag.tag);
 
             follow = new Follow(pathfinder, lookNode, enemyParts.enemySC, enemyParts.hParts.Parts1.body);
 
@@ -97,21 +101,24 @@ namespace EnemyStuff
 
         void Execute()
         {
+            
             EnemyKilled.Invoke();
+            Die();
         }
         void InitWeap(int weap, int amm, ItemManager manager)
         {
-            inventory.AddAmmo(manager.CreateAmmo(Vector3.zero, amm, 1000, true));
-            shootNode = new ShootNode(inventory, enemyParts.hParts.Parts1.body, enemyParts.enemySC);
+            Ammo am = manager.CreateAmmo(new ItemManager.AmmoStruct(Vector3.zero, amm, 1000, true));
+            inventory.AddAmmo(am);
+            shootNode = new ShootNode(inventory, enemyParts.hParts.Parts1.body, enemyParts.enemySC, this);
             reloadNode = new ReloadNode(inventory);
-            inventory.AddGun(manager.CreateGun(Vector3.zero, weap,true));
+            inventory.AddGun(manager.CreateGun(new ItemManager.GunStruct(Vector3.zero,weap, true)));
            second = new Selector(new List<Node> { shootNode, reloadNode });
 
 
         }
         void InitMelee()
         {
-            melee = new MeleeManager(calls.accessors, enemyParts.enemySC, enemyParts.hParts.Parts1.lHandCol, enemyParts.hParts.Parts1.rHandCol, enemyParts.hParts.Parts1.lHandAnim, enemyParts.hParts.Parts1.rHandAnim);
+            melee = new MeleeManager(calls.accessors, enemyParts.enemySC, enemyParts.hParts.Parts1.lHandCol, enemyParts.hParts.Parts1.rHandCol, enemyParts.hParts.Parts1.lHandAnim, enemyParts.hParts.Parts1.rHandAnim, enemyParts.tag.tag);
             meleeNode = new MeleeNode(enemyParts.hParts.Parts1.body, enemyParts.enemySC, melee);
             canMelee = new ShouldMelee(enemyParts.hParts.Parts1.body, enemyParts.enemySC);
 
@@ -145,7 +152,6 @@ namespace EnemyStuff
 
         public void Stun(double stunTime)
         {
-            Debug.Log("enemy stunnedd");
             Task t = Pause((int)(stunTime*1000));
         }
         async Task Pause(int time)
@@ -186,7 +192,8 @@ namespace EnemyStuff
 
         protected virtual void StartFollow()
         {
-
+            lookNode.FirstSighted -= StartFollow;
+            Debug.Log("start follow");
             HumanoidManager.PlayerMovedCall.Listen( SetPlayerDestination);
             SetPlayerDestination();
 
@@ -244,6 +251,7 @@ namespace EnemyStuff
             Task task = Wait();
 
         }
+
        async Task Wait()
         {
             bool whichHand;
@@ -310,13 +318,14 @@ namespace EnemyStuff
             return state;
         }
     }
-    public class LookAtNode : Node
+    public class LookAtNode : Node, IDisposable
     {
         Transform transform;
         Transform head;
         EnemySC SC;
         private readonly Health health;
         Transform player;
+        bool isExposed;
         public LookAtNode(Transform transform,Transform head, EnemySC SC, Health health)
         {
             this.transform = transform;
@@ -329,27 +338,32 @@ namespace EnemyStuff
             EvalFunction = FirstEval;
             //   EvalFunction = DefaultEvaluation;
             health.HealthChanged += FirstHit;
+            
         }
         int ignoreAllButSolidCoverAndPlayer = (1 << Constants.environment | 1 << Constants.playerMask);
     void FirstHit(float f)
         {
-            
-            if(EvalFunction != DefaultEvaluation) { EvalFunction = DefaultEvaluation; }
+            Debug.Log("firstHit");
+            EvalFunction = DefaultEvaluation;
+            FirstSighted?.Invoke();
             health.HealthChanged -= FirstHit;
 
         }
         NodeState FirstEval()
         {
+           
+
             if (ExtraSensory() || (IsVisible() && IsExposed()) && IsWithinAngle())
             {
                 FirstSighted?.Invoke();
                 
                 EvalFunction = DefaultEvaluation;
+                health.HealthChanged -= FirstHit;
             }
 
             return NodeState.RUNNING;
         }
-        bool IsExposed()
+        public bool IsExposed()
         {
             
             RaycastHit hit;
@@ -358,16 +372,20 @@ namespace EnemyStuff
             Debug.DrawLine(head.position, hit.point, Color.black);
             if(hit.collider == null)
             {
+                isExposed = false;
                 return false;
             } else
             {
                
                 if(hit.collider.gameObject.layer == Constants.playerMask)
                 {
+                    isExposed = true;
 
                     return true; 
                 }
             }
+            isExposed = false;
+
             return false;
         }
         
@@ -426,6 +444,11 @@ namespace EnemyStuff
           
             return EvalFunction();
         }
+
+        public void Dispose()
+        {
+            health.HealthChanged -= FirstHit;
+        }
     }
     
     public class ShootNode : Node
@@ -433,6 +456,7 @@ namespace EnemyStuff
         HotBarItem g;
         Transform transform;
         EnemySC SC;
+        private readonly EnemyAI m;
         Transform player = HumanoidManager.PlayerTransform;
         CollectiveGun gun;
         Shooting shoot;
@@ -462,7 +486,7 @@ namespace EnemyStuff
             
             float angle = Vector3.Angle(pPos - myPos, transform.forward);
 
-            if (angle <= SC.ShootAngle)
+            if (angle <= SC.ShootAngle && m.IsExposed())
             {
                 return true;
             }
@@ -477,13 +501,14 @@ namespace EnemyStuff
 
         }
       
-        public ShootNode(Inventory inventory, Transform transform, EnemySC sC)
+        public ShootNode(Inventory inventory, Transform transform, EnemySC sC, EnemyAI m)
         {
             this.inventory = inventory;
             linkedSlot = new LinkedList<int>();
             inventory.GunAdded.Listen(RecordAdded);
             this.transform = transform;
             SC = sC;
+            this.m = m;
         }
         public override NodeState Evaluate()
         {
@@ -505,7 +530,7 @@ namespace EnemyStuff
             return state;
         }
     }
-    public class ReloadNode : Node
+    public class ReloadNode : Node, IDisposable
     {   
        
         Inventory inventory;
@@ -549,6 +574,11 @@ namespace EnemyStuff
                 inventory.CurrentGun.Shooting.Reloaded.Deafen( ReloadAgain);
 
             }
+
+        }
+        public void Dispose()
+        {
+            inventory.CurrentGun.Shooting.IdealReloadState -= ReloadDone;
 
         }
         public override NodeState Evaluate()

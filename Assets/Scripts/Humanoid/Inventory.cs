@@ -223,7 +223,7 @@ public class Inventory : StateManagerComponent
         guns[currentSlot] = null;
         items[currentSlot] = null;
         currentEquipped = null;
-        handPos.SetDefault();
+        handPos?.SetDefault();
         InvokeDropped();
 
 
@@ -242,7 +242,7 @@ public class Inventory : StateManagerComponent
             UnequippedSlot?.Invoke(currentSlot);
             DeactivateItem(currentEquipped);
             currentEquipped = null;
-            handPos.SetDefault();
+            handPos?.SetDefault();
         }
     }
    
@@ -272,6 +272,7 @@ public class Inventory : StateManagerComponent
             ammo.Add(am.ItemData, am);
             
         }
+        GameObject.Destroy(am.gameObject);
         
     }
     void RemoveGun(int i)
@@ -282,9 +283,9 @@ public class Inventory : StateManagerComponent
     {if (currentEquipped != null)
         {
 
-            currentEquipped.transform.SetParent(null);
+            currentEquipped.transform.SetParent(null,true);
             currentEquipped.OgItem.OnFloor();
-            
+            currentEquipped.OgItem.ApplyForce(hotBarTransform.forward);
             currentEquipped.Interact.enabled = true;
             VoidCurrentEquipped();
 
@@ -305,6 +306,7 @@ public class Inventory : StateManagerComponent
                 items[i] = item;
                 item.transform.SetParent(itemGameObject, true);
                 item.OgItem.Held();
+                
                 item.Interact.enabled = false;
                 DeactivateItem(item);
                 PickedUpSlot?.Invoke(i, item.ItemData);

@@ -88,6 +88,8 @@ public class TimeDisabled : PlayerState
 }
 public class TimeController : StateManagerComponent
 {
+    public static readonly float FixedDeltaDefault = Time.fixedDeltaTime;
+    public static readonly float FixedDefaultScale = Time.timeScale;
     float defaultFixedDelta;
      float defaultTimeScale;
     PlayerSC sC;
@@ -105,8 +107,8 @@ public class TimeController : StateManagerComponent
     CancellationTokenSource source;
     public TimeController(MonoCalls.MonoAcessors manager, PlayerSC sC) : base(manager)
     {
-        defaultFixedDelta = Time.fixedDeltaTime;
-        defaultTimeScale = Time.timeScale;
+        defaultFixedDelta = FixedDeltaDefault;
+        defaultTimeScale = FixedDefaultScale;
         this.sC = sC;
         bulletBar = 0;
         EnemyAI.EnemyKilled +=  EnemyKilled;
@@ -172,8 +174,8 @@ public class TimeController : StateManagerComponent
             catch(OperationCanceledException)
             {
             source.Dispose();
-
-        }
+            source = null;
+            }
 
     }
     public void SetSlow(bool toggle)
@@ -182,6 +184,8 @@ public class TimeController : StateManagerComponent
        
         if (toggle)
         {
+            EnemyAI.EnemyKilled -= EnemyKilled;
+
             slow = 1/sC.TimeSlow;
             Time.timeScale = slow;
             Time.fixedDeltaTime = defaultFixedDelta * Time.timeScale;
@@ -190,6 +194,10 @@ public class TimeController : StateManagerComponent
         }
         else
         {
+            
+            EnemyAI.EnemyKilled += EnemyKilled;
+
+
             slow = 1;                                               
             Time.fixedDeltaTime = defaultFixedDelta;
             Time.timeScale = defaultTimeScale;

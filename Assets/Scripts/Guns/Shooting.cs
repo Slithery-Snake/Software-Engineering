@@ -76,7 +76,7 @@ public class Shooting : MonoBehaviour
 
         hasAmmo = c;
         if(c) { inChamber = itemData.magSize; }
-         else {inChamber = 0; }
+         else {inChamber = 0; roundChambered = false; hasAmmo = false;  }
         
        ammoType = itemData.AmmoSource;
         magSize = itemData.magSize;
@@ -101,16 +101,15 @@ public class Shooting : MonoBehaviour
             if (roundChambered == false && hasAmmo)
             {
                 InvokeCharge();
-                await Task.Delay(itemData.PumpTime * 100);
+                await Task.Delay((int)(itemData.PumpTime * 100 / Time.timeScale));
                 if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
 
                 roundChambered = true;
-                Debug.Log("chambered");
             } else
             if (LoadBullets(am) ) 
             {
                 InvokeMagSwap();
-                await Task.Delay(itemData.reloadTime * 100);
+                await Task.Delay((int)(itemData.reloadTime * 100  /Time.timeScale));
                 if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
                 LoadActualBullets(am);
             } 
@@ -134,17 +133,22 @@ public class Shooting : MonoBehaviour
     void LoadActualBullets(Ammo reserves)
     {
         int bulletsToFull = magSize - inChamber;
-      
-        if (reserves.Count <= bulletsToFull)
-        {
-            magSize += reserves.Count;
-            reserves.SetCount( 0);
-            return;
-        }
-        if(reserves.Infinity)
+
+        if (reserves.Infinity)
         {
             inChamber = magSize;
+             if (inChamber > 0) { hasAmmo = true; }
+            return;
         }
+        if (reserves.Count <= bulletsToFull)
+        {
+           
+            inChamber += reserves.Count;
+            reserves.SetCount( 0);
+            if (inChamber > 0) { hasAmmo = true; }
+            return;
+        }
+        
         inChamber = magSize;
         reserves.SetCount(reserves.Count- bulletsToFull);
         if (inChamber > 0) { hasAmmo = true; }
@@ -152,15 +156,15 @@ public class Shooting : MonoBehaviour
     }
    protected  virtual bool LoadBullets(Ammo reserves)
     {
-        int bulletsToFull = magSize - inChamber;
-        if(reserves.Count <= 0 )
-        {
-            return false;
-        }
-        if (reserves.Count <= bulletsToFull || reserves.Infinity)
+        if (reserves.Count > 0 || reserves.Infinity)
         {
             return true;
         }
+        if (reserves.Count <= 0 )
+        {
+            return false;
+        }
+       
 
      
           if(inChamber > 0) { hasAmmo = true; }
@@ -179,7 +183,7 @@ public class Shooting : MonoBehaviour
     protected async Task Invoke(float time, UnityAction hi)
     {
         
-        await Task.Delay((int)(time*1000));
+        await Task.Delay((int)(time*1000 / Time.timeScale));
         hi();
     }
     protected Vector3 Randomize( Vector3 direction)
@@ -190,36 +194,52 @@ public class Shooting : MonoBehaviour
         direction += new Vector3(x, y, 0);
         return direction;
     }
+    protected void InvokeEmpty(Vector3 v)
+    {
+        SoundCentral.Instance.Invoke(v, SoundCentral.SoundTypes.GunClick);
+
+    }
     protected virtual void Shoot()
     {
-        if (GetCanFire() && hasAmmo && roundChambered )
+        if (GetCanFire())
         {
-            //RaycastHit rayInfo;
-            inChamber--;
-            canFire = false;
-            // Invoke(WeaponCoolDown, weaponCDTime);
-            if (inChamber <= 0)
-            {
-                hasAmmo = false;
-                roundChambered = false;
-                empty.Call();
-            }
-            Bullet bullet = bulletPool.RequestBullet();//bulletPool.RequestBullet();
-            Vector3 direction = barrelTransform.forward;
-            
-            direction = Randomize(direction);
-            // bullet.transform.rotation = barrelTransform.rotation;
             Vector3 position = barrelTransform.position;
-            // bullet.transform.position = position;
-            bullet.Shoot(position, direction, bTag);
-            InvokeShotEvent(position);
+            canFire = false;
+            if (hasAmmo && roundChambered)
+            {
+
+                //RaycastHit rayInfo;
+                inChamber--;
+                // Invoke(WeaponCoolDown, weaponCDTime);
+                if (inChamber <= 0)
+                {
+                    hasAmmo = false;
+                    roundChambered = false;
+                    empty.Call();
+                }
+                Bullet bullet = bulletPool.RequestBullet();//bulletPool.RequestBullet();
+                Vector3 direction = barrelTransform.forward;
+
+                // direction = Randomize(direction);
+                // bullet.transform.rotation = barrelTransform.rotation;
+                //  Debug.Log(position);
+                // bullet.transform.position = position;
+                bullet.Shoot(position, direction, bTag);
+                InvokeShotEvent(position);
+                // searDown = ItemData.isAuto;
+                // bullet.Rg.velocity = 
+                // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
+                //shooting bullet stuff"
+            } else
+            {
+                InvokeEmpty(position);
+            }
             invoke = Invoke(weaponCDTime, WeaponCoolDown);
-            // searDown = ItemData.isAuto;
-            // bullet.Rg.velocity = 
-            // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
-            //shooting bullet stuff
+
         }
-        
+
+
+
     }
 
     protected void InvokeShotEvent(Vector3 v)
