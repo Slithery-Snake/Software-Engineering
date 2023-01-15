@@ -9,7 +9,7 @@ public class Swing : NotAttacking
     protected IEnumerator CD(float wait)
     {
         cDoff = false;
-        yield return new WaitForSeconds(wait);
+        yield return new WaitForSecondsRealtime(wait);
         cDoff = true;
        // Debug.Log("cd over");
     }

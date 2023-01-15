@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ec3e5e635d19db4f90e17003a85dfeb, type: 3}
   m_Name: BasicEnemy
   m_EditorClassIdentifier: 
-  health: 100
+  health: 150
   light:
-    dmg: 100
+    dmg: 12
     length: 0.2
     coolDown: 0.5
     windUp: 0.25
   heavy:
-    dmg: 100
+    dmg: 5
     length: 0.25
     coolDown: 2
     windUp: 1
@@ -29,7 +29,7 @@ MonoBehaviour:
   viewLength: 50
   viewAngle: 100
   shootAngle: 3
-  extraSensoryLength: 5
-  meleeLength: 3
-  followStoppingDistance: 2.5
-  speed: 5
+  extraSensoryLength: 10
+  meleeLength: 4
+  followStoppingDistance: 2
+  speed: 4

@@ -53,6 +53,8 @@ public class Health : IShootable
         if (i <= 0)
         {
             HealthBelowZero?.Invoke();
+            HealthChanged -= HealthZero;
+
         }
        
 

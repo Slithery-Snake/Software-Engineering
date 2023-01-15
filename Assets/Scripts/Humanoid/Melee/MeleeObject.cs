@@ -17,12 +17,13 @@ public class MeleeManager : StateManagerComponent
 
 
     public MeleeType.MeleeObject MeleeSoureOBJ { get => currentMelee; }
+    public IMonoCall AttackAttempt { get => attackAttempt; }
 
-    public MeleeManager(MonoCalls.MonoAcessors manager, HumanoidSC sc, Collider l, Collider R, Animator lanim, Animator rAnim) : base(manager)
+    public MeleeManager(MonoCalls.MonoAcessors manager, HumanoidSC sc, Collider l, Collider R, Animator lanim, Animator rAnim, BulletTag tag) : base(manager)
     {
         
-       meleeR = MeleeType.MeleeObject.Create( sc, R, rAnim);
-        meleeL = MeleeType.MeleeObject.Create( sc, l, lanim);
+       meleeR = MeleeType.MeleeObject.Create( sc, R, rAnim, tag);
+        meleeL = MeleeType.MeleeObject.Create( sc, l, lanim, tag);
         
 
 
@@ -42,9 +43,11 @@ public class MeleeManager : StateManagerComponent
 
         currentMelee.SetActive(true);
         currentMelee.SetMelee(type);
+        attackAttempt.Call();
 
     }
- 
+    MonoCall attackAttempt = new MonoCall();
+         
   
     public void StopAttack()
     {
@@ -57,12 +60,12 @@ public class MeleeManager : StateManagerComponent
 
     public class MeleeType : Enumeration
     {
-        UnityAction<Collider> attackType;
+        UnityAction<Collider, BulletTag> attackType;
         private readonly MeleeStats stats;
 
         public MeleeStats Stats => stats;
 
-        public MeleeType(int id, string name, UnityAction<Collider> attackType, MeleeStats stats) : base(id, name)
+        public MeleeType(int id, string name, UnityAction<Collider, BulletTag> attackType, MeleeStats stats) : base(id, name)
         {
             this.attackType = attackType;
             this.stats = stats;
@@ -71,16 +74,17 @@ public class MeleeManager : StateManagerComponent
         public class MeleeObject : MonoBehaviour
         {
             HumanoidSC sc;
-            UnityAction<Collider> collided;
+            UnityAction<Collider, BulletTag> collided;
             Collider handCollider;
             Animator anim;
-
-            public static MeleeObject Create(  HumanoidSC sc, Collider collider, Animator meleeAnim)
+            BulletTag bTag;
+            public static MeleeObject Create(  HumanoidSC sc, Collider collider, Animator meleeAnim, BulletTag tag)
             {
 
                 MeleeObject hi = collider.transform.gameObject.AddComponent<MeleeObject>();
                 
                 hi.sc = sc;
+                hi.bTag = tag;
                 hi.HeavyType = new MeleeType(1, nameof(HeavyType), hi.Heavy, sc.Heavy);
                 hi.LightType = new MeleeType(2, nameof(LightType), hi.Light, sc.Light);
                 hi.handCollider = collider;
@@ -107,29 +111,38 @@ public class MeleeManager : StateManagerComponent
             {
                 collided = type.attackType;
             }
-            static StatusEffect.StatusEffectManager GetStatus(Collider collision)
+             StatusEffect.StatusEffectManager GetStatus(Collider collision)
             {
-                return collision?.GetComponent<ShootBox>()?.Status?.Status;
+                StatusEffect.StatusEffectManager r = collision?.GetComponent<ShootBox>()?.Status?.Status;
+                if (r != null)
+                {
+                    collided = Nothing;
+                }
+
+                return r;
             }
-           
-            void Heavy(Collider collision)
+            void Nothing(Collider col, BulletTag t) { }
+            void Heavy(Collider collision, BulletTag tag)
             {
-                GetStatus(collision)?.AddStatusEffect(new StatusEffect.StatusEffectManager.Melee(sc.Heavy.dmg));
-                
-                collision?.GetComponent<ShootBox>()?.Status?.Status.AddStatusEffect(new StatusEffect.StatusEffectManager.StunApply(sc.StunTime));
+                StatusEffect.StatusEffectManager s = GetStatus(collision);
+                s?.AddStatusEffect(new StatusEffect.StatusEffectManager.Melee(sc.Heavy.dmg), tag);
+
+                s?.AddStatusEffect(new StatusEffect.StatusEffectManager.StunApply(sc.StunTime), tag);
                 SoundCentral.Instance.Invoke(transform.position, SoundCentral.SoundTypes.HeavyPunch);
+                
 
             }
-            void Light(Collider collision)
+            void Light(Collider collision, BulletTag tag)
             {
-                GetStatus(collision)?.AddStatusEffect(new StatusEffect.StatusEffectManager.Melee(sc.Light.dmg));
+                GetStatus(collision)?.AddStatusEffect(new StatusEffect.StatusEffectManager.Melee(sc.Light.dmg), tag);
+
                 SoundCentral.Instance.Invoke(transform.position, SoundCentral.SoundTypes.LightPunch);
 
             }
             private void OnTriggerEnter(Collider other)
             {if (collided != null)
                 {
-                    collided(other);
+                    collided(other, bTag);
                 }
             }
         }

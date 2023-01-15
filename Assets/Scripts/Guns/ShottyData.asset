@@ -12,6 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fc05aed1152f0c4e86ed2f4a7cd0c32, type: 3}
   m_Name: ShottyData
   m_EditorClassIdentifier: 
-  pellets: 3
-  radius: 1
-  pumpTume: 5
+  pellets: 4

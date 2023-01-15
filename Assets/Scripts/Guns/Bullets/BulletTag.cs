@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.Events;
+using System.Linq;
 [CreateAssetMenu(fileName = "BulletTagFile", menuName ="BulletTag")]
 
 public class BulletTag : ScriptableObject
@@ -22,6 +23,14 @@ public class BulletTag : ScriptableObject
         
 
        
+    }
+    public bool IsTagIn(BulletTag tag, IReadOnlyList<BulletTag> list)
+    {
+        if(list.Contains(tag))
+        {
+            return true;
+        }
+        return false;
     }
 
    

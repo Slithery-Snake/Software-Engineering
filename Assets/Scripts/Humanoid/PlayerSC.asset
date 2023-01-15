@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a200591a4ba3e804a87dbce0bef99cc5, type: 3}
   m_Name: PlayerSC
   m_EditorClassIdentifier: 
-  health: 100
+  health: 250
   light:
-    dmg: 1
+    dmg: 35
     length: 0.2
     coolDown: 0.5
     windUp: 0.25
   heavy:
-    dmg: 1
+    dmg: 5
     length: 0.25
     coolDown: 2
     windUp: 1
@@ -27,9 +27,9 @@ MonoBehaviour:
   inventorySlots: 4
   timeSlow: 10
   slowAdvantage: 5
-  slowBarMax: 10
+  slowBarMax: 20
   slowBarDecrement: 1
-  slowBarIncrement: 2
+  slowBarIncrement: 5
   runSpeed: 6
   walkSpeed: 4
   staminaBarMax: 50

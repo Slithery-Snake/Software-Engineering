@@ -29,20 +29,34 @@ public class HumanoidManager : MonoBehaviour
         h.itemManager = itemManager;
         return h;
     }
-   
+    [Serializable]
+   public struct EnemyGunnerStruct
+    {
+        public EnemyStruct estruct;
+        public int guid;
+        public int auid;
+    }
+    [Serializable]
+    public struct EnemyStruct
+    {
+      public Vector3 v;
+        
+        public float degree;
+        public EnemyAI prefab;
+    }
     public EnemyAI CreateEnemy(Vector3 v, int guid, int auid, float degree)
     {
         EnemyAI enemy = EnemyAI.CreateEnemy(enemyPrefab, v, itemManager, guid, auid, degree);
         return enemy;
     }
-    public EnemyAI CreateEnemy(Vector3 v, int guid, int auid, float degree, EnemyAI prefab)
+    public EnemyAI CreateEnemy(EnemyGunnerStruct e)
     {
-        EnemyAI enemy = EnemyAI.CreateEnemy(prefab, v, itemManager, guid, auid, degree);
+        EnemyAI enemy = EnemyAI.CreateEnemy(e.estruct.prefab, e.estruct.v, itemManager, e.guid, e.auid, e.estruct.degree);
         return enemy;
     }
-    public EnemyAI CreateEnemy(Vector3 v, float degree, EnemyAI pefab)
+    public EnemyAI CreateEnemy(EnemyStruct e)
     {
-        EnemyAI enemy = EnemyAI.CreateMeleeEnemy(pefab, v, degree);
+        EnemyAI enemy = EnemyAI.CreateMeleeEnemy(e.prefab, e.v, e.degree);
         return enemy;
     }
 

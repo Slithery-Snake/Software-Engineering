@@ -17,7 +17,7 @@ public class WindUp : NotAttacking
     }
     IEnumerator AttackProcess(float upTime)
     {
-        yield return new WaitForSeconds(upTime);
+        yield return new WaitForSecondsRealtime(upTime);
         manager.ChangeToState(manager.NotAttackingState, manager.MeleePointer);
     }
     void StartAttackProcess(float upT)
@@ -35,7 +35,7 @@ public class WindUp : NotAttacking
     {
          startTime = Time.time;
 
-        yield return new WaitForSeconds(wait);
+        yield return new WaitForSecondsRealtime(wait);
         manager.ChangeToState(next, manager.MeleePointer);
         StartAttackProcess(whatStats.length);
         

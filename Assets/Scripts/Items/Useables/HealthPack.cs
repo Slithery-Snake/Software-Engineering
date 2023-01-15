@@ -29,7 +29,7 @@ public class HealthPack : Item<HotBarItemSC>, Iinteractable
     {
         SoundCentral.Instance.Invoke(transform.position, SoundCentral.SoundTypes.Heal);
         healed.Call();
-        status?.AddStatusEffect(new StatusEffect.StatusEffectManager.HealthApply());
+        status?.AddStatusEffect(new StatusEffect.StatusEffectManager.HealthApply(), null);
         Destroy(gameObject);
         
 

@@ -17,35 +17,43 @@ public class ShottyShoot : Shooting
   
     protected override void Shoot()
     {
-        if (canFire && hasAmmo && needEjection == false && roundChambered)
+        if (canFire)
         {
-            //RaycastHit rayInfo;
-            inChamber--;
-            canFire = false;
-            needEjection = true;
-            roundChambered = false;
-            if (inChamber <= 0)
-            {
-                hasAmmo = false;
-            }
-            Vector3 direction = barrelTransform.forward;
             Vector3 position = barrelTransform.position;
-            for (int i = 0; i < shottySC.Pellets; i++)
+            canFire = false;
+
+            if (hasAmmo && needEjection == false && roundChambered)
             {
-                Bullet bullet = bulletPool.RequestBullet();//bulletPool.RequestBullet();
-                
-              
-                bullet.Shoot(position, Randomize(direction), bTag);
+                //RaycastHit rayInfo;
+                inChamber--;
+                needEjection = true;
+                roundChambered = false;
+                if (inChamber <= 0)
+                {
+                    hasAmmo = false;
+                }
+                Vector3 direction = barrelTransform.forward;
+                for (int i = 0; i < shottySC.Pellets; i++)
+                {
+                    Bullet bullet = bulletPool.RequestBullet();//bulletPool.RequestBullet();
+
+
+                    bullet.Shoot(position, Randomize(direction), bTag);
+                }
+                InvokeShotEvent(position);
+                //     InvokeShotEvent(position);
+
+
+                // searDown = ItemData.isAuto;
+                // bullet.Rg.velocity = 
+                // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
+                //shooting bullet stuff
             }
-            InvokeShotEvent(position);
-       //     InvokeShotEvent(position);
-
+            else if (canFire)
+            {
+                InvokeEmpty(position);
+            }
             invoke = Invoke(weaponCDTime, WeaponCoolDown);
-
-            // searDown = ItemData.isAuto;
-            // bullet.Rg.velocity = 
-            // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
-            //shooting bullet stuff
         }
 
     }
@@ -71,7 +79,7 @@ public class ShottyShoot : Shooting
             if (needEjection == false && LoadBullets(am))
             {
                 Debug.Log("RELOAD");
-                await Task.Delay(itemData.reloadTime * 100);
+                await Task.Delay((int)(itemData.reloadTime * 100 / Time.timeScale));
                 inChamber++;
                 am.SetCount(am.Count - 1);
                 InvokeMagSwap();
@@ -81,7 +89,7 @@ public class ShottyShoot : Shooting
             if (needEjection || roundChambered == false)
             {
                 InvokeCharge();
-                await Task.Delay(itemData.PumpTime * 100);
+                await Task.Delay((int)(itemData.PumpTime * 100/ Time.timeScale));
                 if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
 
                 needEjection = false;

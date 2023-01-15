@@ -16,7 +16,8 @@ public class PlayerUI : MonoBehaviour
     HotBarUI[] hotBarUIs;
     [SerializeField] HotBarUI hbarUI;
     [SerializeField] Transform hbarGrid;
-
+    LerpBar bBarChange;
+    [SerializeField] Image fadeOut;
     public TextMeshProUGUI MessageText { get => messageText;}
 
     public static PlayerUI Create(PlayerUI fab, PInputManager.UIInfoBoard board, PlayerSC sc, Transform parent)
@@ -28,12 +29,36 @@ public class PlayerUI : MonoBehaviour
         ui.Init();
         return ui;
     }
-    
+    void UpdateBT(float target)
+    {
+        bBarChange.StartLerp(target);
+    }
+     void StartFadeOut()
+    {
+        StartCoroutine(Fade());
+    }
+    IEnumerator Fade()
+    {
+        float elapsed = 0;
+        while (fadeOut.color.a < 1)
+        {
+            elapsed += Time.deltaTime;
+
+            Color c = fadeOut.color;
+            c.a = 0 + (1 - 0) * (elapsed / 3);
+            fadeOut.color = c;         
+
+            yield return new WaitForEndOfFrame();
+        }
+    }
     void Init()
     { staminaChange = LerpBar.Create(stamina, sc.StaminaBarMax, 0, stamina.gameObject, sc.StaminaBarTick);
-        board.StaminaChanged +=
-        
-           staminaChange.StartLerp;
+        bBarChange = LerpBar.Create(bBar, sc.SlowBarMax, 0, bBar.gameObject, sc.StaminaBarTick);
+        board.StaminaChanged +=           staminaChange.StartLerp;
+        Color c = fadeOut.color;
+        GameManager.FinalLevelDone += StartFadeOut;
+        c.a = 0;
+        fadeOut.color = c;
 
         health.minValue = 0;
         hotBarUIs = new HotBarUI[sc.InventorySlots];
@@ -55,18 +80,15 @@ public class PlayerUI : MonoBehaviour
     }
     private void OnDestroy()
     {
-        board.StaminaChanged -=
+        GameManager.FinalLevelDone -= StartFadeOut;
 
-           staminaChange.StartLerp;
+        board.StaminaChanged -= staminaChange.StartLerp;
         board.HealthChanged -= UpdateHealth;
         board.BulletTimeChanged -= UpdateBT;
         board.UnequippedSlot -= EmptyHotBar;
         board.EquippedSlot -= SetHotBar;
     }
-    void UpdateBT(float target)
-    {
-        bBar.value = target;
-    }
+  
    void UpdateHealth(float target)
     {
         health.value = target;
