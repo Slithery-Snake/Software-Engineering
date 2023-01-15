@@ -8,8 +8,18 @@ public class WeaponData : HotBarItemSC
     public int magSize;
     public int reloadTime;
     public float weaponCDTime;
-    public bool isAuto;
     [SerializeField] AmmoSC ammoSource;
+    [SerializeField] SoundCentral.SoundTypes shootSound;
+    [SerializeField] SoundCentral.SoundTypes magSound;
+    [SerializeField] SoundCentral.SoundTypes chargeSoundd;
 
+    [SerializeField] int pumpTume;
+    [SerializeField] float radius;
+
+    public float Radius { get => radius; }
+    public int PumpTime { get => pumpTume; }
     public AmmoSC AmmoSource { get => ammoSource; }
+    public SoundCentral.SoundTypes ShootSound { get => shootSound;}
+    public SoundCentral.SoundTypes MagSound { get => magSound;  }
+    public SoundCentral.SoundTypes ChargeSound { get => chargeSoundd;  }
 }

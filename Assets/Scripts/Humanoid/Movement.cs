@@ -5,8 +5,8 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using System;
 public class Movement : StateManagerComponent
-{   
-
+{
+    public  event UnityAction Moved;
     public Movement(MonoCalls.MonoAcessors manager, CharacterController pController, Transform groundCheck, LayerMask gMask, Transform body) : base(manager)
     {
         this.pController = pController;
@@ -23,8 +23,8 @@ public class Movement : StateManagerComponent
     CharacterController pController; //Reference to PlayerControler
     Transform body;
     float speed = 6f;
-    float jumpHeight = 0.06f;
-    float grav = -0.5f;
+    float jumpHeight = 0.02f;
+    float grav = -0.1f;
     float groundDistance = 0.4f;
     float stamina;
     public Vector3 Velocity;
@@ -76,8 +76,8 @@ public class Movement : StateManagerComponent
     {
         float p = TimeController.PlayerDelta;
         float f = Time.deltaTime;
-        this.x = x * speed * f *p;
-        this.z = z * speed * f*p;
+        this.x = x  * f *p;
+        this.z = z * f*p;
         xzChange = new Vector3(this.x,0,this.z);
     }
     void Move( float x, float z) 
@@ -85,19 +85,20 @@ public class Movement : StateManagerComponent
         //this.x = x * speed * Time.deltaTime;
         //this.z = z * speed * Time.deltaTime;
         CalcXZChange(x, z);
-
+        Moved?.Invoke();
         moveTranslation = body.right * xzChange.x + body.forward * xzChange.z;// assign the x moveamount and the y move amount to the vector
        pController.Move(moveTranslation); // call the move function from pController, transalte by the vector, multiply by speed and Time.Deltatime for speed and smoothing.
     }
  
 
-
+    
     public bool GroundCheck()
     {
        bool isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, gMask); //create an invisible sphere (physics.checksphere), at the position, with this radius, return true if layer is matching.
         if (isGrounded == true && yVeloc.y < 0)
         {
             yVeloc.y = -2f;
+            
             return true;
         }
         return false;
@@ -107,18 +108,24 @@ public class Movement : StateManagerComponent
         yVeloc.y = 0;
     }
     public void Jump()
-    { 
-       yVeloc.y = Mathf.Sqrt(jumpHeight * -2f * grav) ;     // if space is pressed and you are grounded, set the y velocity to jump physics equation 
-    }
+    {
+          yVeloc.y = Mathf.Sqrt(jumpHeight * -2f * grav) ;     // if space is pressed and you are grounded, set the y velocity to jump physics equation 
+      //  yVeloc.y = 1;
+        }
    
     //
      public void GravityApply()
     {
-        yVeloc.y += grav * Time.deltaTime; // Vector3 velocity decrease amount;
-        pController.Move(yVeloc); // move by the velocity
+          yVeloc.y += grav * Time.deltaTime; // Vector3 velocity decrease amount;
+       // yVeloc.y += -9.81f * Time.deltaTime;
+        pController.Move(yVeloc*TimeController.Slow); // move by the velocity
     }
 
-  
+    protected override void CleanUp()
+    {
+    }
+
+
     //
 
     //

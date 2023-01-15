@@ -33,7 +33,7 @@ public class MouseLook :StateManagerComponent
         }
 
 
-        Iinteractable interactHit = rayInfo.transform.GetComponent<Iinteractable>();
+        Iinteractable interactHit = rayInfo.transform.GetComponent<Interactable>();
         if (interactHit != null)
         {
             interactHit.Interacted(player);
@@ -66,12 +66,17 @@ public class MouseLook :StateManagerComponent
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-        camera.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        Quaternion rotation = Quaternion.Euler(xRotation, 0f, 0f);
+        camera.localRotation = rotation;
         playerBody.Rotate(Vector3.up * mouseX);
     }
       void Update()
     { if(LookDele != null)
         LookDele();
+    }
+
+    protected override void CleanUp()
+    {
+        
     }
 }

@@ -14,7 +14,7 @@ public class NotMoving : PlayerState
 
 
 
-    public override void EnterState(PInputManager stateManager)
+    public override void EnterState()
     {
         moveX = 0;
         moveZ = 0;
@@ -22,7 +22,7 @@ public class NotMoving : PlayerState
 
     }
 
-    public override void ExitState(PInputManager stateManager)
+    public override void ExitState()
     {
         manager.MonoAcessors.UpdateCall.Deafen(Update);
 
@@ -31,25 +31,24 @@ public class NotMoving : PlayerState
     {
         moveX = Input.GetAxis("Horizontal");
         moveZ = Input.GetAxis("Vertical");
-        movement.MovingFunction(moveX, moveZ);
-        if (moveX == 0 && moveZ != 0)
+        if (moveX != 0 || moveZ != 0)
         {
             manager.ChangeToState(manager.Moving, manager.MovementState);
         }
     }
 
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyDownInput( KeyCode keyCode)
     {
         
     }
 
-    public override void HandleKeyPressedInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyPressedInput( KeyCode keyCode)
     {
 
       
     }
 
-    public override void HandleKeyUpInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyUpInput( KeyCode keyCode)
     {
 
 

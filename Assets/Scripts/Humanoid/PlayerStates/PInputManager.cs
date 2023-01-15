@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-
-
-
+using System.Reflection;
+using System.Linq;
+using Unity;
+using System.Collections;
 public class MonoCall<T> : IMonoCall<T>
 {
   
@@ -22,6 +23,7 @@ public class MonoCall<T> : IMonoCall<T>
         }
         return false;
     }
+
     public void Listen(UnityAction<T> add)
     {
         toCall += add;
@@ -31,6 +33,7 @@ public class MonoCall<T> : IMonoCall<T>
         toCall -= remove;
     }
 }
+
 public interface IMonoCall<T>
 {
 
@@ -40,7 +43,7 @@ public interface IMonoCall<T>
 public class MonoCall : IMonoCall
 {
 
-    UnityAction toCall;
+UnityAction toCall;
     public void Call()
     {
         if (toCall != null)
@@ -74,6 +77,7 @@ public class MonoCalls
     public MonoCall updateCall = new MonoCall();
     public MonoCall fixedUpdateCall = new MonoCall();
     public MonoCall lateUpdateCall = new MonoCall();
+    public MonoCall destroyed = new MonoCall();
     public MonoAcessors accessors;
     public MonoCalls ()
     {
@@ -91,6 +95,7 @@ public class MonoCalls
             calls = f;
         }
         MonoCalls calls;
+        public IMonoCall Destroyed { get => calls.destroyed; }
         public IMonoCall AwakeCall { get => calls.awakeCall; }
         public IMonoCall StartCall { get => calls.startCall; }
         public IMonoCall UpdateCall { get => calls.updateCall; }
@@ -110,41 +115,48 @@ public class TagManager
 {
     public Collider[] hitBoxes;
     public BulletTag tag;
-    public  void AddTagsToHitBoxes(IShootable shootable)
+    public  void AddTagsToHitBoxes(IShootable shootable, StatusEffect.StatusEffectManager.IStatusEeffectable status)
     {
        for(int i = 0; i < hitBoxes.Length; i ++)
         {
-            ShootBox.Create(tag, shootable, hitBoxes[i]);
+            ShootBox.Create(tag, shootable, hitBoxes[i], status);
         }
     }
      public BulletTag Tag { get => tag; }
 }
-public class PInputManager : StateManager
+public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IStunnable, StatusEffect.StatusEffectManager.IStatusEeffectable, SourceProvider
 {
  
     [SerializeField]TagManager tagManager;
 
-  
 
+    public event UnityAction PlayerMoved {
+        add { movement.Moved += value; }
+        remove { movement.Moved -= value; }
+    
+    
+    }
 
+   
     [Serializable]
     public struct Parts
     {
         public CharacterController pController;
         public Transform groundCheck;
-        public Transform body;
+        public HumanoidParts hParts;
         public LayerMask jumpFloorMask;
         public Transform itemGameObject;
         public Camera mainCamera;
         public Transform hotBarTransform;
-     
+        public PlayerSC sC;
+        public GameObject collapse;
     }
     MonoCalls calls = new MonoCalls();
 
   
 
-
     [SerializeField] Parts playerParts;
+    public PlayerSC SC { get =>  playerParts.sC; }
     Movement movement;
     PlayerStatePointer<Grounded> jumpState;
     Grounded onGround;
@@ -156,7 +168,7 @@ public class PInputManager : StateManager
     public NotMoving NotMoving { get => notMoving; }
     public Moving Moving { get => moving; }
     public Movement Movement { get => movement; }
-
+    TimeController bTime;
     MouseLook look;
     private LookEnabled lookEnabled;
     private LookDisabled lookDisabled;
@@ -178,9 +190,10 @@ public class PInputManager : StateManager
     public Equipped Equipped { get => equipped;  }
     public EquippedGun EquippedGun { get => equippedGun; }
     public PlayerStatePointer<NotEquipped> HotBarState { get => hotBarState;  }
-   
 
-    
+    Health health;
+    public UIInfoBoard uiInfo;
+    HandPosManage handposition;
 
     #region keyEvents
     /*
@@ -201,10 +214,10 @@ public class PInputManager : StateManager
 
     List<KeyInputEvents> keyInputEventsList;
 
-    List<Pointer<PInputManager, FiniteState<PInputManager>>> allRunningStates;
-    Pointer<PInputManager, FiniteState<PInputManager>>[] allRunningStatesArray;
+    List<PointerIN> allRunningStates;
+    PointerIN[] allRunningStatesArray;
 
- 
+    
 
     #region Component Events
     //Event system for components in the future maybe???
@@ -214,22 +227,50 @@ public class PInputManager : StateManager
     public PlayerStatePointer<Grounded> JumpState { get => jumpState;  }
     public Grounded OnGround { get => onGround; }
     public InAir Falling { get => falling; }
+  
+    public PlayerStatePointer<TimeDisabled> TimeState { get => timeState; }
+    public TimeDisabled TimeDisabled { get => timeDisabled; }
+    public TimeNormal NormalTime { get => normalTime;  }
+    public TimeSlow SlowTime { get => slowTime;  }
+    public StatusEffect.StatusEffectManager Status { get => statusEffectManager; }
+  
 
+    PlayerStatePointer<TimeDisabled> timeState;
+    TimeDisabled timeDisabled;
+    TimeNormal normalTime;
+    TimeSlow slowTime;
     #endregion
+    protected StatusEffect.StatusEffectManager statusEffectManager;
+    MeleeManager melee;
+
+    PlayerStatePointer<NotAttacking> meleePointer;
+    NotAttacking notAttackingState;
+    Swing swinging;
+    HeavySwing swingingHeavy;
+    WindUp windUp;
+    public PlayerStatePointer<NotAttacking> MeleePointer { get => meleePointer;  }
+    public NotAttacking NotAttackingState { get => notAttackingState; }
+    public Swing Swinging { get => swinging;  }
+    public HeavySwing SwingingHeavy { get => swingingHeavy;  }
+    public WindUp WindUp { get => windUp;}
+
     void Test() { Debug.Log("awoken"); }
     void Awake()
     {
-        movement = new Movement(calls.accessors,  playerParts.pController, playerParts.groundCheck, playerParts.jumpFloorMask, playerParts.body);
-        look = new MouseLook(calls.accessors, playerParts.body, playerParts.mainCamera.transform);
-        inventory = new Inventory(calls.accessors, playerParts.itemGameObject, playerParts.hotBarTransform, tagManager.Tag);
+        movement = new Movement(calls.accessors,  playerParts.pController, playerParts.groundCheck, playerParts.jumpFloorMask, playerParts.hParts.Parts1.body);
+        look = new MouseLook(calls.accessors, playerParts.hParts.Parts1.body, playerParts.mainCamera.transform);
+        bTime = new TimeController(calls.accessors, playerParts.sC);
+        health = new Health(playerParts.sC);
+        handposition = new HandPosManage(calls.accessors, playerParts.hParts.Parts1.rHand, playerParts.hParts.Parts1.lHand);
 
+        inventory = new Inventory(calls.accessors, playerParts.itemGameObject, playerParts.hotBarTransform, tagManager.Tag, health, handposition, playerParts.sC);
         keyInputEventsList = new List<KeyInputEvents>();
-        allRunningStates = new List<Pointer<PInputManager, FiniteState<PInputManager>>>();
+        allRunningStates = new List<PointerIN>();
         keyInputEvents = new KeyInputEvents(keyInputEventsList);
         InitializeKeyEvents();
-
+        tagManager.AddTagsToHitBoxes(health, this);
         notMoving = new NotMoving(this, movement);
-        moving = new Moving(this, movement);
+        moving = new Moving(this, movement,playerParts.sC);
         movementState = new PlayerStatePointer<NotMoving>(notMoving, allRunningStates, this);
         lookDisabled = new LookDisabled(this, look);
         lookEnabled = new LookEnabled(this, look);
@@ -242,9 +283,76 @@ public class PInputManager : StateManager
         onGround = new Grounded(this, movement);
         falling = new InAir(this, movement);
         jumpState = new PlayerStatePointer<Grounded>(falling, allRunningStates, this);
+        timeDisabled = new TimeDisabled(this, bTime);
+        normalTime = new TimeNormal(this, bTime);
+        slowTime = new TimeSlow(this, bTime);
+        timeState = new PlayerStatePointer<TimeDisabled>(normalTime, allRunningStates,this);
+        statusEffectManager = new StatusEffect.StatusEffectManager(calls.accessors, health, this);
+        melee = new MeleeManager(calls.accessors, playerParts.sC, playerParts.hParts.Parts1.lHandCol, playerParts.hParts.Parts1.rHandCol, playerParts.hParts.Parts1.lHandAnim, playerParts.hParts.Parts1.rHandAnim);
+        notAttackingState = new NotAttacking(this, melee);
+        swinging = new Swing(this, melee);
+        windUp = new WindUp(this, melee);
+        swingingHeavy = new HeavySwing(this, melee);
+        meleePointer = new PlayerStatePointer<NotAttacking>(notAttackingState, allRunningStates, this);
         AwakeComponents();
+        uiInfo = new UIInfoBoard(MonoAcessors,this);
+        health.HealthBelowZero += Death;
+       
+    }
+
+    public static event UnityAction PlayerDied;
+   void Death()
+    {
+        Transform transform = playerParts.mainCamera.gameObject.transform;
+        transform.parent = playerParts.collapse.transform;
+        playerParts.collapse.SetActive(true);
+        playerParts.collapse.transform.parent = null;
+
+        PlayerDied?.Invoke();
+
+        gameObject.SetActive(false);
 
     }
+    public class UIInfoBoard : StateManagerComponent
+    {
+
+        PInputManager p;
+        public UIInfoBoard(MonoCalls.MonoAcessors manager, PInputManager p) : base(manager)
+        {
+            this.p = p;
+        }
+        public event UnityAction<float> StaminaChanged
+        {
+
+            add { p.moving.StaminaChanged += value; }
+            remove { p.moving.StaminaChanged -= value; }
+        }
+        public event UnityAction<float> HealthChanged {
+            
+        add { p.health.HealthChanged += value; }
+    remove { p.health.HealthChanged -= value; }
+        }
+        public event UnityAction<float> BulletTimeChanged
+        {
+            add { p.bTime.ValueUpdated += value; }
+            remove { p.bTime.ValueUpdated -= value; }
+        }
+        public event UnityAction<int, HotBarItemSC> EquippedSlot {
+            add { p.inventory.PickedUpSlot += value; }
+            remove { p.inventory.PickedUpSlot -= value; }
+        }
+        public event UnityAction<int> UnequippedSlot
+        {
+            add { p.inventory.DroppedSlot += value; }
+            remove { p.inventory.DroppedSlot -= value; }
+        }
+
+        protected override void CleanUp()
+        {
+           
+        }
+    }
+
 
 
     void Start()
@@ -256,30 +364,7 @@ public class PInputManager : StateManager
 
     }
  
-    public virtual void ChangeToState(PlayerState newState, Pointer<PInputManager, PlayerState> stateToChange)
-    {
-        Debug.Log(newState);
-
-        stateToChange.State.ExitState(this);
-        stateToChange.State = newState;
-        stateToChange.State.EnterState(this);
-
-
-    }
-
-
-    public virtual void ChangeToNewState(PlayerState newState, Pointer<PInputManager, PlayerState> stateToChange)
-    {
-        Debug.Log(newState);
-
-        if (!(newState == stateToChange.State))
-        {
-            stateToChange.State.ExitState(this);
-            stateToChange.State = newState;
-            stateToChange.State.EnterState(this);
-        }
-
-    }
+   
 
   
     #region Initialization, Update, and Event Methods
@@ -291,6 +376,10 @@ public class PInputManager : StateManager
             keyEvent.KeyPress += InputKeyPressed;
             keyEvent.KeyUp += InputKeyUp;
         }
+    }
+    void OnDestroy()
+    {
+        calls.destroyed.Call();
     }
     void InitializeStatesArray()
     {
@@ -324,21 +413,21 @@ public class PInputManager : StateManager
     {
         for (int x = 0; x < allRunningStatesArray.Length; x++)
         {
-            allRunningStatesArray[x].State.HandleKeyDownInput(this, keyCode);
+            allRunningStatesArray[x].Inputs.HandleKeyDownInput( keyCode);
         }
     }
     void InputKeyUp(KeyCode keyCode)
     {
         for (int x = 0; x < allRunningStatesArray.Length; x++)
         {
-            allRunningStatesArray[x].State.HandleKeyUpInput(this, keyCode);
+            allRunningStatesArray[x].Inputs.HandleKeyUpInput( keyCode);
         }
     }
     void InputKeyPressed(KeyCode keyCode)
     {
         for (int x = 0; x < allRunningStatesArray.Length; x++)
         {
-            allRunningStatesArray[x].State.HandleKeyPressedInput(this, keyCode);
+            allRunningStatesArray[x].Inputs.HandleKeyPressedInput( keyCode);
         }
     }
 
@@ -349,6 +438,10 @@ public class PInputManager : StateManager
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             keyInputEvents.OnKeyDown(KeyCode.Mouse0);
+        }
+        if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+            keyInputEvents.OnKeyDown(KeyCode.Mouse1);
         }
         if (Input.GetKeyUp(KeyCode.Mouse0))
         {
@@ -376,6 +469,26 @@ public class PInputManager : StateManager
         if (Input.GetKeyUp(KeyCode.Alpha1))
         {
             keyInputEvents.OnKeyUp(KeyCode.Alpha1);
+
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            keyInputEvents.OnKeyDown(KeyCode.Alpha3);
+
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha3))
+        {
+            keyInputEvents.OnKeyUp(KeyCode.Alpha3);
+
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            keyInputEvents.OnKeyDown(KeyCode.Alpha4);
+
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha4))
+        {
+            keyInputEvents.OnKeyUp(KeyCode.Alpha4);
 
         }
         if (Input.GetKeyDown(KeyCode.C))
@@ -509,7 +622,6 @@ public class PInputManager : StateManager
             keyInputEvents.OnKeyDown(KeyCode.Tab);
         }
 
-
         UpdateComponents();
     }
     void LateUpdate()
@@ -521,6 +633,24 @@ public class PInputManager : StateManager
         FixedUpdateComponents();
     }
 
+    Coroutine stunRout;
+    public void Stun(double stunTime)
+    {
+        if(stunRout !=null)
+        {
+            StopCoroutine(stunRout);
+
+        }
+        if (gameObject.activeInHierarchy == true) {
+            stunRout = StartCoroutine(StunProcedure(stunTime)); }
+    }
+   protected IEnumerator StunProcedure(double stunTime)
+    {
+        moving.Stun(true);
+        yield return new WaitForSeconds((float)stunTime);
+        moving.Stun(false);
+
+    }
 }
 public class KeyInputEvents
 {
@@ -576,4 +706,169 @@ public struct KeyPressAndDuration // key press duration data holder
         this.keyCode = keyCode;
         this.timer = timer;
     }
+}
+public abstract class StatusEffect
+{
+
+    public readonly float lengthMS;
+    public readonly int ticks;
+
+    protected StatusEffect(int ticks = 0, float lengthMS = 0)
+    {
+        this.ticks = ticks;
+        this.lengthMS = lengthMS;
+    }
+    //     protected abstract void EffectFinish(StatusEffectManager manager); 
+    protected abstract void ApplyEffect(StatusEffectManager manager);
+
+
+   
+    public class StatusEffectManager : StateManagerComponent
+    {
+        static int HealthHeal = 100;
+        public class StunType
+        : Enumeration
+        {
+            public readonly double stunTimeSec;
+
+            public StunType(int id, string name, double stunTimeSec) : base(id, name)
+            {
+                this.stunTimeSec = stunTimeSec;
+            }
+        }
+        Health health;
+        IStunnable stun;
+
+        public interface IStatusEeffectable
+        {
+            public StatusEffectManager Status { get; }
+        }
+        public interface IStunnable
+        {
+            public void Stun(double stunTime);
+        }
+        public StatusEffectManager(MonoCalls.MonoAcessors manager, Health health, IStunnable stun) : base(manager)
+        {
+            statusEffects = new HashSet<StatusEffect>();
+            this.health = health;
+            this.stun = stun;
+        }
+        HashSet<StatusEffect> statusEffects; // statuseffectcs should be stackable but like not happening here so lazy implementation aw yeah penguins are cool i like monkeys software engineering is funky
+        public void AddStatusEffect(StatusEffect effect)
+        {
+            if (effect != null)
+            {
+
+                if (effect.lengthMS <= 0)
+                {
+                    effect.ApplyEffect(this);
+                }
+              
+            }
+
+        }
+
+        protected override void CleanUp()
+        {
+        }
+
+        public class Melee : StatusEffect
+        {
+            int damage;
+            public Melee(int damage) : base()
+            {
+                this.damage = damage;
+            }
+
+            protected override void ApplyEffect(StatusEffectManager manager)
+            {
+                manager.health.Remove(damage);
+            }
+        }
+
+        public class StunApply : StatusEffect
+        {
+            private readonly double stunTime;
+
+            public StunApply(double  stunTime) : base()
+            {
+                this.stunTime = stunTime;
+              //  Debug.Log("stunned applied");
+            }
+
+            protected override void ApplyEffect(StatusEffectManager manager)
+            {
+                manager.stun.Stun(stunTime);
+            }
+        }
+        public class HealthApply : StatusEffect
+        {
+
+
+            protected override void ApplyEffect(StatusEffectManager manager)
+            {
+                manager.health.AddHealth(HealthHeal);
+                Debug.Log("healed AW MAN");
+            }
+        }
+    }
+}
+//https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/enumeration-classes-over-enum-types
+public abstract class Enumeration : IComparable
+{
+    public string Name { get; private set; }
+    public int Id { get; private set; }
+    protected Enumeration(int id, string name) => (Id, Name) = (id, name);
+    public override string ToString() => Name;
+    public static IEnumerable<T> GetAll<T>() where T : Enumeration =>
+        typeof(T).GetFields(BindingFlags.Public |
+                            BindingFlags.Static |
+                            BindingFlags.DeclaredOnly)
+                    .Select(f => f.GetValue(null))
+                    .Cast<T>();
+
+    public override bool Equals(object obj)
+    {
+        if (obj is not Enumeration otherValue)
+        {
+            return false;
+        }
+
+        var typeMatches = GetType().Equals(obj.GetType());
+        var valueMatches = Id.Equals(otherValue.Id);
+
+        return typeMatches && valueMatches;
+    }
+
+    public override int GetHashCode() => Id.GetHashCode();
+
+    public static int AbsoluteDifference(Enumeration firstValue, Enumeration secondValue)
+    {
+        var absoluteDifference = Math.Abs(firstValue.Id - secondValue.Id);
+        return absoluteDifference;
+    }
+
+    public static T FromValue<T>(int value) where T : Enumeration
+    {
+        var matchingItem = Parse<T, int>(value, "value", item => item.Id == value);
+        return matchingItem;
+    }
+
+    public static T FromDisplayName<T>(string displayName) where T : Enumeration
+    {
+        var matchingItem = Parse<T, string>(displayName, "display name", item => item.Name == displayName);
+        return matchingItem;
+    }
+
+    private static T Parse<T, K>(K value, string description, Func<T, bool> predicate) where T : Enumeration
+    {
+        var matchingItem = GetAll<T>().FirstOrDefault(predicate);
+
+        if (matchingItem == null)
+            throw new InvalidOperationException($"'{value}' is not a valid {description} in {typeof(T)}");
+
+        return matchingItem;
+    }
+
+    public int CompareTo(object other) => Id.CompareTo(((Enumeration)other).Id);
 }

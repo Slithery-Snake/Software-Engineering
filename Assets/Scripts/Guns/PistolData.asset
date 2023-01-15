@@ -13,9 +13,16 @@ MonoBehaviour:
   m_Name: PistolData
   m_EditorClassIdentifier: 
   itemID: 1
-  holdLocalSpace: {x: 0.17, y: -0.5, z: 0.7}
-  magSize: 5
-  reloadTime: 2
+  mass: 1
+  holdLocalSpace: {x: 0.1, y: -0.5, z: 0.7}
+  HotBarName: M1911
+  lHandPos: {x: -0.015, y: 0.85, z: 0.7}
+  rHandPos: {x: 0.125, y: 0.86, z: 0.955}
+  magSize: 7
+  reloadTime: 16
   weaponCDTime: 0.3
-  isAuto: 0
   ammoSource: {fileID: 11400000, guid: e706875b56c6fd34d8b9267f76893c74, type: 2}
+  shootSound: 0
+  magSound: 1
+  chargeSoundd: 2
+  pumpTume: 10

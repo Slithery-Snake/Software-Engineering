@@ -10,7 +10,8 @@ public class ItemManager : MonoBehaviour
     Dictionary<int, CollectiveGun> gunDict;
     [SerializeField] List<Ammo> ammo;
     Dictionary<int, Ammo> ammoDict;
-
+    [SerializeField] List<Creatable> generalItem;
+    Dictionary<int, Creatable> itemDict;
 
     BulletSpawn bulletSpawn;
     public static ItemManager CreateItemManager(ItemManager prefab, BulletSpawn bulletSpawn)
@@ -18,17 +19,18 @@ public class ItemManager : MonoBehaviour
         ItemManager r = Instantiate(prefab);
         
         r.bulletSpawn = bulletSpawn;
+        r.Init();
         return r;
     }
 
-    private void Awake()
+    private void Init()
     {
         // hotBarDict = new Dictionary<int, HotBarItem>();
         gunDict = new Dictionary<int, CollectiveGun>();
         for (int i = 0; i < guns.Count; i++)
         {
             CollectiveGun item = guns[i];
-            gunDict.Add(item.WeaponData.ItemID, item);
+            gunDict.Add(item.ItemID, item);
         }
         ammoDict = new Dictionary<int, Ammo>();
         for (int i = 0; i < ammo.Count; i++)
@@ -36,6 +38,17 @@ public class ItemManager : MonoBehaviour
             Ammo item = ammo[i];
             ammoDict.Add(item.ItemID, item);
         }
+        itemDict = new Dictionary<int, Creatable>();
+        for (int i = 0; i < generalItem.Count; i++)
+        {
+            Creatable item = generalItem[i];
+            itemDict.Add(item.ItemID, item);
+        }
+    }
+    public void CreateItem(Vector3 v, int id)
+    {
+        itemDict.TryGetValue(id, out Creatable g);
+        Instantiate(g, v, Quaternion.identity);
     }
     public CollectiveGun CreateGun(Vector3 v, int id, bool chamber)
     {
@@ -43,19 +56,14 @@ public class ItemManager : MonoBehaviour
         gunDict.TryGetValue(id, out CollectiveGun g);
        return CollectiveGun.CreateGun(g, bulletSpawn, v, Quaternion.identity, chamber);
     }
-    public Ammo CreateAmmo(Vector3 v, int id, int count)
+    public Ammo CreateAmmo(Vector3 v, int id, int count, bool inf)
     {
         ammoDict.TryGetValue(id, out Ammo g);
-        g.Count = count;
-       return Ammo.CreateAmmo(g, count, v, Quaternion.identity);
+     ///   g.SetCount(count);
+       return Ammo.CreateAmmo(g, count, v, Quaternion.identity, inf);
     }
     // Start is called before the first frame update
-    void Start()
-    {
-        CollectiveGun.CreateGun(guns[0], bulletSpawn, new Vector3(3, 3, 0), Quaternion.identity, true);
-
-        Ammo.CreateAmmo(ammo[0], 100, new Vector3(2, 3, 0), Quaternion.identity);
-    }
+   
 
     // Update is called once per frame
 }

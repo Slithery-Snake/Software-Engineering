@@ -46,5 +46,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guns:
   - {fileID: 3662090165896697082, guid: 9ea64a0dcc4f3a14d95a2850f8f58826, type: 3}
+  - {fileID: 6263433577455886690, guid: 14b68a570984f4a489d2ace6ee9438dd, type: 3}
+  - {fileID: 3381342832150741761, guid: e03a819afd4fb60469a94d1ff9c570a0, type: 3}
   ammo:
   - {fileID: 6678855252120543237, guid: b9b05a027baeb3c4196ec9a11309c35d, type: 3}
+  - {fileID: 603301564182893684, guid: 2463afd83d4c62b45aa5203e26270428, type: 3}
+  - {fileID: 2938971161120882471, guid: 38d75efea30be4c4ba62be5495fcfce7, type: 3}
+  generalItem:
+  - {fileID: 8060879014470321264, guid: 23fa49c698346374593961a8e0c39de5, type: 3}

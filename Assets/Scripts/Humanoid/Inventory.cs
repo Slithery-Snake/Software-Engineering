@@ -18,8 +18,6 @@ public class Inventory : StateManagerComponent
         public UnityAction ToCall { get => toCall; }
     }
 
-
-    int hotBarSize = 4;
      HotBarItem[] items;
     Transform itemGameObject;
     Dictionary<AmmoSC, Ammo> ammo;
@@ -29,7 +27,12 @@ public class Inventory : StateManagerComponent
     MonoCall<IntGun> gunAdded;
     //Stack<int> gunSlots s` new Stack<int>();
     Dictionary<int, CollectiveGun> guns;
-    MonoCall<int> equippedSlot;
+    public event UnityAction<int, HotBarItemSC > EquippedSlot;
+    public event UnityAction<int> UnequippedSlot;
+    public event UnityAction<int, HotBarItemSC> PickedUpSlot;
+    public event UnityAction<int> DroppedSlot;
+    MonoCall someItemDropped = new MonoCall();
+    MonoCall someItemAddded = new MonoCall();
     public bool HaveAmmoForGun()
     {if (currentGun != null)
         {
@@ -53,7 +56,7 @@ public class Inventory : StateManagerComponent
     MonoCall<int> picked;
     Task reloadingTask;
     CancellationTokenSource reloadToken;
-    public void Reload(UnityAction callWhenDone)
+    public void Reload()
     {
         StopReload();
         if (currentGun != null)
@@ -61,48 +64,23 @@ public class Inventory : StateManagerComponent
 
             reloadToken = new CancellationTokenSource();
             CancellationToken t = reloadToken.Token;
-            reloadingTask = ReloadTask(callWhenDone, t);
+            reloadingTask = currentGun.Shooting.ReloadTask( t, GetAmmo(currentGun));
         }
     }
+ 
+    //reload, cancel, reload (cancel from first reload cancels second reload)
+
     public void StopReload()
     {
         if (reloadToken != null)
         {
-
             reloadToken.Cancel();
+            reloadToken.Dispose();
+            reloadToken = null;
 
         }
     }
-     void LoadCurrent()
-    {
-        currentGun.Shooting.LoadBullets(GetAmmo(currentGun));
 
-
-    }
-    //reload, cancel, reload (cancel from first reload cancels second reload)
-    async Task ReloadTask(UnityAction doneCall, CancellationToken t)
-    {
-        try
-        {
-            await Task.Delay(currentGun.WeaponData.reloadTime * 1000);
-            if (t.IsCancellationRequested) { t.ThrowIfCancellationRequested(); }
-            LoadCurrent();
-            if (doneCall != null)
-            {
-                doneCall();
-            }
-            
-        } catch(OperationCanceledException) { }
-        finally
-        {
-            if (reloadToken != null)
-            {
-                reloadToken.Dispose();
-                reloadToken = null;
-            }
-        }
-       
-    }
     public Ammo GetAmmo(CollectiveGun g)
     {
       AmmoSC ammoSC = g.Shooting.ItemData.AmmoSource;
@@ -113,11 +91,14 @@ public class Inventory : StateManagerComponent
     public IMonoCall<int> Picked { get => picked; }
     public IMonoCall<IntGun> GunAdded { get => gunAdded; }
     public IMonoCall GunEquipped { get => gunEquipped; }
-    public IMonoCall<int> EquippedSlot { get => equippedSlot; }
     public int CurrentSlot { get => currentSlot; }
     public HotBarItem CurrentEquipped { get => currentEquipped;}
     public CollectiveGun CurrentGun { get => currentGun;  }
+    public IMonoCall SomeItemAddded { get => someItemAddded;  }
+    public IMonoCall SomeItemDropped { get => someItemDropped;  }
 
+    Health health;
+    private readonly HandPosManage handPos;
 
     public bool ItemIsInSlot(int i)
     {
@@ -139,10 +120,11 @@ public class Inventory : StateManagerComponent
           gunAdded.Call(new IntGun(i, gun));
 
             };
-        picked.Listen( tempHandler);
+        picked.Listen(tempHandler);
         gun.SetTag(tag);
         AddHotBarItem(gun.Shooting.HotBar);     
         picked.Deafen( tempHandler);
+
 
     }
    
@@ -153,7 +135,6 @@ public class Inventory : StateManagerComponent
         if(gun !=null) {
             currentGun = gun;
             if (!gunEquipped.IsNull()) { gunEquipped.Call(); }
-            Debug.Log("gun hecked " + currentGun);
         }
        
     }
@@ -181,20 +162,29 @@ public class Inventory : StateManagerComponent
 
         }
     }
-
-    public Inventory(MonoCalls.MonoAcessors manager, Transform itemGameObject, Transform hotBarTransform, BulletTag tag) : base(manager)
+    int hotBarSlots;
+    void TempCheckGun(int i, HotBarItemSC sc) { CheckGunEquip(i); }
+    public Inventory(MonoCalls.MonoAcessors manager, Transform itemGameObject, Transform hotBarTransform, BulletTag tag, Health health, HandPosManage handPos, HumanoidSC sc) : base(manager)
     {
         this.itemGameObject = itemGameObject;
-        items = new HotBarItem[hotBarSize];
+         hotBarSlots = sc.InventorySlots;
+        items = new HotBarItem[hotBarSlots];
         ammo = new Dictionary<AmmoSC, Ammo>();
         this.hotBarTransform = hotBarTransform;
         guns = new Dictionary<int, CollectiveGun>();
-        equippedSlot = new MonoCall<int>();
         gunEquipped = new MonoCall();
         gunAdded = new MonoCall<IntGun>();
         picked = new MonoCall<int>();
-        equippedSlot.Listen(CheckGunEquip);
+        EquippedSlot += TempCheckGun;
+        DroppedSlot += RemoveGun;
         this.tag = tag;
+        this.health = health;
+        this.handPos = handPos;
+    }
+    protected override void CleanUp()
+    {
+        EquippedSlot -= TempCheckGun;
+        DroppedSlot -= RemoveGun;
     }
     void DeactivateItem(HotBarItem item)
     {
@@ -209,8 +199,7 @@ public class Inventory : StateManagerComponent
     {
         //currentSlot = index;
         
-        if(currentEquipped != null) { UnequipHotBar(); } 
-        
+        if(currentEquipped != null) { UnequipHotBar(); }
         
         HotBarItem hotBarItem;
       hotBarItem = items[index]; 
@@ -218,60 +207,119 @@ public class Inventory : StateManagerComponent
         Transform itemTransform = hotBarItem.transform;
         itemTransform.SetParent(hotBarTransform);
         itemTransform.localPosition = hotBarItem.ItemData.HoldLocalSpace;
-        itemTransform.localRotation = Quaternion.identity;
+        itemTransform.localEulerAngles = hotBarItem.ItemData.HoldRotation;
         currentEquipped = hotBarItem;
-        Debug.Log("crrent " + CurrentEquipped);
-                    if (!equippedSlot.IsNull()) { equippedSlot.Call(index); }
-
+        handPos.SetLHand( hotBarItem.ItemData.LHandPos);
+        handPos.SetRHand(hotBarItem.ItemData.RHandPos);
+        EquippedSlot?.Invoke(index, hotBarItem.ItemData);
+        hotBarItem.Destroyed += VoidCurrentEquipped;
+        
         return hotBarItem;
+    }
+    void VoidCurrentEquipped()
+    {
+        currentEquipped.Destroyed -= VoidCurrentEquipped;
+
+        guns[currentSlot] = null;
+        items[currentSlot] = null;
+        currentEquipped = null;
+        handPos.SetDefault();
+        InvokeDropped();
+
+
+    }
+    void InvokeDropped()
+    {
+        DroppedSlot?.Invoke(currentSlot);
+        someItemDropped.Call();
     }
     public void UnequipHotBar( )
     {
         if (currentEquipped != null)
         {
+            currentEquipped.Destroyed -= VoidCurrentEquipped;
+
+            UnequippedSlot?.Invoke(currentSlot);
             DeactivateItem(currentEquipped);
             currentEquipped = null;
+            handPos.SetDefault();
         }
     }
    
    
     public void AddAmmo(Ammo am)
     {
+
         if(ammo.ContainsKey(am.ItemData))
         {
-            ammo[am.ItemData].Count += am.Count;
-            
+            if (am.Infinity)
+            {
+
+
+                ammo.Remove(am.ItemData);
+                ammo.Add(am.ItemData, am);
+                
+
+            }            
+            else
+            {
+                ammo.TryGetValue(am.ItemData, out Ammo amm);
+                amm.SetCount(amm.Count + am.Count);
+            }
         }
         else
         {
             ammo.Add(am.ItemData, am);
+            
         }
         
     }
-  
+    void RemoveGun(int i)
+    {
+        guns.Remove(i);
+    }
+    public void DropCurrent()
+    {if (currentEquipped != null)
+        {
+
+            currentEquipped.transform.SetParent(null);
+            currentEquipped.OgItem.OnFloor();
+            
+            currentEquipped.Interact.enabled = true;
+            VoidCurrentEquipped();
+
+
+        }
+    }
+ public void TryAddHotBar(HotBarItem i)
+    {
+        AddHotBarItem(i);
+
+    }
      bool AddHotBarItem(HotBarItem item)
     {
-        for(int i = 0; i < hotBarSize; i ++)
+        for(int i = 0; i < hotBarSlots; i ++)
         {
             if(items[i] ==null)
             {
                 items[i] = item;
-                item.transform.SetParent(itemGameObject);
+                item.transform.SetParent(itemGameObject, true);
+                item.OgItem.Held();
+                item.Interact.enabled = false;
                 DeactivateItem(item);
+                PickedUpSlot?.Invoke(i, item.ItemData);
+
                 if (!picked.IsNull())
                 {
                     picked.Call(i);
                 }
+                someItemAddded.Call();
+
                 return true;
             }
         }
         return false;
     }
 
-    
-
-   
-
- 
-
+  
 }
