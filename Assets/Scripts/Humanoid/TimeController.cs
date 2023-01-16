@@ -4,6 +4,7 @@ using EnemyStuff;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Events;
+using System.Collections;
 public class TimeNormal : TimeDisabled
 {   
     
@@ -17,7 +18,7 @@ public class TimeNormal : TimeDisabled
     
     public override void HandleKeyDownInput( KeyCode keyCode)
     {
-        if(keyCode == KeyCode.V)
+        if(keyCode == KeyCode.V && time.BulletBar > 0)
         {
             manager.ChangeToState(manager.SlowTime, manager.TimeState);   
         }
@@ -28,22 +29,60 @@ public class TimeSlow : TimeDisabled
     static MonoCall timeSlowAttempted = new MonoCall();
 
     public static IMonoCall TimeSlowAttempted { get => timeSlowAttempted; }
-
+    CancellationTokenSource token;
     public TimeSlow(PInputManager manager, TimeController time) : base(manager, time)
     {
  
     }
+    void StartLoop()
+    {
 
+   
+            token = new CancellationTokenSource();
+            Loop(token.Token);
+        
+     
+    }
+    void StopLoop()
+    {
+        token?.Cancel();
+        token.Dispose();
+
+    }
+    async void Loop(CancellationToken token)
+    {
+        try
+        {
+            while (true)
+            {
+                if (token.IsCancellationRequested)
+                {
+                    token.ThrowIfCancellationRequested();
+                }
+                await SoundCentral.Instance.PlaySound(new SoundCentral.SoundAndTransform(SoundCentral.SoundTypes.SlowHeartBeat, manager.transform, true)); ;
+            }
+        } catch(OperationCanceledException)
+        {
+
+        }
+      
+    }
     public override void EnterState()
     {
+      
+            StartLoop();
+        
         timeSlowAttempted.Call();
         time.BarZero += Time_BarZero;
-
+       
         time.SetSlow(true);
     }
+    
     public override void ExitState()
     {
         time.BarZero -= Time_BarZero;
+        StopLoop();
+
     }
     private void Time_BarZero(object sender, EventArgs e)
     {

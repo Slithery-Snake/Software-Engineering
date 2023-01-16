@@ -12,24 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ec3e5e635d19db4f90e17003a85dfeb, type: 3}
   m_Name: RushShooter
   m_EditorClassIdentifier: 
-  health: 100
+  health: 125
   light:
-    dmg: 1
-    length: 1
-    coolDown: 1
-    windUp: 1
+    dmg: 20
+    length: 0.2
+    coolDown: 0.5
+    windUp: 0.25
   heavy:
-    dmg: 1
-    length: 1
-    coolDown: 1
+    dmg: 5
+    length: 0.25
+    coolDown: 2
     windUp: 1
-  stunTime: 1
+  stunTime: 5
   inventorySlots: 1
+  ID: 2
   rotateSpeed: 2
   viewLength: 50
   viewAngle: 80
   shootAngle: 4
-  extraSensoryLength: 50
+  extraSensoryLength: 4000
   meleeLength: 2
   followStoppingDistance: 10
   speed: 6

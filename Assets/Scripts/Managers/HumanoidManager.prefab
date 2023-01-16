@@ -45,4 +45,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 6520175882779620965, guid: c951118f5d71a9641900703f95de2685, type: 3}
-  enemyPrefab: {fileID: 8001794987929402501, guid: 3daaaffbe91cc184daf9d0bb8b8a6cf7, type: 3}
+  enemyPrefabDefault: {fileID: 8001794987929402501, guid: 3daaaffbe91cc184daf9d0bb8b8a6cf7, type: 3}
+  enemyTypes:
+  - {fileID: 11400000, guid: 8688460f2d1638b49ac03543ad9390de, type: 2}
+  - {fileID: 11400000, guid: 2a943651b5e5ff649a4f90f4368486f0, type: 2}
+  - {fileID: 11400000, guid: 4610e6d2bcd18fe45bf6891190a162f3, type: 2}
+  - {fileID: 11400000, guid: 62db716b072097f4fa71631a4fd10291, type: 2}
+  agentprefab: {fileID: -379436669331393939, guid: f660e9db49994b241bdd2e6a424f303d, type: 3}

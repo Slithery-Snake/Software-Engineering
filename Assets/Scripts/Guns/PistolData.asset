@@ -27,4 +27,4 @@ MonoBehaviour:
   magSound: 1
   chargeSoundd: 2
   pumpTume: 10
-  radius: 0.01
+  radius: 0.02

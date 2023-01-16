@@ -18,7 +18,7 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
     public delegate void PlaySoundAt(Vector3 v, SoundTypes s);
     public enum SoundTypes {
          
-        PistolShoot, PistolMag, PistolCharge, SMGShoot, SMGMag, SMGCharge,   ShottyShoot, ShottyMag, ShottyCharge, Sprint, Jump, LightPunch, HeavyPunch, Heal, Message, GunClick
+        PistolShoot, PistolMag, PistolCharge, SMGShoot, SMGMag, SMGCharge,   ShottyShoot, ShottyMag, ShottyCharge, Sprint, Jump, LightPunch, HeavyPunch, Heal, Message, GunClick, SlowHeartBeat
 
     }
     AudioSource playAtPointFab;
@@ -36,6 +36,7 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         }
         playAtPointFab = new GameObject().AddComponent<AudioSource>();
         playAtPointFab.spatialBlend = 1;
+        playAtPointFab.spread = 360;
 
         
 
@@ -54,7 +55,7 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         public AudioClip clip;
       
     }
-    struct SoundAndLocation
+   public struct SoundAndLocation
     {
         public SoundTypes type;
         public Vector3 v;
@@ -99,6 +100,11 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         tQueue.Enqueue(new SoundAndTransform(i, v));
 
     }
+    public void InvokeWithParent(Transform v, SoundTypes i)
+    {
+        tQueue.Enqueue(new SoundAndTransform(i, v));
+
+    }
     public void Invoke(Transform v, SoundTypes i, bool twoD)
     {
         tQueue.Enqueue(new SoundAndTransform(i, v, twoD));
@@ -109,7 +115,8 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
        soundQueue.Enqueue(new SoundAndLocation(i, v));
         
     }
-    struct SoundAndTransform
+
+   public  struct SoundAndTransform
     {
         public SoundTypes type;
         public Transform v;
@@ -121,7 +128,9 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
             this.twoDSound = twoDSound;
         }
     }
-    async void PlaySound( SoundAndLocation sal)
+    
+
+   public async Task PlaySound( SoundAndLocation sal)
     {
         AudioClip clip = null;
             soundToClips.TryGetValue(sal.type, out clip);
@@ -131,6 +140,9 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         if(sal.twoDSound)
         {
             source.spatialBlend = 0;
+        } else
+        {
+            source.spatialBlend = 1;
         }
      //   source.transform.SetParent(sal.source.transform);
         source.Play();
@@ -141,7 +153,8 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         }
 
     }
-    async void PlaySound(SoundAndTransform sal)
+ 
+    public async Task PlaySound(SoundAndTransform sal)
     {
         AudioClip clip = null;
         soundToClips.TryGetValue(sal.type, out clip);
@@ -152,6 +165,10 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         if (sal.twoDSound)
         {
             source.spatialBlend = 0;
+        }
+        else
+        {
+            source.spatialBlend = 1;
         }
         source.Play();
         

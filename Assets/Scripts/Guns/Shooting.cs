@@ -86,12 +86,12 @@ public class Shooting : MonoBehaviour
     }
     protected virtual void InvokeCharge()
     {
-        SoundCentral.Instance.Invoke(transform.position, itemData.ChargeSound);
+        SoundCentral.Instance.Invoke(transform, itemData.ChargeSound);
 
     }
     protected virtual void InvokeMagSwap()
     {
-        SoundCentral.Instance.Invoke(transform.position, itemData.MagSound);
+        SoundCentral.Instance.Invoke(transform, itemData.MagSound);
     }
    public virtual async Task ReloadTask( CancellationToken t, Ammo am)
     {
@@ -194,7 +194,7 @@ public class Shooting : MonoBehaviour
         direction += new Vector3(x, y, 0);
         return direction;
     }
-    protected void InvokeEmpty(Vector3 v)
+    protected void InvokeEmpty(Transform v)
     {
         SoundCentral.Instance.Invoke(v, SoundCentral.SoundTypes.GunClick);
 
@@ -232,7 +232,7 @@ public class Shooting : MonoBehaviour
                 //shooting bullet stuff"
             } else
             {
-                InvokeEmpty(position);
+                InvokeEmpty(barrelTransform);
             }
             invoke = Invoke(weaponCDTime, WeaponCoolDown);
 
@@ -244,7 +244,7 @@ public class Shooting : MonoBehaviour
 
     protected void InvokeShotEvent(Vector3 v)
     {
-        SoundCentral.Instance.Invoke(v, itemData.ShootSound);
+        SoundCentral.Instance.Invoke(transform, itemData.ShootSound);
         someBulletShot.Call();
 
     }

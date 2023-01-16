@@ -47,6 +47,7 @@ public class Bullet : Poolable<Bullet>
     }
     public static void Collided(Bullet b)
     {
+
         b.RecycleProcess(b);
     }
     public static void Hit( IShootable shootable, Bullet B)
@@ -57,6 +58,7 @@ public class Bullet : Poolable<Bullet>
     }
     private void OnCollisionEnter(Collision collision)
     {
+
         Collided(this);
     }
 

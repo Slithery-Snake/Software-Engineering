@@ -5,23 +5,30 @@ using UnityEngine.Events;
 public class WaveManager : MonoBehaviour
 {
     public event UnityAction WaveDone;
-    Transform spawn;
-    [SerializeField] GameObject[,] wayPointList;
+    [SerializeField] int enemiesPerWave;
+    [SerializeField] int wavesAmount;
     HumanoidManager huManager;
     [SerializeField] int waitBetweenWaveEnd;
     [SerializeField] int waitBetweenSpawn;
     WaitForSecondsRealtime waitSpawn;
     WaitForSecondsRealtime waitEnd;
     int eCount;
-    public static WaveManager Make(HumanoidManager hu)
+    Vector3 spawnPos;
+    public static WaveManager Make(HumanoidManager hu, Vector3 spawnPos, int enemiesPerWave,int wavesAmount, int waitBetweenWave, int waitBetweenSpan)
     {
+        Debug.Log("wave manager made");
         GameObject obj = new GameObject();
         WaveManager me = obj.AddComponent<WaveManager>();
+        me.spawnPos = spawnPos;
         me.huManager = hu;
         EnemyGunner.Point += me.CreateGunner;
         EnemySpawn.Point += me.CreateEnemy;
-        me.waitEnd = new WaitForSecondsRealtime(me.waitBetweenSpawn);
-        me.waitSpawn = new WaitForSecondsRealtime(me.waitBetweenWaveEnd);
+        me.enemiesPerWave = enemiesPerWave;
+        me.wavesAmount = wavesAmount;
+        me.waitBetweenSpawn = waitBetweenSpan;
+        me.waitBetweenWaveEnd = waitBetweenWave;
+        me.waitEnd = new WaitForSecondsRealtime(me.waitBetweenWaveEnd);
+        me.waitSpawn = new WaitForSecondsRealtime(me.waitBetweenSpawn);
         return me;
     }
     private void OnDestroy()
@@ -43,18 +50,27 @@ public class WaveManager : MonoBehaviour
     }
     IEnumerator Wave()
     {
-        for(int i = 0; i < wayPointList.Length;i ++)
+        for(int i = 0; i < wavesAmount;i ++)
         {
 
-            for(int j = 0; j< wayPointList.GetLength(1); j ++)
+            for(int j = 0; j< enemiesPerWave; j ++)
             {
-                wayPointList[i, j].SetActive(true);
-                
-                yield return waitBetweenSpawn;
+                int mOrG = Random.Range(1, 6);
+               if(mOrG == 1)
+                {
+                    huManager.CreateEnemy(spawnPos, 0, 3);
+                } else
+                {
+                    int whichGun = Random.Range(1, 4);
+                    huManager.CreateEnemy(spawnPos, whichGun, whichGun + 19,0, 2);
+                }
+                Debug.Log("spawned");
+                yield return waitSpawn;
             }
 
-            yield return waitBetweenWaveEnd;
+            yield return waitEnd ;
         }
+        WaveDone?.Invoke();
     }
    
 }

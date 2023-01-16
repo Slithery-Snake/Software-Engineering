@@ -51,7 +51,7 @@ public class ShottyShoot : Shooting
             }
             else if (canFire)
             {
-                InvokeEmpty(position);
+                InvokeEmpty(barrelTransform);
             }
             invoke = Invoke(weaponCDTime, WeaponCoolDown);
         }
@@ -78,7 +78,6 @@ public class ShottyShoot : Shooting
 
             if (needEjection == false && LoadBullets(am))
             {
-                Debug.Log("RELOAD");
                 await Task.Delay((int)(itemData.reloadTime * 100 / Time.timeScale));
                 inChamber++;
                 am.SetCount(am.Count - 1);

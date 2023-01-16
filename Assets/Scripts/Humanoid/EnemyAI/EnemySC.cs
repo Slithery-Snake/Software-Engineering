@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "EnemyData", menuName = "EnemySC")]
 public class EnemySC : HumanoidSC
 {
-
+    [SerializeField] int ID;
     [SerializeField] float rotateSpeed;
     [SerializeField]float viewLength;
     [SerializeField] int viewAngle;
@@ -21,4 +21,5 @@ public class EnemySC : HumanoidSC
     public int MeleeLength { get => meleeLength;  }
     public float FollowStoppingDistance { get => followStoppingDistance;  }
     public float Speed { get => speed;  }
+    public int ID1 { get => ID; }
 }

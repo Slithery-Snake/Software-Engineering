@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hit:
   - {fileID: 11400000, guid: 7f4378fcb794d384c8eb069ef255e02c, type: 2}
-  ignore: []
+  ignore:
+  - {fileID: 11400000, guid: 6966500e524484642814eb5d7d5df0e7, type: 2}
+  - {fileID: 11400000}
   collide: []

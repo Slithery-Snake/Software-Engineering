@@ -97,7 +97,6 @@ public class Inventory : StateManagerComponent
     public IMonoCall SomeItemAddded { get => someItemAddded;  }
     public IMonoCall SomeItemDropped { get => someItemDropped;  }
 
-    Health health;
     private readonly HandPosManage handPos;
 
     public bool ItemIsInSlot(int i)
@@ -164,7 +163,7 @@ public class Inventory : StateManagerComponent
     }
     int hotBarSlots;
     void TempCheckGun(int i, HotBarItemSC sc) { CheckGunEquip(i); }
-    public Inventory(MonoCalls.MonoAcessors manager, Transform itemGameObject, Transform hotBarTransform, BulletTag tag, Health health, HandPosManage handPos, HumanoidSC sc) : base(manager)
+    public Inventory(MonoCalls.MonoAcessors manager, Transform itemGameObject, Transform hotBarTransform, BulletTag tag, HandPosManage handPos, HumanoidSC sc) : base(manager)
     {
         this.itemGameObject = itemGameObject;
          hotBarSlots = sc.InventorySlots;
@@ -178,7 +177,6 @@ public class Inventory : StateManagerComponent
         EquippedSlot += TempCheckGun;
         DroppedSlot += RemoveGun;
         this.tag = tag;
-        this.health = health;
         this.handPos = handPos;
     }
     protected override void CleanUp()

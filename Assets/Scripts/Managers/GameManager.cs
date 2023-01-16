@@ -21,6 +21,7 @@ public static class Constants
     public static readonly int menuScene = 1;
     public static readonly int levelStartScene = 2;
     public static readonly int levelIndexes = 5;
+    public static readonly int agentMask = 11;
 }
 
 
@@ -97,10 +98,9 @@ public class GameManager : MonoBehaviour
             {
                 sc.Dispose();
             }
-           // levelScenes.Clear();
-            inGame = null;
-            inMenu = null;
-            point.State = null;
+            inMenu?.Dispose();
+            inGame?.Dispose();
+           
         }
         public GameManagerState(GameManager manager)
         {
@@ -128,7 +128,7 @@ public class GameManager : MonoBehaviour
             stateToChange.State = new InGame(this);
             stateToChange.State.EnterState();
         }
-        public class InGame: FiniteState<GameManagerState>
+        public class InGame: FiniteState<GameManagerState>, IDisposable
         {
             int sceneIndex;
             SceneCreation scene;
@@ -198,8 +198,20 @@ public class GameManager : MonoBehaviour
                 SpawnData.ClearAll();
 
             }
+
+            public void Dispose()
+            {
+                if (deathMenu != null)
+                {
+                    deathMenu.Menu -= ToMenu;
+                    deathMenu.Retry -= Retry;
+                }
+                scene.LevelDone -= OnLevelComplete;
+
+                PInputManager.PlayerDied -= Death;
+            }
         }
-        public class InMenu : FiniteState<GameManagerState>
+        public class InMenu : FiniteState<GameManagerState>, IDisposable
         {
             
             public InMenu(GameManagerState manager) : base(manager)
@@ -210,7 +222,7 @@ public class GameManager : MonoBehaviour
             
             void Start()
             {
-                manager.levelIndex = 0;
+                manager.levelIndex = 5;
                 manager.ChangeToStateIG( manager.point);    
                 
             }
@@ -232,6 +244,13 @@ public class GameManager : MonoBehaviour
                 MainMenu.Quit -= Quit;
                 manager.manager.UnloadScene(Constants.menuScene);
 
+            }
+
+            public void Dispose()
+            {
+
+                MainMenu.Play -= Start;
+                MainMenu.Quit -= Quit;
             }
         }
     }
@@ -402,7 +421,7 @@ public class GameManager : MonoBehaviour
 
 
                                 currentMessage.StartListening();
-                                SoundCentral.Instance.Invoke(HumanoidManager.PlayerTransform, SoundCentral.SoundTypes.Message,true);
+                                SoundCentral.Instance.Invoke(HumanoidManager.GetPlayerTransform(), SoundCentral.SoundTypes.Message,true);
                             }
                             else
                             {
@@ -689,7 +708,8 @@ public class GameManager : MonoBehaviour
         {
 
         }
-
+        
+        WaveManager wave;
         protected override void AdditionalCreation()
         {
             base.AdditionalCreation();
@@ -705,10 +725,15 @@ public class GameManager : MonoBehaviour
 
             MessageManage.messages.Enqueue(new MessageManage.Messages("Don't die", 1000)); ;
 
+            wave = WaveManager.Make(hu, new Vector3(-125.9f, 1.9f, 15.3f), 10, 5, 20,1);
+            wave.StartWave();
+
+            hu.CreateAlly(new Vector3(-2.7f, 13.39f, -9.33f), 1, 20, 0, "Agent Joshua Gomez");
+            hu.CreateAlly(new Vector3(-2.7f, 13.39f, -6), 1, 20, 0, "Agent Andrew Cheung");
+            hu.CreateAlly(new Vector3(-2.7f, 13.39f, -12), 1, 20, 0, "Agent Bryce Chen");
 
 
-
-
+            
 
         }
 

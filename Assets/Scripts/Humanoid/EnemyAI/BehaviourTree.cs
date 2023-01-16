@@ -118,7 +118,7 @@ namespace GenericBT
                     }
                 }
                 state = childrenRunning ? NodeState.RUNNING : NodeState.SUCCESS;
-                return NodeState.SUCCESS;
+                return state;
             }
         }
         public class Selector : Node

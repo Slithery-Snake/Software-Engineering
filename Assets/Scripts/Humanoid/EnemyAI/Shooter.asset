@@ -25,6 +25,7 @@ MonoBehaviour:
     windUp: 2
   stunTime: 5
   inventorySlots: 1
+  ID: 1
   rotateSpeed: 2
   viewLength: 50
   viewAngle: 100

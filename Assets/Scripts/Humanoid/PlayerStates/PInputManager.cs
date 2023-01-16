@@ -265,7 +265,7 @@ public class PInputManager : StateManagerIN, StatusEffect.StatusEffectManager.IS
         health = new Health(playerParts.sC);
         handposition = new HandPosManage(calls.accessors, playerParts.hParts.Parts1.rHand, playerParts.hParts.Parts1.lHand);
 
-        inventory = new Inventory(calls.accessors, playerParts.itemGameObject, playerParts.hotBarTransform, tagManager.Tag, health, handposition, playerParts.sC);
+        inventory = new Inventory(calls.accessors, playerParts.itemGameObject, playerParts.hotBarTransform, tagManager.Tag, handposition, playerParts.sC);
         movement = new Movement(calls.accessors, playerParts.pController, playerParts.groundCheck, playerParts.jumpFloorMask, playerParts.hParts.Parts1.body);
 
         keyInputEventsList = new List<KeyInputEvents>();

@@ -16,4 +16,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8c3f016b9b41a7e468468f2995947b98, type: 2}
   ignore:
   - {fileID: 11400000}
-  collide: []
+  collide:
+  - {fileID: 11400000, guid: 6966500e524484642814eb5d7d5df0e7, type: 2}
