@@ -715,22 +715,32 @@ public class GameManager : MonoBehaviour
             base.AdditionalCreation();
             MessageManage.messages.Enqueue(new MessageManage.Messages("")); ;
 
-            MessageManage.messages.Enqueue(new MessageManage.Messages("There is the vault. Get that drill going.", 5000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("You've reached the vault room", 3000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("I've sent some agents to help you retrieve the money.", 5000));
 
+            MessageManage.messages.Enqueue(new MessageManage.Messages("There's the vault, drill that shit open.", 5000));
             MessageManage.messages.Enqueue(new MessageManage.Messages("The vault is a tough cookie, be sure to fix the drill if it gets jammed.", 5000)); ;
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Looks like the Agency is making one final push to save their tax dollars.", 5000)); ;
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Defend the vault and keep that drill drilling.", 5000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("They're coming.", 5000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Don't Die.", 5000));
 
-            MessageManage.messages.Enqueue(new MessageManage.Messages("Wait", 5000)); ;
-            MessageManage.messages.Enqueue(new MessageManage.Messages("They're coming", 1000));
-            MessageManage.messages.Enqueue(new MessageManage.Messages("Defend the drill", 1000)); ;
 
-            MessageManage.messages.Enqueue(new MessageManage.Messages("Don't die", 1000)); ;
 
-            wave = WaveManager.Make(hu, new Vector3(-125.9f, 1.9f, 15.3f), 10, 5, 20,1);
-            wave.StartWave();
 
-            hu.CreateAlly(new Vector3(-2.7f, 13.39f, -9.33f), 1, 20, 0, "Agent Joshua Gomez");
-            hu.CreateAlly(new Vector3(-2.7f, 13.39f, -6), 1, 20, 0, "Agent Andrew Cheung");
-            hu.CreateAlly(new Vector3(-2.7f, 13.39f, -12), 1, 20, 0, "Agent Bryce Chen");
+            /*  MessageManage.messages.Enqueue(new MessageManage.Messages("Wait", 5000)); ;
+              MessageManage.messages.Enqueue(new MessageManage.Messages("They're coming", 1000));
+              MessageManage.messages.Enqueue(new MessageManage.Messages("Defend the drill", 1000)); ;
+
+              MessageManage.messages.Enqueue(new MessageManage.Messages("Don't die", 1000)); ;*/
+            StartListenChain();
+
+         /*   wave = WaveManager.Make(hu, new Vector3(-125.9f, 1.9f, 15.3f), 10, 5, 20,1);
+            wave.StartWave();*/
+            Vector3 playerPos = HumanoidManager.GetPlayerTransform().position;
+            hu.CreateAlly(playerPos + new Vector3(0,0,2), 1, 20, 0, "Agent Joshua Gomez");
+            hu.CreateAlly(playerPos + new Vector3(0, 0, 4), 1, 20, 0, "Agent Andrew Cheung");
+            hu.CreateAlly(playerPos + new Vector3(0, 0, -2), 1, 20, 0, "Agent Bryce Chen");
 
 
             

@@ -27,4 +27,4 @@ MonoBehaviour:
   inventorySlots: 1
   turnSpeed: 3
   shootAngle: 3
-  folloDistance: 10
+  folloDistance: 6

@@ -153,6 +153,7 @@ public class AllyAgent : BehaviourTree
         handPos = new HandPosManage(calls.accessors, parts.hParts.Parts1.rHand, parts.hParts.Parts1.lHand);
         inventory = new Inventory(calls.accessors, parts.itemGameObject, parts.hBarTransform, parts.tag.Tag, handPos, parts.SC);
         head = parts.hParts.Parts1.head;
+        pathfinder.stoppingDistance = parts.SC.FolloDistance;
 
 
     }
