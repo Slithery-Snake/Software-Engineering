@@ -114,10 +114,9 @@ public class MeleeManager : StateManagerComponent
              StatusEffect.StatusEffectManager GetStatus(Collider collision)
             {
                 StatusEffect.StatusEffectManager r = collision?.GetComponent<ShootBox>()?.Status?.Status;
-                if (r != null)
-                {
+              
                     collided = Nothing;
-                }
+                
 
                 return r;
             }

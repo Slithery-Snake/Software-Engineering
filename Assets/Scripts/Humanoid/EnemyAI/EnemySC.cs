@@ -13,6 +13,7 @@ public class EnemySC : HumanoidSC
     [SerializeField] int meleeLength;
     [SerializeField] float followStoppingDistance;
     [SerializeField] float speed;
+    [SerializeField] int shootDistance;
     public float RotateSpeed { get => rotateSpeed; }
     public float ViewLength { get => viewLength; }
     public int ViewAngle { get => viewAngle; }
@@ -22,4 +23,5 @@ public class EnemySC : HumanoidSC
     public float FollowStoppingDistance { get => followStoppingDistance;  }
     public float Speed { get => speed;  }
     public int ID1 { get => ID; }
+    public int ShootDistance { get => shootDistance;}
 }

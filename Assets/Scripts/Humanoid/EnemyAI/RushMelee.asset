@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ec3e5e635d19db4f90e17003a85dfeb, type: 3}
   m_Name: RushMelee
   m_EditorClassIdentifier: 
-  health: 0
+  health: 1200
   light:
     dmg: 20
     length: 0.2
@@ -32,5 +32,6 @@ MonoBehaviour:
   shootAngle: 5
   extraSensoryLength: 4000
   meleeLength: 2
-  followStoppingDistance: 2
-  speed: 5
+  followStoppingDistance: 3
+  speed: 7
+  shootDistance: 0

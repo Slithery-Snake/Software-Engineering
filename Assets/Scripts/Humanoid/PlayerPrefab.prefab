@@ -63,7 +63,7 @@ MonoBehaviour:
     hParts: {fileID: 7929432469571019799}
     jumpFloorMask:
       serializedVersion: 2
-      m_Bits: 8
+      m_Bits: 1
     itemGameObject: {fileID: 3299163849658704503}
     mainCamera: {fileID: 9081343586406583503}
     hotBarTransform: {fileID: 3996690445028940802}

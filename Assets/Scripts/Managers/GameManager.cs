@@ -342,13 +342,15 @@ public class GameManager : MonoBehaviour
             messageManage = new MessageManage(manager);
 
         }
+
         protected void StartListenChain()
         {
             if (MessageManage.messages.Count > 0)
             {
-                MessageManage.currentMessage = MessageManage.messages.Peek();
+                MessageManage.currentMessage = MessageManage.messages.Dequeue();
                 Text.text = MessageManage.currentMessage.TextToDisplay;
                 MessageManage.currentMessage.StartListening();
+                Debug.Log("chian " + MessageManage.currentMessage.TextToDisplay);
             }
         }
         protected override void CleanUp()
@@ -388,13 +390,12 @@ public class GameManager : MonoBehaviour
                 public string TextToDisplay;
                 public int waitUntilNextDisplayMS;
                 private readonly IMonoCall call;
-                private readonly bool fullfillOrder;
                 CancellationTokenSource source;
                 public static event UnityAction MessageEmpty;
-                bool fulfilled = false;
           
                 async void Run(CancellationToken token)
                 {
+                    Debug.Log("message run");
                     try
                     {
                         if (token.IsCancellationRequested)
@@ -412,19 +413,24 @@ public class GameManager : MonoBehaviour
                         }
                         else
                         {
-                            TextToDisplay = "";
+                            SoundCentral.Instance.Invoke(HumanoidManager.GetPlayerTransform(), SoundCentral.SoundTypes.Message, true);
+
                             if (messages.Count > 0)
                             {
+
                                 currentMessage = messages.Dequeue();
 
                                 Text.text = currentMessage.TextToDisplay;
 
 
                                 currentMessage.StartListening();
-                                SoundCentral.Instance.Invoke(HumanoidManager.GetPlayerTransform(), SoundCentral.SoundTypes.Message,true);
+
+                                Debug.Log(messages.Count);
+
                             }
                             else
                             {
+                                Debug.Log("messages empty");
                                 MessageEmpty?.Invoke();
                             }
                            
@@ -457,13 +463,10 @@ public class GameManager : MonoBehaviour
                 }
                 void Fulfilled()
                 {
-                    // Debug.Log("fulfilled");
                     source = new CancellationTokenSource();
                     CancellationToken t = source.Token;
                     call?.Deafen(Fulfilled);
-                    call?.Deafen(SetFullTrue);
 
-                    fulfilled = true;
                     Run(t);
 
 
@@ -471,33 +474,20 @@ public class GameManager : MonoBehaviour
 
                 }
 
-                public Messages(string str, int waitUntilNextDisplayMS = 0, IMonoCall call = null, bool fullfillOrder = true)
+                public Messages(string str, int waitUntilNextDisplayMS = 0, IMonoCall call = null)
                 {
                     TextToDisplay = str;
                     this.waitUntilNextDisplayMS = waitUntilNextDisplayMS;
                     this.call = call;
-                    this.fullfillOrder = fullfillOrder;
-                    if(!fullfillOrder && call == null)
-                    {
-                        fullfillOrder = false;
-                    }
-                    if(!fullfillOrder)
-                    {
+                    
 
-                        if (call != null)
-                        {
-                            call.Listen(SetFullTrue);
-                        }
-                    }
+                      
+                    
                 }
-                void SetFullTrue()
-                {
-                    fulfilled = true;
-                }
+               
                 public void StartListening()
                 {
-                    if (fullfillOrder)
-                    {
+                   
 
                         if (call != null)
                         {
@@ -507,21 +497,9 @@ public class GameManager : MonoBehaviour
                         {
                             Fulfilled();
                         }
-                    } else
-                    {
-                        if(fulfilled)
-                        {
-                            Fulfilled();
-                        } else
-                        {
-
-                            if (call != null)
-                            {
-                                call.Listen(Fulfilled);
-                            }
-                        }
+                 
                     }
-                }
+                
             }
         }
     }
@@ -700,34 +678,60 @@ public class GameManager : MonoBehaviour
         {
             base.CleanUp();
         }
+
+
     }
-   
+    [SerializeField] Vault vaultPrefab;
+
     public class Scene6 : MessageScene
     {
+        Vault vault;
         public Scene6(GameManager manager) : base(manager)
         {
 
         }
         
         WaveManager wave;
-        protected override void AdditionalCreation()
+        void Drillin()
         {
-            base.AdditionalCreation();
-            MessageManage.messages.Enqueue(new MessageManage.Messages("")); ;
+            MessageManage.Messages.MessageEmpty -= Drillin;
+            vault.StarInteraction();
 
-            MessageManage.messages.Enqueue(new MessageManage.Messages("You've reached the vault room", 3000));
-            MessageManage.messages.Enqueue(new MessageManage.Messages("I've sent some agents to help you retrieve the money.", 5000));
 
-            MessageManage.messages.Enqueue(new MessageManage.Messages("There's the vault, drill that shit open.", 5000));
-            MessageManage.messages.Enqueue(new MessageManage.Messages("The vault is a tough cookie, be sure to fix the drill if it gets jammed.", 5000)); ;
-            MessageManage.messages.Enqueue(new MessageManage.Messages("Looks like the Agency is making one final push to save their tax dollars.", 5000)); ;
+            MessageManage.messages.Enqueue(new MessageManage.Messages("We'll need to open that vault. Interact with it and drill that shit open.", 5000,vault.StartedDrilling));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("The vault is a tough cookie, be sure to interact with the drill and fix it when it gets jammed.", 6000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Looks like the Agency is making one final push to save their tax dollars.", 5000));
             MessageManage.messages.Enqueue(new MessageManage.Messages("Defend the vault and keep that drill drilling.", 5000));
             MessageManage.messages.Enqueue(new MessageManage.Messages("They're coming.", 5000));
             MessageManage.messages.Enqueue(new MessageManage.Messages("Don't Die.", 5000));
 
+            Debug.Log(MessageManage.messages.Count);
+            StartListenChain();
+            MessageManage.Messages.MessageEmpty += Wave;
+            vault.EnteredVault += HolyShitYouDidItYay;
+            vault.VaultOpened += VaultOpened;
 
+        }
+        void Wave()
+        {
+            MessageManage.Messages.MessageEmpty -= Wave;
+            wave = WaveManager.Make(hu, new Vector3(-125.9f, 1.9f, 15.3f), 5, 5, 20, 5);
 
+            wave.StartWave();
 
+        }
+        protected override void AdditionalCreation()
+        {
+            base.AdditionalCreation();
+            MessageManage.messages.Enqueue(new MessageManage.Messages("", 1000)); 
+
+          //  MessageManage.messages.Enqueue(new MessageManage.Messages("You've reached the vault room", 3000));
+           // MessageManage.messages.Enqueue(new MessageManage.Messages("I've sent some agents and supplies to help you retrieve the money.", 5000));
+            MessageManage.Messages.MessageEmpty += Drillin;
+         
+
+            vault = Instantiate (manager.vaultPrefab, new Vector3(-0.17f, 2.2899999f, -7.8499999f), Quaternion.Euler(new Vector3(0,270,0)));
+      
             /*  MessageManage.messages.Enqueue(new MessageManage.Messages("Wait", 5000)); ;
               MessageManage.messages.Enqueue(new MessageManage.Messages("They're coming", 1000));
               MessageManage.messages.Enqueue(new MessageManage.Messages("Defend the drill", 1000)); ;
@@ -735,15 +739,31 @@ public class GameManager : MonoBehaviour
               MessageManage.messages.Enqueue(new MessageManage.Messages("Don't die", 1000)); ;*/
             StartListenChain();
 
-         /*   wave = WaveManager.Make(hu, new Vector3(-125.9f, 1.9f, 15.3f), 10, 5, 20,1);
-            wave.StartWave();*/
+           
             Vector3 playerPos = HumanoidManager.GetPlayerTransform().position;
-            hu.CreateAlly(playerPos + new Vector3(0,0,2), 1, 20, 0, "Agent Joshua Gomez");
-            hu.CreateAlly(playerPos + new Vector3(0, 0, 4), 1, 20, 0, "Agent Andrew Cheung");
+            hu.CreateAlly(playerPos + new Vector3(0,0,2), 2, 21, 0, "Agent Joshua Gomez");
+            hu.CreateAlly(playerPos + new Vector3(0, 0, 4), 3, 22, 0, "Agent Andrew Cheung");
             hu.CreateAlly(playerPos + new Vector3(0, 0, -2), 1, 20, 0, "Agent Bryce Chen");
 
 
             
+
+        }
+        void VaultOpened()
+        {
+            vault.VaultOpened -= VaultOpened;
+
+            wave.StopWave();
+            MessageManage.messages.Enqueue(new MessageManage.Messages("THE VAULTS OPEN, GET INSIDE ", 5000));
+            StartListenChain();
+
+
+        }
+        void HolyShitYouDidItYay()
+        {
+           
+            vault.EnteredVault -= HolyShitYouDidItYay;
+            InvokeLevelDone();
 
         }
 

@@ -94,7 +94,8 @@ public class Movement : StateManagerComponent
     
     public bool GroundCheck()
     {
-       bool isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, gMask); //create an invisible sphere (physics.checksphere), at the position, with this radius, return true if layer is matching.
+        //    bool isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, gMask); //create an invisible sphere (physics.checksphere), at the position, with this radius, return true if layer is matching.
+        bool isGrounded = pController.isGrounded;
         if (isGrounded == true && yVeloc.y < 0)
         {
             yVeloc.y = -2f;

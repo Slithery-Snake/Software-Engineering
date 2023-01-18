@@ -11,7 +11,7 @@ public class AutoShooting : Shooting
     {if (hasAmmo&& canFire && roundChambered )
         {
             StopRout();
-            shootRout = StartCoroutine(Shooting());
+            shootRout = StartCoroutine(Shooting()); 
             
         }
     }

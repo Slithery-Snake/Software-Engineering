@@ -18,7 +18,7 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
     public delegate void PlaySoundAt(Vector3 v, SoundTypes s);
     public enum SoundTypes {
          
-        PistolShoot, PistolMag, PistolCharge, SMGShoot, SMGMag, SMGCharge,   ShottyShoot, ShottyMag, ShottyCharge, Sprint, Jump, LightPunch, HeavyPunch, Heal, Message, GunClick, SlowHeartBeat
+        PistolShoot, PistolMag, PistolCharge, SMGShoot, SMGMag, SMGCharge,   ShottyShoot, ShottyMag, ShottyCharge, Sprint, Jump, LightPunch, HeavyPunch, Heal, Message, GunClick, SlowHeartBeat, Drill, DrillBeep
 
     }
     AudioSource playAtPointFab;
@@ -130,13 +130,14 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
     }
     
 
-   public async Task PlaySound( SoundAndLocation sal)
+   public async Task<AudioSource> PlaySound( SoundAndLocation sal)
     {
         AudioClip clip = null;
             soundToClips.TryGetValue(sal.type, out clip);
         AudioSource source = Instantiate(playAtPointFab);
         source.clip = clip;
         source.transform.position = sal.v;
+       
         if(sal.twoDSound)
         {
             source.spatialBlend = 0;
@@ -151,10 +152,33 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         {
             Destroy(source.gameObject);
         }
-
+        return source;
     }
- 
-    public async Task PlaySound(SoundAndTransform sal)
+    public AudioSource PlaySoundLoop(SoundAndLocation sal)
+    {
+        
+            AudioClip clip = null;
+            soundToClips.TryGetValue(sal.type, out clip);
+            AudioSource source = Instantiate(playAtPointFab);
+            source.clip = clip;
+       
+        source.transform.position = sal.v;
+            //   source.transform.SetParent(sal.source.transform);
+            if (sal.twoDSound)
+            {
+                source.spatialBlend = 0;
+            }
+            else
+            {
+                source.spatialBlend = 1;
+            }
+        source.loop = true;
+            source.Play();
+            return source;
+
+        
+    }
+    public async Task<AudioSource> PlaySound(SoundAndTransform sal)
     {
         AudioClip clip = null;
         soundToClips.TryGetValue(sal.type, out clip);
@@ -177,6 +201,7 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
         {
             Destroy(source.gameObject);
         }
+        return source;
 
     }
 

@@ -28,3 +28,5 @@ MonoBehaviour:
   turnSpeed: 3
   shootAngle: 3
   folloDistance: 6
+  viewingDistance: 100
+  shootingDistance: 60

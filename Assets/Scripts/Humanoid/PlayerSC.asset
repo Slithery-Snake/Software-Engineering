@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a200591a4ba3e804a87dbce0bef99cc5, type: 3}
   m_Name: PlayerSC
   m_EditorClassIdentifier: 
-  health: 250
+  health: 400
   light:
     dmg: 35
     length: 0.2

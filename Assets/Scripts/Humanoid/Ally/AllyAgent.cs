@@ -33,6 +33,7 @@ public class AllyAgent : BehaviourTree
     [SerializeField] TextMeshPro nameTag;
     int ignoreAllButSolidCoverAndPlayer = (1 << Constants.environment | 1 << Constants.enemyMask | 1<< Constants.agentMask);
     Transform head;
+    int view;
     Transform target = null;
     private void OnDestroy()
     {
@@ -59,14 +60,13 @@ public class AllyAgent : BehaviourTree
   
     bool IsExposed()
     {
-        Debug.Log(target);
         return SeeExposed(target);
     }
     bool SeeExposed(Transform target)
     {
         RaycastHit hit;
         Physics.Linecast(head.position, target.position, out hit, ignoreAllButSolidCoverAndPlayer, QueryTriggerInteraction.Collide);
-        if (hit.transform?.gameObject.layer == Constants.enemyMask)
+        if (hit.transform?.gameObject.layer == Constants.enemyMask && (target.position - transform.position).magnitude < view)
         {
             return true;
         }
@@ -155,7 +155,7 @@ public class AllyAgent : BehaviourTree
         head = parts.hParts.Parts1.head;
         pathfinder.stoppingDistance = parts.SC.FolloDistance;
 
-
+        view = parts.SC.ViewingDistance;
     }
    Transform Target { get { return target; }  }
 
@@ -165,7 +165,7 @@ public class AllyAgent : BehaviourTree
     {
         Ammo am = manager.CreateAmmo(new ItemManager.AmmoStruct(Vector3.zero, aid, 1000, true));
         inventory.AddAmmo(am);
-        shootNode = new ShootNode(inventory,parts.hParts.Parts1.body,parts.SC.ShootAngle,IsExposed, Target);
+        shootNode = new ShootNode(inventory,parts.hParts.Parts1.body,parts.SC.ShootAngle,IsExposed, Target, parts.SC.ViewingDistance);
         reloadNode = new ReloadNode(inventory);
         inventory.AddGun(manager.CreateGun(new ItemManager.GunStruct(Vector3.zero, gid, true)));
         targetTrack = new TrackTarget(this, parts.hParts.Parts1.body, parts.SC, shootNode);

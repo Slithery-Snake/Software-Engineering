@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5404945966997951352, guid: b9b05a027baeb3c4196ec9a11309c35d, type: 3}
+      propertyPath: m_Center.y
+      value: -0.18
+      objectReference: {fileID: 0}
     - target: {fileID: 6338679652141314919, guid: b9b05a027baeb3c4196ec9a11309c35d, type: 3}
       propertyPath: m_Name
       value: SMGAmmo
@@ -63,6 +67,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 8675756067102013401, guid: b9b05a027baeb3c4196ec9a11309c35d, type: 3}
+    - {fileID: 361825301159029794, guid: b9b05a027baeb3c4196ec9a11309c35d, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 6745395023848690902, guid: b9b05a027baeb3c4196ec9a11309c35d, type: 3}
       insertIndex: -1
@@ -88,23 +93,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bb2e3ecd058461d43bf646344e39b6ab, type: 3}
       propertyPath: m_LocalScale.x
-      value: 10
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bb2e3ecd058461d43bf646344e39b6ab, type: 3}
       propertyPath: m_LocalScale.y
-      value: 10
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bb2e3ecd058461d43bf646344e39b6ab, type: 3}
       propertyPath: m_LocalScale.z
-      value: 10
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bb2e3ecd058461d43bf646344e39b6ab, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.015
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bb2e3ecd058461d43bf646344e39b6ab, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.403
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bb2e3ecd058461d43bf646344e39b6ab, type: 3}
       propertyPath: m_LocalPosition.z
@@ -137,6 +142,10 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: bb2e3ecd058461d43bf646344e39b6ab, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: bb2e3ecd058461d43bf646344e39b6ab, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: bb2e3ecd058461d43bf646344e39b6ab, type: 3}
       propertyPath: m_Name

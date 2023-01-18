@@ -118,7 +118,7 @@ namespace EnemyStuff
             
             Debug.Log(HumanoidManager.GetPlayerTransform());
             reloadNode = new ReloadNode(inventory);
-            shootNode = new ShootNode(inventory, enemyParts.hParts.Parts1.body, enemyParts.enemySC.ShootAngle, IsExposed, HumanoidManager.GetPlayerTransform());
+            shootNode = new ShootNode(inventory, enemyParts.hParts.Parts1.body, enemyParts.enemySC.ShootAngle, IsExposed, HumanoidManager.GetPlayerTransform(), enemyParts.enemySC.ShootDistance);
             Debug.Log(HumanoidManager.GetPlayerTransform());
             inventory.AddGun(manager.CreateGun(new ItemManager.GunStruct(Vector3.zero,weap, true)));
            second = new Selector(new List<Node> { shootNode, reloadNode });
@@ -484,6 +484,7 @@ namespace EnemyStuff
         protected  Transform target;
         CollectiveGun gun;
         Shooting shoot;
+        int shootDistance;
          void RecordAdded(Inventory.IntGun h)
         {
             linkedSlot.AddFirst(h.i);
@@ -510,7 +511,7 @@ namespace EnemyStuff
             
             float angle = Vector3.Angle(pPos - myPos, transform.forward);
 
-            if (angle <= sangle && exposeCheck())
+            if (angle <= sangle && exposeCheck() && (myPos - pPos).magnitude < shootDistance)
             {
                 return true;
             }
@@ -528,7 +529,7 @@ namespace EnemyStuff
         {
             target = t;
         }
-        public ShootNode(Inventory inventory, Transform transform, float sangle, Func<bool> m, Transform hi)
+        public ShootNode(Inventory inventory, Transform transform, float sangle, Func<bool> m, Transform hi, int sc)
         {
             this.inventory = inventory;
             linkedSlot = new LinkedList<int>();
@@ -537,8 +538,10 @@ namespace EnemyStuff
             this.sangle = sangle;
             this.exposeCheck = m;
             this.target = hi;
+            this.shootDistance = sc;
             
         }
+        
         public override NodeState Evaluate()
         {
             

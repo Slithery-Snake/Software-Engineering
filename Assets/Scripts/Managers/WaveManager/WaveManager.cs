@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.Events;
 public class WaveManager : MonoBehaviour
 {
-    public event UnityAction WaveDone;
     [SerializeField] int enemiesPerWave;
     [SerializeField] int wavesAmount;
     HumanoidManager huManager;
@@ -13,6 +12,7 @@ public class WaveManager : MonoBehaviour
     WaitForSecondsRealtime waitSpawn;
     WaitForSecondsRealtime waitEnd;
     int eCount;
+    Coroutine wave;
     Vector3 spawnPos;
     public static WaveManager Make(HumanoidManager hu, Vector3 spawnPos, int enemiesPerWave,int wavesAmount, int waitBetweenWave, int waitBetweenSpan)
     {
@@ -44,33 +44,38 @@ public class WaveManager : MonoBehaviour
     {
         huManager.CreateEnemy(e);
     }
+    public void StopWave()
+    {
+        StopCoroutine(wave);
+    }
     public void StartWave()
     {
-        StartCoroutine(Wave());
+      wave =  StartCoroutine(Wave());
     }
     IEnumerator Wave()
     {
-        for(int i = 0; i < wavesAmount;i ++)
+        while (true)
         {
 
-            for(int j = 0; j< enemiesPerWave; j ++)
+            for (int j = 0; j < enemiesPerWave; j++)
             {
-                int mOrG = Random.Range(1, 6);
-               if(mOrG == 1)
+                int mOrG = Random.Range(1, 5);
+                if (mOrG == 1)
                 {
                     huManager.CreateEnemy(spawnPos, 0, 3);
-                } else
+                }
+                else
                 {
                     int whichGun = Random.Range(1, 4);
-                    huManager.CreateEnemy(spawnPos, whichGun, whichGun + 19,0, 2);
+                    huManager.CreateEnemy(spawnPos, whichGun, whichGun + 19, 0, 2);
                 }
                 Debug.Log("spawned");
                 yield return waitSpawn;
             }
 
-            yield return waitEnd ;
+            yield return waitEnd;
         }
-        WaveDone?.Invoke();
+        
     }
    
 }

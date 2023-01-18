@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ec3e5e635d19db4f90e17003a85dfeb, type: 3}
   m_Name: RushShooter
   m_EditorClassIdentifier: 
-  health: 125
+  health: 700
   light:
     dmg: 20
     length: 0.2
@@ -34,3 +34,4 @@ MonoBehaviour:
   meleeLength: 2
   followStoppingDistance: 10
   speed: 6
+  shootDistance: 60
