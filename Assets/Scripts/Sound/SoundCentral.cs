@@ -1,7 +1,8 @@
     using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Audio;
+using UnityEngine.Scripting;
+using UnityEngine.Animations;
 using System;
 using UnityEngine.Events;
 using UnityEngine.Pool;
@@ -35,12 +36,14 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
             soundToClips.Add(soundsToAudios[i].type, soundsToAudios[i].clip);
         }
         playAtPointFab = new GameObject().AddComponent<AudioSource>();
+        playAtPointFab.gameObject.AddComponent<ParentConstraint>();
         playAtPointFab.spatialBlend = 1;
         playAtPointFab.spread = 360;
 
         
 
     }
+ 
     protected override void OnDestroy()
     {
         base.OnDestroy();
@@ -178,13 +181,23 @@ public class SoundCentral : SingletonBaseClass<SoundCentral>
 
         
     }
+    ConstraintSource cS;
+
     public async Task<AudioSource> PlaySound(SoundAndTransform sal)
     {
         AudioClip clip = null;
         soundToClips.TryGetValue(sal.type, out clip);
         AudioSource source = Instantiate(playAtPointFab);
         source.clip = clip;
-        source.transform.SetParent(sal.v, true);
+        //  source.transform.SetParent(sal.v, true);
+      ParentConstraint constraint =  source.gameObject.GetComponent<ParentConstraint>();
+        
+        cS.sourceTransform = sal.v;
+        cS.weight = 1;
+        constraint.AddSource(cS);
+        constraint.constraintActive = true;
+
+
         //   source.transform.SetParent(sal.source.transform);
         if (sal.twoDSound)
         {

@@ -29,7 +29,7 @@ MonoBehaviour:
   slowAdvantage: 5
   slowBarMax: 20
   slowBarDecrement: 1
-  slowBarIncrement: 5
+  slowBarIncrement: 2
   runSpeed: 6
   walkSpeed: 4
   staminaBarMax: 50

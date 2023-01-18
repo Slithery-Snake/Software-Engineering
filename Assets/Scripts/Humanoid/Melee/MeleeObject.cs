@@ -115,7 +115,6 @@ public class MeleeManager : StateManagerComponent
             {
                 StatusEffect.StatusEffectManager r = collision?.GetComponent<ShootBox>()?.Status?.Status;
               
-                    collided = Nothing;
                 
 
                 return r;
@@ -127,15 +126,27 @@ public class MeleeManager : StateManagerComponent
                 s?.AddStatusEffect(new StatusEffect.StatusEffectManager.Melee(sc.Heavy.dmg), tag);
 
                 s?.AddStatusEffect(new StatusEffect.StatusEffectManager.StunApply(sc.StunTime), tag);
-                SoundCentral.Instance.Invoke(transform.position, SoundCentral.SoundTypes.HeavyPunch);
-                
+                if(s!= null)
+                {
+                    collided = Nothing;
+                    SoundCentral.Instance.Invoke(transform.position, SoundCentral.SoundTypes.HeavyPunch);
+
+                }
+
+
 
             }
             void Light(Collider collision, BulletTag tag)
             {
-                GetStatus(collision)?.AddStatusEffect(new StatusEffect.StatusEffectManager.Melee(sc.Light.dmg), tag);
+                StatusEffect.StatusEffectManager s = GetStatus(collision);
+                s?.AddStatusEffect(new StatusEffect.StatusEffectManager.Melee(sc.Light.dmg), tag);
 
-                SoundCentral.Instance.Invoke(transform.position, SoundCentral.SoundTypes.LightPunch);
+                if (s != null)
+                {
+                    collided = Nothing;
+                    SoundCentral.Instance.Invoke(transform.position, SoundCentral.SoundTypes.LightPunch);
+
+                }
 
             }
             private void OnTriggerEnter(Collider other)

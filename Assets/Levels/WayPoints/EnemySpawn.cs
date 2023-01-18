@@ -14,5 +14,6 @@ public class EnemySpawn : MonoBehaviour
         s.v = transform.position;
         s.degree = transform.eulerAngles.y;
         GameManager.SpawnData.enemy.Add(s);
+        gameObject.SetActive(false);
     }
 }

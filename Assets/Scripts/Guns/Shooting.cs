@@ -225,7 +225,7 @@ public class Shooting : MonoBehaviour
                 //  Debug.Log(position);
                 // bullet.transform.position = position;
                 bullet.Shoot(position, direction, bTag);
-                InvokeShotEvent(position);
+                InvokeShotEvent(barrelTransform);
                 // searDown = ItemData.isAuto;
                 // bullet.Rg.velocity = 
                 // bullet.Rg.AddForce(direction * bullet.SC.ForceMagnitude, ForceMode.Impulse);
@@ -242,9 +242,9 @@ public class Shooting : MonoBehaviour
 
     }
 
-    protected void InvokeShotEvent(Vector3 v)
+    protected void InvokeShotEvent(Transform v)
     {
-        SoundCentral.Instance.Invoke(transform, itemData.ShootSound);
+        SoundCentral.Instance.Invoke(v, itemData.ShootSound);
         someBulletShot.Call();
 
     }

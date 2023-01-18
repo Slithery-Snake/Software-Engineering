@@ -20,7 +20,7 @@ public static class Constants
     public static readonly int managerScene = 0;
     public static readonly int menuScene = 1;
     public static readonly int levelStartScene = 2;
-    public static readonly int levelIndexes = 5;
+    public static readonly int levelIndexes = 6;
     public static readonly int agentMask = 11;
 }
 
@@ -114,6 +114,7 @@ public class GameManager : MonoBehaviour
             levelScenes.Add(new Scene4(manager));
             levelScenes.Add(new Scene5(manager));
             levelScenes.Add(new Scene6(manager));
+            levelScenes.Add(new Scene7(manager));
 
 
 
@@ -559,7 +560,7 @@ public class GameManager : MonoBehaviour
 
             MessageManage.messages.Enqueue(new MessageManage.Messages("Hello  agent, let's get straight into it", 3000));
             MessageManage.messages.Enqueue(new MessageManage.Messages("Get used to your combat suit. Try Moving around. (WASD to move, space to jump, shift to sprint)", 4000,HumanoidManager.PlayerMovedCall));
-            MessageManage.messages.Enqueue(new MessageManage.Messages("Good. On your interface, you'll see a red, blue, and black bar. The red bar is your health, the blue bar is your stamina, and the black bar are your adrenaline levels (press V to toggle an adrenaline rush)", 6000, TimeSlow.TimeSlowAttempted));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("Good. On your interface, you'll see a red, blue, and black bar. The red bar is your health, the blue bar is your stamina, and the black bar are your adrenaline levels (press V to toggle an adrenaline rush)", 6000, TimeNormal.TimeSlowAttempted));
             MessageManage.messages.Enqueue(new MessageManage.Messages("You aren't in a dangeorus situation for now, so nothing will happen (kill enemies to build up adrenaline)", 8000));
 
             MessageManage.messages.Enqueue(new MessageManage.Messages("Pick up those items and ammo (press E when close and looking)" , 2000, player.Inventory.SomeItemAddded));
@@ -725,18 +726,14 @@ public class GameManager : MonoBehaviour
             base.AdditionalCreation();
             MessageManage.messages.Enqueue(new MessageManage.Messages("", 1000)); 
 
-          //  MessageManage.messages.Enqueue(new MessageManage.Messages("You've reached the vault room", 3000));
-           // MessageManage.messages.Enqueue(new MessageManage.Messages("I've sent some agents and supplies to help you retrieve the money.", 5000));
+           MessageManage.messages.Enqueue(new MessageManage.Messages("You've reached the vault room", 3000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("I've sent some agents and supplies to help you retrieve the money.", 5000));
             MessageManage.Messages.MessageEmpty += Drillin;
          
 
             vault = Instantiate (manager.vaultPrefab, new Vector3(-0.17f, 2.2899999f, -7.8499999f), Quaternion.Euler(new Vector3(0,270,0)));
       
-            /*  MessageManage.messages.Enqueue(new MessageManage.Messages("Wait", 5000)); ;
-              MessageManage.messages.Enqueue(new MessageManage.Messages("They're coming", 1000));
-              MessageManage.messages.Enqueue(new MessageManage.Messages("Defend the drill", 1000)); ;
 
-              MessageManage.messages.Enqueue(new MessageManage.Messages("Don't die", 1000)); ;*/
             StartListenChain();
 
            
@@ -754,7 +751,7 @@ public class GameManager : MonoBehaviour
             vault.VaultOpened -= VaultOpened;
 
             wave.StopWave();
-            MessageManage.messages.Enqueue(new MessageManage.Messages("THE VAULTS OPEN, GET INSIDE ", 5000));
+            MessageManage.messages.Enqueue(new MessageManage.Messages("THE VAULT'S OPEN, GET INSIDE ", 5000));
             StartListenChain();
 
 
@@ -763,6 +760,7 @@ public class GameManager : MonoBehaviour
         {
            
             vault.EnteredVault -= HolyShitYouDidItYay;
+
             InvokeLevelDone();
 
         }
@@ -770,10 +768,58 @@ public class GameManager : MonoBehaviour
         protected override void CleanUp()
         {
             base.CleanUp();
+            MessageManage.Messages.MessageEmpty -= Drillin;
+            MessageManage.Messages.MessageEmpty -= Wave;
+            if (vault != null)
+            {
+                vault.EnteredVault -= HolyShitYouDidItYay;
+                vault.VaultOpened -= VaultOpened;
+            }
         }
     }
 
+    public class Scene7 : MessageScene
+    {
+        public Scene7(GameManager manager) : base(manager)
+        {
+        }
+        protected override void AdditionalCreation()
+        {
+            base.AdditionalCreation();
+            MessageManage.messages.Enqueue(new MessageManage.Messages("", 1000));
 
+            MessageManage.messages.Enqueue(new MessageManage.Messages("YOU CRAZY SONS OF BITCHES, YOU DID IT!", 6000));
+
+            StartListenChain();
+            MessageManage.Messages.MessageEmpty += Done;
+
+            Vector3 playerPos = HumanoidManager.GetPlayerTransform().position;
+            hu.CreateAlly(playerPos + new Vector3(10.5f, 0, 11), 2, 21, 0, "Agent Joshua Gomez");
+            hu.CreateAlly(playerPos + new Vector3(10.5f, 0, 11), 3, 22, 0, "Agent Andrew Cheung");
+            hu.CreateAlly(playerPos + new Vector3(10.5f, 0, 11), 1, 20, 0, "Agent Bryce Chen");
+
+        
+
+
+        }
+        void Done()
+        {
+            MessageManage.Messages.MessageEmpty -= Done;
+            manager.StartCoroutine(End());
+        }
+        IEnumerator End()
+        {
+            yield return ui.PlayerUI.StartFadeOut();
+            InvokeLevelDone();
+        }
+        protected override void CleanUp()
+        {
+            MessageManage.Messages.MessageEmpty -= Done;
+
+            base.CleanUp();
+
+        }
+    }
     public class DefaultSpawnScene : SceneCreation
     {   
       

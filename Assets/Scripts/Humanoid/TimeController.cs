@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using UnityEngine.Events;
 using System.Collections;
 public class TimeNormal : TimeDisabled
-{   
-    
+{
+    static MonoCall timeSlowAttempted = new MonoCall();
+
+    public static IMonoCall TimeSlowAttempted { get => timeSlowAttempted; }
     public TimeNormal(PInputManager manager, TimeController time) : base(manager, time)
     {
     }
@@ -18,17 +20,19 @@ public class TimeNormal : TimeDisabled
     
     public override void HandleKeyDownInput( KeyCode keyCode)
     {
-        if(keyCode == KeyCode.V && time.BulletBar > 0)
+        if(keyCode == KeyCode.V )
         {
-            manager.ChangeToState(manager.SlowTime, manager.TimeState);   
+            timeSlowAttempted.Call();
+            if (time.BulletBar > 0)
+            {
+                manager.ChangeToState(manager.SlowTime, manager.TimeState);
+            }
         }
     }
 }
 public class TimeSlow : TimeDisabled
 {
-    static MonoCall timeSlowAttempted = new MonoCall();
-
-    public static IMonoCall TimeSlowAttempted { get => timeSlowAttempted; }
+   
     CancellationTokenSource token;
     public TimeSlow(PInputManager manager, TimeController time) : base(manager, time)
     {
@@ -72,7 +76,6 @@ public class TimeSlow : TimeDisabled
       
             StartLoop();
         
-        timeSlowAttempted.Call();
         time.BarZero += Time_BarZero;
        
         time.SetSlow(true);

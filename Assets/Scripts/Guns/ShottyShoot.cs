@@ -40,7 +40,7 @@ public class ShottyShoot : Shooting
 
                     bullet.Shoot(position, Randomize(direction), bTag);
                 }
-                InvokeShotEvent(position);
+                InvokeShotEvent(barrelTransform);
                 //     InvokeShotEvent(position);
 
 

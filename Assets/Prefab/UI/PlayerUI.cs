@@ -33,9 +33,9 @@ public class PlayerUI : MonoBehaviour
     {
         bBarChange.StartLerp(target);
     }
-     void StartFadeOut()
+   public  Coroutine StartFadeOut()
     {
-        StartCoroutine(Fade());
+     return   StartCoroutine(Fade());
     }
     IEnumerator Fade()
     {
@@ -45,7 +45,7 @@ public class PlayerUI : MonoBehaviour
             elapsed += Time.deltaTime;
 
             Color c = fadeOut.color;
-            c.a = 0 + (1 - 0) * (elapsed / 3);
+            c.a = 0 + (1 - 0) * (elapsed / 5);
             fadeOut.color = c;         
 
             yield return new WaitForEndOfFrame();
@@ -56,7 +56,6 @@ public class PlayerUI : MonoBehaviour
         bBarChange = LerpBar.Create(bBar, sc.SlowBarMax, 0, bBar.gameObject, sc.StaminaBarTick);
         board.StaminaChanged +=           staminaChange.StartLerp;
         Color c = fadeOut.color;
-        GameManager.FinalLevelDone += StartFadeOut;
         c.a = 0;
         fadeOut.color = c;
 
@@ -80,7 +79,6 @@ public class PlayerUI : MonoBehaviour
     }
     private void OnDestroy()
     {
-        GameManager.FinalLevelDone -= StartFadeOut;
 
         board.StaminaChanged -= staminaChange.StartLerp;
         board.HealthChanged -= UpdateHealth;

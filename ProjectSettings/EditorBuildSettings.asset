@@ -32,4 +32,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Levels/Level 5.unity
     guid: efd41359633d41041aebe946be67fc42
+  - enabled: 1
+    path: Assets/Levels/VaultFinal.unity
+    guid: addd5e858f746b74faff62612ee7b7fb
   m_configObjects: {}

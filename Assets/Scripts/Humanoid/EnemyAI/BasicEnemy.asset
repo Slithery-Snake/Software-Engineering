@@ -34,3 +34,4 @@ MonoBehaviour:
   meleeLength: 4
   followStoppingDistance: 2
   speed: 4
+  shootDistance: 40

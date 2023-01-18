@@ -13,6 +13,7 @@ public class EnemyGunner : MonoBehaviour
         s.estruct.degree = transform.eulerAngles.y;
         Point?.Invoke(s);
         GameManager.SpawnData.gunners.Add(s);
+        gameObject.SetActive(false);
 
     }
 }
