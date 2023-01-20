@@ -101,7 +101,7 @@ public class Door : MonoBehaviour, Iinteractable
         }
     }
 
-    public void Interacted(PInputManager source)
+    public void Interacted(SourceProvider source)
     {
         
     }

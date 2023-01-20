@@ -10,7 +10,7 @@ public class EquippedGun : Equipped
     {
         
     }
-    public override void EnterState(PInputManager stateManager)
+    public override void EnterState()
     {
 
         SetItem();
@@ -21,9 +21,9 @@ public class EquippedGun : Equipped
         gun = inventory.CurrentGun;
 
     }
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keyCode)
+    public override void HandleKeyDownInput( KeyCode keyCode)
     {
-        base.HandleKeyDownInput(stateManager, keyCode);
+        base.HandleKeyDownInput( keyCode);
       
         if(keyCode == KeyCode.R)
         {
@@ -31,7 +31,7 @@ public class EquippedGun : Equipped
            
         }
     }
-    public override void ExitState(PInputManager stateManager)
+    public override void ExitState()
     {
     }
 }

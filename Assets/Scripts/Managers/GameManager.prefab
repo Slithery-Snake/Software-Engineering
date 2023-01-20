@@ -47,3 +47,6 @@ MonoBehaviour:
   bulletSpawn: {fileID: 1471728416341084453, guid: 8c62f93fabec56542a3899decaa9ed27, type: 3}
   itemManager: {fileID: -5017814224388737003, guid: 93ed83ede0c9f4f4bb3795184448fa68, type: 3}
   humanoidManager: {fileID: -4494337445345391112, guid: 08e4512195947c44e8e8e086b105fd17, type: 3}
+  uiManager: {fileID: -2143624381980946353, guid: b595e87bd5c8abf469f9f937b3f09595, type: 3}
+  soundManager: {fileID: 1807480567942943235, guid: e163282ee5b4cac429c14c0f73e6bc94, type: 3}
+  vaultPrefab: {fileID: 1242427415946915880, guid: 049567f98b26ad94fb76342e7809cf23, type: 3}

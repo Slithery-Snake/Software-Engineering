@@ -17,15 +17,15 @@ public class InAir : Grounded
         }
 
     }
-    public override void HandleKeyDownInput(PInputManager stateManager, KeyCode keycode)
+    public override void HandleKeyDownInput( KeyCode keycode)
     {
        // base.HandleKeyDownInput(stateManager, keycode);
     }
-    public override void EnterState(PInputManager stateManager)
+    public override void EnterState()
     {
         manager.MonoAcessors.UpdateCall.Listen(Fall);
     }
-    public override void ExitState(PInputManager stateManager)
+    public override void ExitState()
     {
         manager.MonoAcessors.UpdateCall.Deafen(Fall);
     }
