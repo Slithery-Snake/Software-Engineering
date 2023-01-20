@@ -33,7 +33,7 @@ namespace TMPro.Examples
         public float MovementSmoothingValue = 25f;
         public float RotationSmoothingValue = 5.0f;
 
-        public float MoveSensitivity = 2.0f;
+        public float MoveSensitivity = 5.0f;
 
         private Vector3 currentVelocity = Vector3.zero;
         private Vector3 desiredPosition;
